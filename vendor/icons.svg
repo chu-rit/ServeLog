@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute; width:0; height:0; overflow:hidden;">
+  <defs>
+    <!-- Clock with plus badge icon -->
+    <symbol id="icon-assist" viewBox="0 0 24 24">
+      <!-- clock body -->
+      <circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+      <!-- clock hands -->
+      <path d="M10 6 v4 l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- plus badge circle -->
+      <circle cx="17.5" cy="17.5" r="5.5" fill="currentColor" opacity="0.15"/>
+      <!-- plus sign -->
+      <path d="M17.5 14.5 v6 M14.5 17.5 h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
