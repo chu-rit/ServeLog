@@ -91,8 +91,12 @@
         .year_summary {margin-top: 6px;}
         .year_summary .ym_table {width: 100%; table-layout: fixed; border-collapse: collapse;}
         .year_summary .ym_table td {padding: 4px 2px; text-align: center; vertical-align: middle;}
+        .year_summary .ym_table td {cursor: pointer;}
         .year_summary .ym_label {display:block; color:#b7b2ae; font-size: 11px;}
         .year_summary .ym_time {display:block; color:#fff; font-weight: 700; font-size: 12px;}
+        /* toggle buttons (classic style) */
+        .time .toggle {display:inline-block; padding:4px 8px; border:1px solid #b7b2ae; border-radius:6px; margin-right:4px; color:#333; background:#fff; font-size:12px;}
+        .time .toggle.active {background:#231306; color:#fff; border-color:#231306;}
         /* drag handle icon */
         .itmbar .drag_handle {width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 6px; touch-action: none; cursor: ns-resize;}
         .itmbar .drag_handle i {color: #b7b2ae; font-size: 20px;}
@@ -127,7 +131,7 @@
         .memo li { height: 50px; display: block; line-height: 50px; text-align: center;}
 
         .c_red {color: #D1635D;}
-        .dayDetail {padding: 10px 20px 100px;}
+        .dayDetail {padding: 10px 20px 150px;}
         .dayDetail>div {padding:10px 0; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between;}
         .dayDetail label {width: 40px; display: block; color: #000; line-height: 28px; text-align: center;}
         .dayDetail input {width: 40px; background: none; border: none; font-size: 15px;  font-weight: bold; color: #000; text-align: center;}
@@ -255,17 +259,17 @@
                 </table>
                 <div class="year_summary_wrap" :style="{height: ysHeight + 'px'}">
                     <div ref="ysInner">
-                        <div class="year_title" style="padding-top:5px;">{{ academicYear(cdate) }} 봉사연도({{ yearTotalHoursHhMm }})</div>
+                        <div class="year_title" style="padding-top:5px;">{{ academicYear(cdate) }} 봉사연도({{ yearTotalCombinedCappedHhMm }})</div>
                         <div class="year_summary" style="padding-top:1px;">
                             <table class="ym_table">
                             <tr>
-                                <td v-for="cell in yearRows[0]" :key="'ys1_'+cell.key">
+                                <td v-for="cell in yearRows[0]" :key="'ys1_'+cell.key" @click="goToMonth(cell.m)">
                                     <span class="ym_label">{{ cell.label }}</span>
                                     <span class="ym_time">{{ cell.time }}</span>
                                 </td>
                             </tr>
                             <tr>
-                                <td v-for="cell in yearRows[1]" :key="'ys2_'+cell.key">
+                                <td v-for="cell in yearRows[1]" :key="'ys2_'+cell.key" @click="goToMonth(cell.m)">
                                     <span class="ym_label">{{ cell.label }}</span>
                                     <span class="ym_time">{{ cell.time }}</span>
                                 </td>
@@ -337,31 +341,37 @@
 
             <div v-if="sltdate != ''" class="dayDetail">
                 <div class="time">
-                    <div><label for="f_Hours">시간</label><input readonly type="text" id="f_Hours" v-model="form.Hours"></div>
-                    <div><a class="increase" @click="setTimeData(1)">+1m</a><a class="decrease" @click="setTimeData(-1)">-1m</a></div>
-                    <div><a class="increase" @click="setTimeData(5)">+5m</a><a class="decrease" @click="setTimeData(-5)">-5m</a></div>
-                    <div><a class="increase" @click="setTimeData(10)">+10m</a><a class="decrease" @click="setTimeData(-10)">-10m</a></div>
-                    <div><a class="increase" @click="setTimeData(30)">+30m</a><a class="decrease" @click="setTimeData(-30)">-30m</a></div>
-                    <div><a class="increase" @click="setTimeData(60)">+1h</a><a class="decrease"  @click="setTimeData(-60)">-1h</a></div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <!-- <label for="f_Hours">시간</label> -->
+                        <div>
+                            <a :class="['toggle', timeAdjustMode==='hours'?'active':'']" @click.prevent="setTimeAdjustMode('hours')" title="봉사시간">봉사</a>
+                            <a :class="['toggle', timeAdjustMode==='assist'?'active':'']" @click.prevent="setTimeAdjustMode('assist')" title="보조시간">보조</a>
+                            <input readonly type="text" id="f_Hours" v-model="form.Hours" style="width:70px; text-align:center;">
+                        </div>
+                    </div>
+                    <template v-if="timeAdjustMode==='hours'">
+                        <div><a class="increase" @click.prevent="setTimeData(1)">+1m</a><a class="decrease" @click.prevent="setTimeData(-1)">-1m</a></div>
+                        <div><a class="increase" @click.prevent="setTimeData(5)">+5m</a><a class="decrease" @click.prevent="setTimeData(-5)">-5m</a></div>
+                        <div><a class="increase" @click.prevent="setTimeData(10)">+10m</a><a class="decrease" @click.prevent="setTimeData(-10)">-10m</a></div>
+                        <div><a class="increase" @click.prevent="setTimeData(30)">+30m</a><a class="decrease" @click.prevent="setTimeData(-30)">-30m</a></div>
+                        <div><a class="increase" @click.prevent="setTimeData(60)">+1h</a><a class="decrease"  @click.prevent="setTimeData(-60)">-1h</a></div>
+                    </template>
+                    <template v-else>
+                        <div><a class="increase" @click.prevent="adjustAssist(1)">+1</a><a class="decrease" @click.prevent="adjustAssist(-1)">-1</a></div>
+                    </template>
                 </div>
                 <div class="column4">
                     <div><label for="f_Revisit">재방문</label><input readonly type="number" id="f_Revisit" v-model.number="form.Revisit" min="0"></div>
-                    <div>
-                        <a class="increase" @click="setTypeData('Revisit')">+1</a>
-                        <a class="decrease" @click="setTypeData('Revisit', false)">-1</a>
-                    </div>
-
-                    <div><label for="f_Assist">보조시간</label><input readonly type="number" id="f_Assist" v-model.number="form.Assist" min="0"></div>
-                    <div>
-                        <a class="increase" @click="setTypeData('Assist')">+1</a>
-                        <a class="decrease" @click="setTypeData('Assist', false)">-1</a>
-                    </div>
+                    <!-- <div> -->
+                        <a class="increase" @click.prevent="setTypeData('Revisit')">+1</a>
+                        <a class="decrease" @click.prevent="setTypeData('Revisit', false)">-1</a>
+                    <!-- </div> -->
                     
                     <div><label for="f_Studies">연구</label><input readonly type="number" id="f_Studies" v-model.number="form.Studies" min="0"></div>
-                    <div>
-                        <a class="increase" @click="setTypeData('Studies')">+1</a>
-                        <a class="decrease" @click="setTypeData('Studies', false)">-1</a>
-                    </div>
+                    <!-- <div> -->
+                        <a class="increase" @click.prevent="setTypeData('Studies')">+1</a>
+                        <a class="decrease" @click.prevent="setTypeData('Studies', false)">-1</a>
+                    <!-- </div> -->
                 </div>
                 <div class="memo_wrapper">
                     <label for="">메모</label>
@@ -371,13 +381,36 @@
             </div>
 
             <div class="itmbar">
-                <h3>{{(cdate.getMonth()+1)}}월 합계</h3>
-                <h3 style="margin-top: -6px; font-weight: 400; font-size: 12px; text-align: center; color: #b7b2ae;">(봉+보 {{ monthCombinedTotalHhMm }})</h3>
+                <div class="drag_handle" @mousedown.prevent="ysDown($event)" @touchstart.prevent="ysDown($event)">
+                    <i class="fa-solid fa-grip-lines"></i>
+                </div>
+                <h3>{{(cdate.getMonth()+1)}}월 합계({{ monthCombinedTotalHhMm }})</h3>
                 <ul>
                     <li><i class="fa-solid fa-stopwatch"></i> <span>{{totalDate('hours')}}</span></li><!--시간-->
                     <li><i class="fa-solid fa-person-walking-arrow-loop-left"></i> <span>{{totalDate('revisit')}}</span></li><!--재방문-->
                     <li><i class="fa-solid fa-book-open-reader"></i> <span>{{totalDate('studies')}}</span></li><!--연구-->
                 </ul>
+                <div class="year_summary_wrap" :style="{height: ysHeight + 'px'}">
+                    <div ref="ysInner">
+                        <div class="year_title" style="padding-top:5px;">{{ academicYear(cdate) }} 봉사연도({{ yearTotalCombinedCappedHhMm }})</div>
+                        <div class="year_summary" style="padding-top:1px;">
+                            <table class="ym_table">
+                            <tr>
+                                <td v-for="cell in yearRows[0]" :key="'ys1_'+cell.key" @click="goToMonth(cell.m)">
+                                    <span class="ym_label">{{ cell.label }}</span>
+                                    <span class="ym_time">{{ cell.time }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td v-for="cell in yearRows[1]" :key="'ys2_'+cell.key" @click="goToMonth(cell.m)">
+                                    <span class="ym_label">{{ cell.label }}</span>
+                                    <span class="ym_time">{{ cell.time }}</span>
+                                </td>
+                            </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </template>
 
@@ -438,6 +471,8 @@
                 didDrag: false,
                 updateX: 0,
                 tipDay: null,
+                // classic style time adjust toggle: 'hours' | 'assist'
+                timeAdjustMode: 'hours',
                 form: {
                     Hours: '0:00',
                     Ctime: '',
@@ -445,6 +480,34 @@
                     Revisit: 0,
                     Studies: 0,
                     Memo: ''
+                },
+                setTimeAdjustMode(mode){
+                    if(mode !== 'hours' && mode !== 'assist') return;
+                    this.timeAdjustMode = mode;
+                },
+                adjustAssist(delta){
+                    if(!(this.sltdate instanceof Date)) return;
+                    const cur = parseInt(this.form.Assist)||0;
+                    let next = cur + (parseInt(delta)||0);
+                    if(next < 0) next = 0;
+                    this.$set(this.form, 'Assist', next);
+
+                    // persist to tdate for selected day
+                    const sltDay = this.sltdate;
+                    let found = false;
+                    (this.tdate||[]).forEach(it=>{
+                        if(typeof it.Date === 'string') it.Date = new Date(it.Date);
+                        if(this.sameDay(it.Date, sltDay)){
+                            this.$set(it, 'assist', next);
+                            found = true;
+                        }
+                    });
+                    if(!found){
+                        this.tdate.push({ Date: new Date(sltDay), assist: next });
+                    }
+                    this.tdate = this.tdate.slice();
+                    this.setTdate();
+                    this.$forceUpdate();
                 },
                 // yearly summary drag state
                 ysHeight: 0,
@@ -857,22 +920,25 @@
                     
                     let timeH = this.showTime(sltDay);
                     // console.log(hour,hours,timeH);
-                    $("#f_Hours").val((timeH == 0) ? "0:00" : timeH);
+                    if(this.form && typeof this.form === 'object'){
+                        this.$set(this.form, 'Hours', ((timeH == 0) ? "0:00" : timeH));
+                        this.$set(this.form, 'Assist', (assist || 0));
+                        this.$set(this.form, 'Revisit', (revisit || 0));
+                        this.$set(this.form, 'Studies', (studies || 0));
+                    }
                     $("#f_Ctime").val((ctime == 0) ? "" : ctime );
-                    $("#f_Assist").val((assist == 0) ? "0" : assist);
-                    $("#f_Revisit").val((revisit == 0) ? "0" : revisit);
-                    $("#f_Studies").val((studies == 0) ? "0" : studies);
                     $("#f_Memo").val(memo);
                 },
                 setDayData(){
                     let sltDay = this.sltdate;
                     if(sltDay == "") return;
                   
-                    let d_Hours = $("#f_Hours").val();
+                    // read from Vue model instead of DOM to avoid desync
+                    let d_Hours = (this.form && this.form.Hours) ? this.form.Hours : "0:00";
                     let d_Ctime = $("#f_Ctime").val();
-                    let d_Assist = $("#f_Assist").val();
-                    let d_Revisit = $("#f_Revisit").val();
-                    let d_Studies = $("#f_Studies").val();
+                    let d_Assist = (this.form && this.form.Assist !== undefined) ? this.form.Assist : 0;
+                    let d_Revisit = (this.form && this.form.Revisit !== undefined) ? this.form.Revisit : 0;
+                    let d_Studies = (this.form && this.form.Studies !== undefined) ? this.form.Studies : 0;
                     let d_Memo = $("#f_Memo").val();
 
                     let boo = false;
@@ -924,41 +990,36 @@
                     this.$forceUpdate();
                 },
                 
-                // classic
+                // classic: treat time as duration; accumulate by minutes without day-boundary logic
                 setTimeData(minute){
-                    let Loadmin = $("#f_Hours").val();
+                    // current value from Vue model (fallback to DOM once for compatibility)
+                    let load = (this.form && this.form.Hours) ? this.form.Hours : (($("#f_Hours").val()) || "0:00");
+                    if(!load || typeof load !== 'string') load = "0:00";
 
-                    // console.log(Loadmin);
-                    if(minute < 0){
-                        if($("#f_Hours").val() == "0:00") return;
+                    // Parse H:MM
+                    let [hhStr, mmStr] = String(load).split(":");
+                    let hh = parseInt(hhStr)||0;
+                    let mm = parseInt(mmStr)||0;
+                    let total = hh*60 + mm + (parseInt(minute)||0);
+                    if(total < 0) total = 0;
+                    const nh = Math.floor(total/60);
+                    const nm = total % 60;
+                    const newVal = nh + ":" + String(nm).padStart(2,'0');
+
+                    // update Vue model (input is bound via v-model)
+                    if(this.form && typeof this.form === 'object'){
+                        this.$set(this.form, 'Hours', newVal);
                     }
-                    
-                    let tarr = Loadmin.split(":");
-                    // 날짜데이터로 바꾸고 날짜변경체크
-                    let date1 = new Date(this.sltdate);
-                    let date2 = new Date(this.sltdate.setHours(tarr[0],tarr[1],0,0)+(60000*minute));
 
-                    // 자리수 맞추기
-                    let nminutes = date2.getMinutes().toString().padStart(2,'0');
-                    let nhours = date2.getHours().toString();
-
-                    if(date1.getDate() != date2.getDate()) {
-                        $("#f_Hours").val("0:00");
-                    }else{
-                        $("#f_Hours").val(nhours + ":" + nminutes);
-                    }
                     this.setDayData();
                 },
                 setTypeData(type, bool=true){
-                    let loadData = $("#f_"+type).val();
-
-                    if(bool){
-                        $("#f_"+type).val(++loadData);
-                    }else{
-                        if(loadData != 0) $("#f_"+type).val(--loadData);
-                    }
-
-                    // console.log(loadData,type);
+                    // Works with Vue model instead of DOM; type is one of 'Revisit' | 'Studies'
+                    const key = String(type);
+                    if(!this.form || !(key in this.form)) return;
+                    let v = parseInt(this.form[key]) || 0;
+                    v = bool ? v + 1 : Math.max(0, v - 1);
+                    this.$set(this.form, key, v);
                     this.setDayData();
                 },
                 
@@ -1099,6 +1160,25 @@
                         }
                     });
                     return d;
+                },
+                goToMonth(m){
+                    if(typeof m !== 'number' || isNaN(m)) return;
+                    // Navigate within the same academic year (Sep..Aug) as current cdate
+                    // If current month is Sep-Dec (>=8): months 8..11 -> same year, months 0..7 -> next year
+                    // If current month is Jan-Aug (<8): months 8..11 -> previous year, months 0..7 -> same year
+                    const curY = this.cdate.getFullYear();
+                    const curM = this.cdate.getMonth();
+                    let targetYear;
+                    if(curM >= 8){
+                        targetYear = (m >= 8) ? curY : (curY + 1);
+                    } else {
+                        targetYear = (m >= 8) ? (curY - 1) : curY;
+                    }
+                    this.cdate = new Date(targetYear, m, 1);
+                    // recompute month grid and reload current month's data
+                    this.c_month(this.cdate);
+                    // close the bottom bar expanded area (optional UX)
+                    // this.ysHeight = 0;
                 }
             },
             computed: {
@@ -1119,14 +1199,21 @@
                     const rows = [];
                     for(let i=0;i<12;i++){
                         const m = order[i];
-                        let total = 0;
+                        let baseMinutes = 0;
+                        let assistMinutes = 0;
                         (this.tdate||[]).forEach(it=>{
                             if(!it || !it.Date) return;
                             if(typeof it.Date === 'string') it.Date = new Date(it.Date);
-                            if(it.Date.getMonth() === m && it.hours){ total += parseInt(it.hours); }
+                            if(it.Date.getMonth() === m){
+                                if(it.hours) baseMinutes += parseInt(it.hours)||0; // minutes
+                                if(it.assist){ assistMinutes += (parseInt(it.assist)||0)*30; }
+                            }
                         });
-                        const hh = Math.floor(total/60), mm = total%60;
-                        rows.push({ key: 'm'+m, label: labels[i], time: hh+':'+this.pad2(mm) });
+                        // cap ONLY the assist portion so base hours are never reduced
+                        const roomForAssist = Math.max(0, 55*60 - baseMinutes);
+                        const capped = baseMinutes + Math.min(assistMinutes, roomForAssist);
+                        const hh = Math.floor(capped/60), mm = capped%60;
+                        rows.push({ key: 'm'+m, m, label: labels[i], time: hh+':'+this.pad2(mm) });
                     }
                     return rows;
                 },
@@ -1142,27 +1229,31 @@
                 monthCombinedTotalHhMm(){
                     // Sum current month: base hours (minutes) + assist (assist*30 minutes)
                     const curMonth = this.cdate.getMonth();
-                    let totalMinutes = 0;
+                    let baseMinutes = 0;
+                    let assistMinutes = 0;
                     (this.tdate||[]).forEach(it=>{
                         if(!it || !it.Date) return;
                         if(typeof it.Date === 'string') it.Date = new Date(it.Date);
                         if(it.Date.getMonth() !== curMonth) return;
-                        // base hours already stored as minutes
-                        if(it.hours) totalMinutes += parseInt(it.hours) || 0;
-                        // assist counted in 30-minute units
-                        if(it.assist) totalMinutes += (parseInt(it.assist)||0) * 30;
+                        if(it.hours) baseMinutes += parseInt(it.hours) || 0; // minutes
+                        if(it.assist) assistMinutes += (parseInt(it.assist)||0) * 30;
                     });
-                    const hh = Math.floor(totalMinutes/60), mm = totalMinutes % 60;
+                    // cap ONLY the assist portion so base hours are never reduced
+                    const roomForAssist = Math.max(0, 55*60 - baseMinutes);
+                    const capped = baseMinutes + Math.min(assistMinutes, roomForAssist);
+                    const hh = Math.floor(capped/60), mm = capped % 60;
                     return hh + ':' + this.pad2(mm);
                 },
-                yearTotalHoursHhMm(){
-                    let total = 0;
-                    (this.tdate||[]).forEach(it=>{
-                        if(!it || !it.Date) return;
-                        if(typeof it.Date === 'string') it.Date = new Date(it.Date);
-                        if(it.hours) total += parseInt(it.hours);
+                yearTotalCombinedCappedHhMm(){
+                    // Sum the academic year's 12 months using the same capped-per-month combined totals
+                    // Reuse yearMonthTotals which already computes combined+capped times per month
+                    let totalMinutes = 0;
+                    this.yearMonthTotals.forEach(cell=>{
+                        const [hh,mm] = String(cell.time).split(':');
+                        const m = (parseInt(hh)||0)*60 + (parseInt(mm)||0);
+                        totalMinutes += m;
                     });
-                    const hh = Math.floor(total/60), mm = total%60;
+                    const hh = Math.floor(totalMinutes/60), mm = totalMinutes%60;
                     return hh + ':' + this.pad2(mm);
                 }
             },
