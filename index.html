@@ -113,7 +113,6 @@
         .extra_report .revisit_sum {background: #B15ED2;}
         .itmbar .icon_assist::after {background: #65C891;}
         .itmbar .icon_assist i      {color: #65C891;}
-        .extra_report .assist_sum   {background: #65C891;}
         .itmbar .icon_studies::after {background: #97D0DE;}
         .itmbar .icon_studies i      {color: #97D0DE;}
         .itmbar .icon_ctime::after {background: #1704ed;}
@@ -212,7 +211,6 @@
                                             </p>
                                         <div class="extra_report">
                                             <span v-if="tipDay && sameDay(tipDay, date) && getData(date,'assist')>0" class="assist_tip">{{ formatAssist(date) }}</span>
-                                            <p class="assist_sum sub_sum" v-show="getData(date,'assist') != 0" v-for="i in getData(date,'assist')"></p>
                                             <p class="revisit_sum sub_sum" v-show="getData(date,'revisit') != 0" v-for="i in getData(date,'revisit')"></p>
                                             <p class="studies_sum sub_sum" v-show="getData(date,'studies') != 0" v-for="i in getData(date,'studies')"></p>
                                         </div>
@@ -235,7 +233,7 @@
                 <div class="drag_handle" @mousedown.prevent="ysDown($event)" @touchstart.prevent="ysDown($event)">
                     <i class="fa-solid fa-grip-lines"></i>
                 </div>
-                <h3>{{(cdate.getMonth()+1)}}월 합계</h3>
+                <h3>{{(cdate.getMonth()+1)}}월 합계({{ monthCombinedTotalHhMm }})</h3>
                 <table>
                     <tr>
                         <th><a :class="(this.mode == 'hours') ? 'active':''" class="icon_hours" onclick="app.setMode('hours')"><i class="fa-solid fa-stopwatch"></i></a><!-- 시간 --></th>
@@ -374,6 +372,7 @@
 
             <div class="itmbar">
                 <h3>{{(cdate.getMonth()+1)}}월 합계</h3>
+                <h3 style="margin-top: -6px; font-weight: 400; font-size: 12px; text-align: center; color: #b7b2ae;">(봉+보 {{ monthCombinedTotalHhMm }})</h3>
                 <ul>
                     <li><i class="fa-solid fa-stopwatch"></i> <span>{{totalDate('hours')}}</span></li><!--시간-->
                     <li><i class="fa-solid fa-person-walking-arrow-loop-left"></i> <span>{{totalDate('revisit')}}</span></li><!--재방문-->
@@ -647,14 +646,15 @@
                             if(this.mode === 'hours'){
                                 // minutes 기반: 현재 분 +30
                                 let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
-                                itm['hours'] = curMin + 30;
+                                this.$set(itm, 'hours', curMin + 30);
                             } else {
-                                itm[this.mode] = nData;
+                                this.$set(itm, this.mode, nData);
                             }
                             boo = true;
                         }
                     });
-                    this.tdate = tempDate;
+                    // 배열 참조를 변경해 반응성 보장
+                    this.tdate = tempDate.slice();
 
                     if(!boo){
                         if(this.mode === 'hours'){
@@ -662,6 +662,8 @@
                         }else{
                             this.tdate.push({ Date : sltDate , [this.mode] : nData});
                         }
+                        // push 후에도 참조 변경로 반응성 강화
+                        this.tdate = this.tdate.slice();
                     }
 
                     this.setTdate();
@@ -708,12 +710,14 @@
                                 // minutes 기반: 현재 분 -30, 0 미만 방지
                                 let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
                                 curMin = Math.max(0, curMin - 30);
-                                if(curMin === 0){ delete itm.hours; } else { itm.hours = curMin; }
+                                if(curMin === 0){ this.$delete(itm, 'hours'); } else { this.$set(itm, 'hours', curMin); }
                             } else {
-                                itm[this.mode] = ndata;
+                                this.$set(itm, this.mode, ndata);
                             }
                         }
                     });
+                    // 배열 참조 변경로 반응성 보장
+                    this.tdate = this.tdate.slice();
                 
                     this.interval2 = true;
                     this.setTdate();
@@ -866,6 +870,7 @@
                   
                     let d_Hours = $("#f_Hours").val();
                     let d_Ctime = $("#f_Ctime").val();
+                    let d_Assist = $("#f_Assist").val();
                     let d_Revisit = $("#f_Revisit").val();
                     let d_Studies = $("#f_Studies").val();
                     let d_Memo = $("#f_Memo").val();
@@ -878,14 +883,14 @@
                             if(d_Hours != "") {
                                 const [hh,mm] = (d_Hours+"").split(":");
                                 const total = (parseInt(hh)||0)*60 + (parseInt(mm)||0);
-                                itm['hours'] = total;
+                                this.$set(itm, 'hours', total);
                                 delete itm.hour;
                             }
-                            if(d_Ctime != "") itm['ctime'] = d_Ctime;
-                            if(d_Assist != "") itm['assist'] = parseInt(d_Assist);
-                            if(d_Revisit != "") itm['revisit'] = parseInt(d_Revisit);
-                            if(d_Studies != "") itm['studies'] = parseInt(d_Studies);
-                            if(d_Memo != "") itm['memo'] = d_Memo;
+                            if(d_Ctime != "") this.$set(itm, 'ctime', d_Ctime);
+                            if(d_Assist != "") this.$set(itm, 'assist', parseInt(d_Assist));
+                            if(d_Revisit != "") this.$set(itm, 'revisit', parseInt(d_Revisit));
+                            if(d_Studies != "") this.$set(itm, 'studies', parseInt(d_Studies));
+                            if(d_Memo != "") this.$set(itm, 'memo', d_Memo);
                         }
                     });
 
@@ -899,13 +904,16 @@
                             itm.hours = total;
                         }
                         if(d_Ctime != "") itm.ctime = d_Ctime;
-                        if(d_Assist != "") itm.assist = d_Assist;
-                        if(d_Revisit != "") itm.revisit = d_Revisit;
-                        if(d_Studies != "") itm.studies = d_Studies;
+                        if(d_Assist != "") itm.assist = parseInt(d_Assist);
+                        if(d_Revisit != "") itm.revisit = parseInt(d_Revisit);
+                        if(d_Studies != "") itm.studies = parseInt(d_Studies);
                         if(d_Memo != "") itm.memo = d_Memo;
 
                         this.tdate.push(itm);
                     }
+
+                    // 배열 참조 변경로 반응성 보장
+                    this.tdate = this.tdate.slice();
 
                     this.interval2 = true;
                     this.setTdate();
@@ -1130,6 +1138,22 @@
                     const row1 = row1Months.map(m=> this.yearMonthTotals[findIdx(m)]).filter(Boolean);
                     const row2 = row2Months.map(m=> this.yearMonthTotals[findIdx(m)]).filter(Boolean);
                     return [row1, row2];
+                },
+                monthCombinedTotalHhMm(){
+                    // Sum current month: base hours (minutes) + assist (assist*30 minutes)
+                    const curMonth = this.cdate.getMonth();
+                    let totalMinutes = 0;
+                    (this.tdate||[]).forEach(it=>{
+                        if(!it || !it.Date) return;
+                        if(typeof it.Date === 'string') it.Date = new Date(it.Date);
+                        if(it.Date.getMonth() !== curMonth) return;
+                        // base hours already stored as minutes
+                        if(it.hours) totalMinutes += parseInt(it.hours) || 0;
+                        // assist counted in 30-minute units
+                        if(it.assist) totalMinutes += (parseInt(it.assist)||0) * 30;
+                    });
+                    const hh = Math.floor(totalMinutes/60), mm = totalMinutes % 60;
+                    return hh + ':' + this.pad2(mm);
                 },
                 yearTotalHoursHhMm(){
                     let total = 0;
