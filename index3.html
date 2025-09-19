@@ -54,13 +54,13 @@
         th {padding: 0 3px; font-size: 13px; color: #666; font-weight: bold; }
         th.weekend {color: #D1635D;}
         td {font-size: 15px; text-align: center;}
-        td>div {border-radius: 16px; height: 66px; padding: 3px; overflow: hidden; border:3px solid #fff;} 
+        td>div {border-radius: 16px; height: 66px; padding: 3px; overflow: visible; border:3px solid #fff; position: relative;}
         .cal2 td>div {height: 54px;} 
         td .date {color: #000; font-weight: bold;}
         td .date2 {color: #000; opacity: 0.2;}
         td .half {display: block;  margin-bottom: -6px; height: 22px;}
         td .hours_sum {color: #2f200b; margin-bottom: -2px; font-size: 13px;}
-        td .hours_sum.ctime_on {color: #2eae6b;}
+        td .hours_sum.assist_on {color: #65C891;}
         td .extra_report {display: flex; flex-wrap: wrap; justify-content: center;}
         td .extra_report p {border-radius: 24px; width: 5px; height: 5px; margin: 1px;}
         td .extra_report .studies_sum {background-color: #0bc0ed;}
@@ -70,6 +70,10 @@
         .today>div  {border:3px solid #c7b3a6;  background: #eae4e0;}
         .today2>div {border:3px solid #c7b3a6;  background: #eae4e0;}
         .sltday>div {border:3px solid #D1635D;}
+
+        /* assist-only tip bubble (top-right) */
+        .assist_tip {position: absolute; right: 2px; top: -8px; z-index: 11; background: #231306; color: #fff; font-weight: 700; font-size: 12px; line-height: 14px; padding: 2px 6px; border-radius: 12px; box-shadow: 0 0 0 2px #65C891 inset; pointer-events: none;}
+        .assist_tip::after {content: ""; position: absolute; right: 6px; top: 100%; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid #231306;}
 
         .itmbar {padding: 10px 10px 30px 10px; width: 100vw; position: fixed; bottom: 0; color: #fff; background-color: #231306; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); border-radius: 30px 30px 0 0;}
         .itmbar a {display: block; color: #fff; height: 30px; padding: 6px 0; border-radius: 8px; position: relative; overflow: hidden; background-color: white; padding-left: 12px;}
@@ -87,8 +91,12 @@
         .year_summary {margin-top: 6px;}
         .year_summary .ym_table {width: 100%; table-layout: fixed; border-collapse: collapse;}
         .year_summary .ym_table td {padding: 4px 2px; text-align: center; vertical-align: middle;}
+        .year_summary .ym_table td {cursor: pointer;}
         .year_summary .ym_label {display:block; color:#b7b2ae; font-size: 11px;}
         .year_summary .ym_time {display:block; color:#fff; font-weight: 700; font-size: 12px;}
+        /* toggle buttons (classic style) */
+        .time .toggle {display:inline-block; padding:4px 8px; border:1px solid #b7b2ae; border-radius:6px; margin-right:4px; color:#333; background:#fff; font-size:12px;}
+        .time .toggle.active {background:#231306; color:#fff; border-color:#231306;}
         /* drag handle icon */
         .itmbar .drag_handle {width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 6px; touch-action: none; cursor: ns-resize;}
         .itmbar .drag_handle i {color: #b7b2ae; font-size: 20px;}
@@ -109,8 +117,11 @@
         .extra_report .revisit_sum {background: #B15ED2;}
         .itmbar .icon_assist::after {background: #65C891;}
         .itmbar .icon_assist i      {color: #65C891;}
-        .extra_report .assist_sum   {background: #65C891;}
         .itmbar .icon_studies::after {background: #97D0DE;}
+        
+        /* B style assist icon */
+        .itmbar .assist-badge { display: inline-block; width: 22px; height: 22px; position: relative; vertical-align: middle; margin-right: 4px; }
+        .itmbar .assist-badge .fa-plus { position: absolute; right: 0; bottom: 0; font-size: 8px; color: #FFF; border-radius: 50%; width: 10px; height: 10px; display: flex; align-items: center; justify-content: center; line-height: 1; transform: none; margin-right: -2px; margin-bottom: -2px; }
         .itmbar .icon_studies i      {color: #97D0DE;}
         .itmbar .icon_ctime::after {background: #1704ed;}
         .itmbar .icon_ctime i       {color: #1704ed;}
@@ -124,7 +135,7 @@
         .memo li { height: 50px; display: block; line-height: 50px; text-align: center;}
 
         .c_red {color: #D1635D;}
-        .dayDetail {padding: 10px 20px 100px;}
+        .dayDetail {padding: 10px 20px 150px;}
         .dayDetail>div {padding:10px 0; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between;}
         .dayDetail label {width: 40px; display: block; color: #000; line-height: 28px; text-align: center;}
         .dayDetail input {width: 40px; background: none; border: none; font-size: 15px;  font-weight: bold; color: #000; text-align: center;}
@@ -197,17 +208,17 @@
                     <tr v-for="days, idx1 in week">
                         <template v-for="date, idx2 in days">
                             <template v-if="date.getMonth() == cdate.getMonth()">
-                                <td @click="dayCLK($event)" :day="date.getDate()" :class="dayClass(date)"
+                                <td @click.stop="dayCLK($event)" :day="date.getDate()" :class="dayClass(date)"
                                     @mousedown="dayLCLK($event)" @mouseleave="dayLCLK2" @mouseup="dayLCLK2" 
                                     @touchstart="dayLCLK($event)" @touchend="dayLCLK2" @touchcancel="dayLCLK2"
                                     @touchmove="touchMove($event)" >
                                     <div>
                                         <p class="date half">{{ date.getDate() }}</p>
-                                        <p class="hours_sum half" :class="{ctime_on: !!getData(date,'ctime'), ctime_green: !!getData(date,'ctime')}">
-                                                {{ showTime(date) }}
+                                        <p class="hours_sum half" :class="{assist_on: !!getData(date,'assist')}">
+                                                {{ displayTime(date) }}
                                             </p>
                                         <div class="extra_report">
-                                            <p class="assist_sum sub_sum" v-show="getData(date,'assist') != 0" v-for="i in getData(date,'assist')"></p>
+                                            <span v-if="tipDay && sameDay(tipDay, date) && getData(date,'assist')>0" class="assist_tip">{{ formatAssist(date) }}</span>
                                             <p class="revisit_sum sub_sum" v-show="getData(date,'revisit') != 0" v-for="i in getData(date,'revisit')"></p>
                                             <p class="studies_sum sub_sum" v-show="getData(date,'studies') != 0" v-for="i in getData(date,'studies')"></p>
                                         </div>
@@ -230,7 +241,7 @@
                 <div class="drag_handle" @mousedown.prevent="ysDown($event)" @touchstart.prevent="ysDown($event)">
                     <i class="fa-solid fa-grip-lines"></i>
                 </div>
-                <h3>{{(cdate.getMonth()+1)}}월 합계</h3>
+                <h3>{{(cdate.getMonth()+1)}}월 합계({{ monthCombinedTotalHhMm }})</h3>
                 <table>
                     <tr>
                         <th><a :class="(this.mode == 'hours') ? 'active':''" class="icon_hours" onclick="app.setMode('hours')"><i class="fa-solid fa-stopwatch"></i></a><!-- 시간 --></th>
@@ -252,17 +263,17 @@
                 </table>
                 <div class="year_summary_wrap" :style="{height: ysHeight + 'px'}">
                     <div ref="ysInner">
-                        <div class="year_title" style="padding-top:5px;">{{ academicYear(cdate) }} 봉사연도({{ yearTotalHoursHhMm }})</div>
+                        <div class="year_title" style="padding-top:5px;">{{ academicYear(cdate) }} 봉사연도({{ yearTotalCombinedCappedHhMm }})</div>
                         <div class="year_summary" style="padding-top:1px;">
                             <table class="ym_table">
                             <tr>
-                                <td v-for="cell in yearRows[0]" :key="'ys1_'+cell.key">
+                                <td v-for="cell in yearRows[0]" :key="'ys1_'+cell.key" @click="goToMonth(cell.m)">
                                     <span class="ym_label">{{ cell.label }}</span>
                                     <span class="ym_time">{{ cell.time }}</span>
                                 </td>
                             </tr>
                             <tr>
-                                <td v-for="cell in yearRows[1]" :key="'ys2_'+cell.key">
+                                <td v-for="cell in yearRows[1]" :key="'ys2_'+cell.key" @click="goToMonth(cell.m)">
                                     <span class="ym_label">{{ cell.label }}</span>
                                     <span class="ym_time">{{ cell.time }}</span>
                                 </td>
@@ -313,9 +324,10 @@
                                     :class="dayClass(date)">
                                     <div>
                                         <p class="date half">{{ date.getDate() }}</p>
-                                        <p class="hours_sum half" :class="{ctime_on: !!getData(date,'ctime')}">
-                                            {{ showTime(date) }}
+                                        <p class="hours_sum half" :class="{assist_on: !!getData(date,'assist')}">
+                                            {{ displayTime(date) }}
                                         </p>
+                                        <span v-if="tipDay && sameDay(tipDay, date) && getData(date,'assist')>0" class="assist_tip">{{ formatAssist(date) }}</span>
                                     </div>
                                 </td>
                             </template>
@@ -333,31 +345,39 @@
 
             <div v-if="sltdate != ''" class="dayDetail">
                 <div class="time">
-                    <div><label for="f_Hours">시간</label><input readonly type="text" id="f_Hours" v-model="form.Hours"></div>
-                    <div><a class="increase" @click="setTimeData(1)">+1m</a><a class="decrease" @click="setTimeData(-1)">-1m</a></div>
-                    <div><a class="increase" @click="setTimeData(5)">+5m</a><a class="decrease" @click="setTimeData(-5)">-5m</a></div>
-                    <div><a class="increase" @click="setTimeData(10)">+10m</a><a class="decrease" @click="setTimeData(-10)">-10m</a></div>
-                    <div><a class="increase" @click="setTimeData(30)">+30m</a><a class="decrease" @click="setTimeData(-30)">-30m</a></div>
-                    <div><a class="increase" @click="setTimeData(60)">+1h</a><a class="decrease"  @click="setTimeData(-60)">-1h</a></div>
+                    <div>
+                        <label for="f_Hours">시간</label>
+                        <input readonly type="text" id="f_Hours" value="0:00">
+                    </div>
+                    <div><a class="increase" @click.prevent="setTimeData(1)">+1m</a><a class="decrease" @click.prevent="setTimeData(-1)">-1m</a></div>
+                    <div><a class="increase" @click.prevent="setTimeData(5)">+5m</a><a class="decrease" @click.prevent="setTimeData(-5)">-5m</a></div>
+                    <div><a class="increase" @click.prevent="setTimeData(10)">+10m</a><a class="decrease" @click.prevent="setTimeData(-10)">-10m</a></div>
+                    <div><a class="increase" @click.prevent="setTimeData(30)">+30m</a><a class="decrease" @click.prevent="setTimeData(-30)">-30m</a></div>
+                    <div><a class="increase" @click.prevent="setTimeData(60)">+1h</a><a class="decrease"  @click.prevent="setTimeData(-60)">-1h</a></div>
+                </div>
+                <div class="time">
+                    <div>
+                        <label for="f_Assist">보조시간</label>
+                        <input readonly type="text" id="f_Assist" :value="formatMinutes(form.Assist || 0)">
+                    </div>
+                    <div><a class="increase" @click.prevent="adjustTime('Assist', 1/60)">+1m</a><a class="decrease" @click.prevent="adjustTime('Assist', -1/60)">-1m</a></div>
+                    <div><a class="increase" @click.prevent="adjustTime('Assist', 5/60)">+5m</a><a class="decrease" @click.prevent="adjustTime('Assist', -5/60)">-5m</a></div>
+                    <div><a class="increase" @click.prevent="adjustTime('Assist', 10/60)">+10m</a><a class="decrease" @click.prevent="adjustTime('Assist', -10/60)">-10m</a></div>
+                    <div><a class="increase" @click.prevent="adjustTime('Assist', 30/60)">+30m</a><a class="decrease" @click.prevent="adjustTime('Assist', -30/60)">-30m</a></div>
+                    <div><a class="increase" @click.prevent="adjustTime('Assist', 1)">+1h</a><a class="decrease" @click.prevent="adjustTime('Assist', -1)">-1h</a></div>
                 </div>
                 <div class="column4">
                     <div><label for="f_Revisit">재방문</label><input readonly type="number" id="f_Revisit" v-model.number="form.Revisit" min="0"></div>
-                    <div>
-                        <a class="increase" @click="setTypeData('Revisit')">+1</a>
-                        <a class="decrease" @click="setTypeData('Revisit', false)">-1</a>
-                    </div>
-
-                    <div><label for="f_Assist">보조시간</label><input readonly type="number" id="f_Assist" v-model.number="form.Assist" min="0"></div>
-                    <div>
-                        <a class="increase" @click="setTypeData('Assist')">+1</a>
-                        <a class="decrease" @click="setTypeData('Assist', false)">-1</a>
-                    </div>
+                    <!-- <div> -->
+                        <a class="increase" @click.prevent="setTypeData('Revisit')">+1</a>
+                        <a class="decrease" @click.prevent="setTypeData('Revisit', false)">-1</a>
+                    <!-- </div> -->
                     
                     <div><label for="f_Studies">연구</label><input readonly type="number" id="f_Studies" v-model.number="form.Studies" min="0"></div>
-                    <div>
-                        <a class="increase" @click="setTypeData('Studies')">+1</a>
-                        <a class="decrease" @click="setTypeData('Studies', false)">-1</a>
-                    </div>
+                    <!-- <div> -->
+                        <a class="increase" @click.prevent="setTypeData('Studies')">+1</a>
+                        <a class="decrease" @click.prevent="setTypeData('Studies', false)">-1</a>
+                    <!-- </div> -->
                 </div>
                 <div class="memo_wrapper">
                     <label for="">메모</label>
@@ -367,12 +387,43 @@
             </div>
 
             <div class="itmbar">
-                <h3>{{(cdate.getMonth()+1)}}월 합계</h3>
+                <div class="drag_handle" @mousedown.prevent="ysDown($event)" @touchstart.prevent="ysDown($event)">
+                    <i class="fa-solid fa-grip-lines"></i>
+                </div>
+                <h3>{{(cdate.getMonth()+1)}}월 합계({{ monthCombinedTotalHhMm }})</h3>
                 <ul>
                     <li><i class="fa-solid fa-stopwatch"></i> <span>{{totalDate('hours')}}</span></li><!--시간-->
+                    <li title="보조시간">
+                        <span class="assist-badge">
+                            <i class="fa-regular fa-clock"></i>
+                            <i class="fa-solid fa-plus"></i>
+                        </span>
+                        <span>{{totalDate('assist')}}</span>
+                    </li>
                     <li><i class="fa-solid fa-person-walking-arrow-loop-left"></i> <span>{{totalDate('revisit')}}</span></li><!--재방문-->
                     <li><i class="fa-solid fa-book-open-reader"></i> <span>{{totalDate('studies')}}</span></li><!--연구-->
                 </ul>
+                <div class="year_summary_wrap" :style="{height: ysHeight + 'px'}">
+                    <div ref="ysInner">
+                        <div class="year_title" style="padding-top:5px;">{{ academicYear(cdate) }} 봉사연도({{ yearTotalCombinedCappedHhMm }})</div>
+                        <div class="year_summary" style="padding-top:1px;">
+                            <table class="ym_table">
+                            <tr>
+                                <td v-for="cell in yearRows[0]" :key="'ys1_'+cell.key" @click="goToMonth(cell.m)">
+                                    <span class="ym_label">{{ cell.label }}</span>
+                                    <span class="ym_time">{{ cell.time }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td v-for="cell in yearRows[1]" :key="'ys2_'+cell.key" @click="goToMonth(cell.m)">
+                                    <span class="ym_label">{{ cell.label }}</span>
+                                    <span class="ym_time">{{ cell.time }}</span>
+                                </td>
+                            </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </template>
 
@@ -430,14 +481,91 @@
                 interval : false,
                 interval2 : false,
                 touchY: 0,
+                didDrag: false,
                 updateX: 0,
+                tipDay: null,
                 form: {
-                    Hours: '0:00',
+                    Hours: 0,
                     Ctime: '',
                     Assist: 0,
                     Revisit: 0,
                     Studies: 0,
                     Memo: ''
+                },
+                adjustTime(field, delta) {
+                    if (!(this.sltdate instanceof Date)) return;
+                    
+                    // 현재 시간 가져오기 (분 단위)
+                    const cur = this.form[field] || 0;
+                    
+                    // 시간 조정 (delta는 시간 단위로 전달됨)
+                    let next = cur + (delta * 60);
+                    if (next < 0) next = 0;
+                    
+                    // 폼에 반영 (분 단위로 저장)
+                    this.$set(this.form, field, next);
+                    
+                    // tdate에 저장 (분 단위로 저장)
+                    const sltDay = this.sltdate;
+                    let found = false;
+                    (this.tdate || []).forEach(it => {
+                        if (typeof it.Date === 'string') it.Date = new Date(it.Date);
+                        if (this.sameDay(it.Date, sltDay)) {
+                            this.$set(it, field.toLowerCase(), next);
+                            found = true;
+                        }
+                    });
+                    
+                    if (!found) {
+                        this.tdate.push({ 
+                            Date: new Date(sltDay), 
+                            assist: timeStr 
+                        });
+                    }
+                    
+                    this.tdate = this.tdate.slice();
+                    this.setDayData();
+                    this.$forceUpdate();
+                },
+                setTimeData(minute) {
+                    if (!(this.sltdate instanceof Date)) return;
+                    
+                    // 현재 시간 가져오기 (분 단위)
+                    const cur = this.form.Hours ? this.form.Hours.split(':').reduce((h, m) => parseInt(h) * 60 + parseInt(m)) : 0;
+                    
+                    // 시간 조정
+                    let next = cur + minute;
+                    if (next < 0) next = 0;
+                    
+                    // 시간 형식으로 변환 (HH:MM)
+                    const hours = Math.floor(next / 60);
+                    const minutes = next % 60;
+                    const timeStr = `${hours}:${minutes < 10 ? '0' + minutes : minutes}`;
+                    
+                    // 폼에 반영
+                    this.$set(this.form, 'Hours', timeStr);
+                    
+                    // tdate에 저장
+                    const sltDay = this.sltdate;
+                    let found = false;
+                    (this.tdate || []).forEach(it => {
+                        if (typeof it.Date === 'string') it.Date = new Date(it.Date);
+                        if (this.sameDay(it.Date, sltDay)) {
+                            this.$set(it, 'Hours', timeStr);
+                            found = true;
+                        }
+                    });
+                    
+                    if (!found) {
+                        this.tdate.push({ 
+                            Date: new Date(sltDay), 
+                            Hours: timeStr 
+                        });
+                    }
+                    
+                    this.tdate = this.tdate.slice();
+                    this.setDayData();
+                    this.$forceUpdate();
                 },
                 // yearly summary drag state
                 ysHeight: 0,
@@ -474,6 +602,12 @@
                 // helpers
                 sameDay(a, b){ return a.setHours(0,0,0,0) === b.setHours(0,0,0,0); },
                 pad2(n){ return String(n).padStart(2,'0'); },
+                // 보조시간을 시간:분 형식으로 변환 (예: 3.5 => '3:30')
+                formatAssistTime(hours) {
+                    const h = Math.floor(hours);
+                    const m = Math.round((hours - h) * 60);
+                    return `${h}:${m < 10 ? '0' + m : m}`;
+                },
                 // 학년도 계산: 9~12월은 다음 해로 귀속 (예: 2023-09~2024-08 => 2024)
                 academicYear(d){ const y=d.getFullYear(); const m=d.getMonth(); return (m>=8)?(y+1):y; },
                 // 연도기반(학년도) 저장 키: tdate_YYYY
@@ -620,16 +754,70 @@
                     // 랜더링 안되는 경우 방지
                     this.$forceUpdate();
                 },
-                dayLCLK(event){
-                    if(!this.interval){
-                        let target = event.currentTarget;
-                        this.interval = setInterval(() => app.decData(target), 1000);
+                incData(target){
+                    // console.log('inc!', this.mode);
+                    let day = target.getAttribute('day');
+                    let cdate = this.cdate;
+                    let sltDate = new Date(cdate.getFullYear(),cdate.getMonth(),day);
+                    let jData = this.getData(sltDate, this.mode);
+                    let nData = (jData == "") ? 1 : parseInt(jData)+1;
+
+                    if(!Array.isArray(this.tdate)){
+                        this.tdate = [];
                     }
+
+                    let boo = false;
+                    let tempDate = this.tdate;
+                    tempDate.forEach((itm, ele) => {
+                        if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
+                            if(this.mode === 'hours'){
+                                // minutes 기반: 현재 분 +30
+                                let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
+                                this.$set(itm, 'hours', curMin + 30);
+                            } else {
+                                this.$set(itm, this.mode, nData);
+                            }
+                            boo = true;
+                        }
+                    });
+                    // 배열 참조를 변경해 반응성 보장
+                    this.tdate = tempDate.slice();
+
+                    if(!boo){
+                        if(this.mode === 'hours'){
+                            this.tdate.push({ Date: sltDate, hours: 30 });
+                        }else{
+                            this.tdate.push({ Date : sltDate , [this.mode] : nData});
+                        }
+                        // push 후에도 참조 변경로 반응성 강화
+                        this.tdate = this.tdate.slice();
+                    }
+
+                    this.setTdate();
+                    this.$forceUpdate();
                 },
-                dayLCLK2(){
+                dayLCLK(event){
+                    // show assist-only tip while holding and prepare tap/drag state
+                    this.didDrag = false;
+                    try{
+                        let target = event.currentTarget;
+                        let day = target.getAttribute('day');
+                        this.tipDay = new Date(this.cdate.getFullYear(), this.cdate.getMonth(), day);
+                        if(event && event.touches && event.touches[0]){
+                            this.touchY = parseInt(event.touches[0].clientY);
+                        }
+                    }catch(e){}
+                },
+                dayLCLK2(event){
+                    // end hold: no increment here; click (tap) or drag handles changes
+                    if(this.didDrag && event && event.cancelable){
+                        // prevent synthetic click after a drag-adjust
+                        event.preventDefault();
+                    }
                     clearInterval(this.interval);
                     this.interval = false;
                     this.touchY = 0;
+                    this.tipDay = null;
                 },
                 dayClass(day){ if(this.sameDay(day, new Date())) return "today"; if(this.sltdate && this.sameDay(day, this.sltdate)) return "sltday"; return ""; },
                 
@@ -649,12 +837,14 @@
                                 // minutes 기반: 현재 분 -30, 0 미만 방지
                                 let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
                                 curMin = Math.max(0, curMin - 30);
-                                if(curMin === 0){ delete itm.hours; } else { itm.hours = curMin; }
+                                if(curMin === 0){ this.$delete(itm, 'hours'); } else { this.$set(itm, 'hours', curMin); }
                             } else {
-                                itm[this.mode] = ndata;
+                                this.$set(itm, this.mode, ndata);
                             }
                         }
                     });
+                    // 배열 참조 변경로 반응성 보장
+                    this.tdate = this.tdate.slice();
                 
                     this.interval2 = true;
                     this.setTdate();
@@ -666,24 +856,54 @@
                     if(this.touchY == 0) this.touchY = parseInt(evt.changedTouches[0].clientY);
                     
                     let ctouchY = parseInt(evt.changedTouches[0].clientY);
-                    
-                    if((this.touchY + 20) < ctouchY) {
-                        let ele = evt.target.parentElement;
-                        if(ele.getAttribute('day') == null) ele = ele.parentElement;
-                        if(ele.getAttribute('day') == null) ele = ele.parentElement;
+                    // Prefer the bound element (<td>) as the action target
+                    let ele = evt.currentTarget;
+                    // Fallback: walk up from the actual touched node until we find an element with a 'day' attribute
+                    if(!ele || !ele.getAttribute || ele.getAttribute('day') == null){
+                        let n = evt.target;
+                        while(n && (!n.getAttribute || n.getAttribute('day') == null)){
+                            n = n.parentElement;
+                        }
+                        if(n) ele = n;
+                    }
+
+                    // drag down => decrease
+                    if(ctouchY > (this.touchY + 20)) {
                         this.touchY = this.touchY + 20;
+                        this.didDrag = true;
                         app.decData(ele);
                     }
-                },
+                    // drag up => increase
+                    else if(ctouchY < (this.touchY - 20)){
+                        this.touchY = this.touchY - 20;
+                        this.didDrag = true;
+                        app.incData(ele);
+                    }
+                }
+,
                 totalDate(data){
                     const curMonth = this.cdate.getMonth();
                     if(data==='hours'){
+                        // sum only base hours (minutes), do not include assist here
                         let totalMinutes = 0;
                         this.tdate.forEach(itm=>{
                             if(!itm || !itm.Date) return;
                             if(typeof itm.Date === 'string') itm.Date = new Date(itm.Date);
-                            if(itm.Date.getMonth()===curMonth && itm.hours){ totalMinutes += parseInt(itm.hours); }
+                            if(itm.Date.getMonth()===curMonth && itm.hours){
+                                totalMinutes += parseInt(itm.hours) || 0;
+                            }
                         });
+                        const hh = Math.floor(totalMinutes/60); const mm = totalMinutes % 60;
+                        return hh+":"+this.pad2(mm);
+                    }
+                    if(data==='assist'){
+                        let aSum = 0;
+                        this.tdate.forEach(itm=>{
+                            if(!itm || !itm.Date) return;
+                            if(typeof itm.Date === 'string') itm.Date = new Date(itm.Date);
+                            if(itm.Date.getMonth()===curMonth) aSum += parseInt(itm.assist||0) || 0;
+                        });
+                        const totalMinutes = aSum * 30;
                         const hh = Math.floor(totalMinutes/60); const mm = totalMinutes % 60;
                         return hh+":"+this.pad2(mm);
                     }
@@ -694,7 +914,8 @@
                         if(itm.Date.getMonth()===curMonth && itm[data]!==undefined) sum += parseInt(itm[data]);
                     });
                     return sum;
-                },
+                }
+,
                 getData(date, data){
                     if(!Array.isArray(this.tdate)){ this.tdate=[]; return 0; }
                     for(const itm of this.tdate){
@@ -719,20 +940,7 @@
                     const raw=window.localStorage.getItem(txt);
                     let arr = raw? JSON.parse(raw): [];
                     try{ console.log('[ServeLog] load', txt, '(records='+ (Array.isArray(arr)?arr.length:0) +', month='+ this.pad2(this.cdate.getMonth()+1) +')'); }catch(e){}
-                    // 마이그레이션: legacy 'hour'(H:MM) -> minutes 기반 'hours'
-                    this.tdate = arr.map(it=>{
-                        if(!it) return it;
-                        try{
-                            if(it.hour && (it.hours===undefined || it.hours===0)){
-                                const s = String(it.hour);
-                                const [hh,mm] = s.split(':');
-                                const minutes = (parseInt(hh)||0)*60 + (parseInt(mm)||0);
-                                it.hours = minutes;
-                            }
-                            if('hour' in it) delete it.hour;
-                        }catch(e){}
-                        return it;
-                    });
+                    this.tdate = arr;
                 },
                 setTdate(){ const txt=this.tkey(); window.localStorage.setItem(txt, JSON.stringify(this.tdate)); },
 
@@ -753,69 +961,86 @@
                 },
                 loadDayData(){
                     let sltDay = this.sltdate;
-                    if(sltDay == "") return;
+                    if(!sltDay) return;
                     
-                    let ctime = this.getData(sltDay, 'ctime');
-                    let assist = this.getData(sltDay, 'assist');
-                    let revisit = this.getData(sltDay, 'revisit');
-                    let studies = this.getData(sltDay, 'studies');
-                    let memo = this.getData(sltDay, 'memo');
+                    // 현재 선택된 날짜의 데이터 가져오기
+                    let dayData = this.getDayData(sltDay) || {};
                     
-                    let timeH = this.showTime(sltDay);
-                    // console.log(hour,hours,timeH);
-                    $("#f_Hours").val((timeH == 0) ? "0:00" : timeH);
-                    $("#f_Ctime").val((ctime == 0) ? "" : ctime );
-                    $("#f_Assist").val((assist == 0) ? "0" : assist);
-                    $("#f_Revisit").val((revisit == 0) ? "0" : revisit);
-                    $("#f_Studies").val((studies == 0) ? "0" : studies);
+                    // 데이터가 없으면 기본값 설정
+                    let hours = dayData.hours || 0;
+                    let assist = dayData.assist || 0;
+                    let ctime = dayData.ctime || '';
+                    let revisit = dayData.revisit || 0;
+                    let studies = dayData.studies || 0;
+                    let memo = dayData.memo || '';
+                    
+                    // 폼에 데이터 설정
+                    if(this.form && typeof this.form === 'object'){
+                        this.$set(this.form, 'Hours', hours);
+                        this.$set(this.form, 'Assist', assist);
+                        this.$set(this.form, 'Revisit', revisit);
+                        this.$set(this.form, 'Studies', studies);
+                        this.$set(this.form, 'Ctime', ctime);
+                        this.$set(this.form, 'Memo', memo);
+                    }
+                    
+                    // DOM 업데이트
+                    $("#f_Ctime").val(ctime);
                     $("#f_Memo").val(memo);
+                    
+                    // UI 업데이트 강제
+                    this.$nextTick(() => {
+                        this.$forceUpdate();
+                    });
                 },
                 setDayData(){
                     let sltDay = this.sltdate;
                     if(sltDay == "") return;
                   
-                    let d_Hours = $("#f_Hours").val();
-                    let d_Ctime = $("#f_Ctime").val();
-                    let d_Revisit = $("#f_Revisit").val();
-                    let d_Studies = $("#f_Studies").val();
-                    let d_Memo = $("#f_Memo").val();
+                    // read from Vue model
+                    let d_Hours = (this.form && this.form.Hours !== undefined) ? parseInt(this.form.Hours) : 0;
+                    let d_Ctime = $("#f_Ctime").val() || '';
+                    let d_Assist = (this.form && this.form.Assist !== undefined) ? parseInt(this.form.Assist) : 0;
+                    let d_Revisit = (this.form && this.form.Revisit !== undefined) ? parseInt(this.form.Revisit) : 0;
+                    let d_Studies = (this.form && this.form.Studies !== undefined) ? parseInt(this.form.Studies) : 0;
+                    let d_Memo = $("#f_Memo").val() || '';
 
-                    let boo = false;
-                    this.tdate.forEach((itm, ele) => {
+                    let found = false;
+                    this.tdate.forEach((itm) => {
                         if(itm.Date.setHours(0,0,0,0) == sltDay.setHours(0,0,0,0)){
-                            boo = true;
-
-                            if(d_Hours != "") {
-                                const [hh,mm] = (d_Hours+"").split(":");
-                                const total = (parseInt(hh)||0)*60 + (parseInt(mm)||0);
-                                itm['hours'] = total;
-                                delete itm.hour;
-                            }
-                            if(d_Ctime != "") itm['ctime'] = d_Ctime;
-                            if(d_Assist != "") itm['assist'] = parseInt(d_Assist);
-                            if(d_Revisit != "") itm['revisit'] = parseInt(d_Revisit);
-                            if(d_Studies != "") itm['studies'] = parseInt(d_Studies);
-                            if(d_Memo != "") itm['memo'] = d_Memo;
+                            found = true;
+                            
+                            // Update existing item
+                            if(d_Hours >= 0) this.$set(itm, 'hours', d_Hours);
+                            if(d_Assist >= 0) this.$set(itm, 'assist', d_Assist);
+                            if(d_Revisit >= 0) this.$set(itm, 'revisit', d_Revisit);
+                            if(d_Studies >= 0) this.$set(itm, 'studies', d_Studies);
+                            if(d_Ctime !== undefined) this.$set(itm, 'ctime', d_Ctime);
+                            if(d_Memo !== undefined) this.$set(itm, 'memo', d_Memo);
+                            
+                            // Remove legacy hour field if it exists
+                            if('hour' in itm) delete itm.hour;
                         }
                     });
 
-                    if(!boo){
-                        let itm = new Object();
-
-                        itm.Date = sltDay;
-                        if(d_Hours != ""){
-                            const [hh,mm] = (d_Hours+"").split(":");
-                            const total = (parseInt(hh)||0)*60 + (parseInt(mm)||0);
-                            itm.hours = total;
-                        }
-                        if(d_Ctime != "") itm.ctime = d_Ctime;
-                        if(d_Assist != "") itm.assist = d_Assist;
-                        if(d_Revisit != "") itm.revisit = d_Revisit;
-                        if(d_Studies != "") itm.studies = d_Studies;
-                        if(d_Memo != "") itm.memo = d_Memo;
-
-                        this.tdate.push(itm);
+                    // Add new item if not found
+                    if(!found){
+                        let newItem = {
+                            Date: new Date(sltDay)
+                        };
+                        
+                        if(d_Hours > 0) newItem.hours = d_Hours;
+                        if(d_Assist > 0) newItem.assist = d_Assist;
+                        if(d_Revisit > 0) newItem.revisit = d_Revisit;
+                        if(d_Studies > 0) newItem.studies = d_Studies;
+                        if(d_Ctime) newItem.ctime = d_Ctime;
+                        if(d_Memo) newItem.memo = d_Memo;
+                        
+                        this.tdate.push(newItem);
                     }
+
+                    // 배열 참조 변경로 반응성 보장
+                    this.tdate = this.tdate.slice();
 
                     this.interval2 = true;
                     this.setTdate();
@@ -826,41 +1051,36 @@
                     this.$forceUpdate();
                 },
                 
-                // classic
+                // classic: treat time as duration; accumulate by minutes without day-boundary logic
                 setTimeData(minute){
-                    let Loadmin = $("#f_Hours").val();
+                    // current value from Vue model (fallback to DOM once for compatibility)
+                    let load = (this.form && this.form.Hours) ? this.form.Hours : (($("#f_Hours").val()) || "0:00");
+                    if(!load || typeof load !== 'string') load = "0:00";
 
-                    // console.log(Loadmin);
-                    if(minute < 0){
-                        if($("#f_Hours").val() == "0:00") return;
+                    // Parse H:MM
+                    let [hhStr, mmStr] = String(load).split(":");
+                    let hh = parseInt(hhStr)||0;
+                    let mm = parseInt(mmStr)||0;
+                    let total = hh*60 + mm + (parseInt(minute)||0);
+                    if(total < 0) total = 0;
+                    const nh = Math.floor(total/60);
+                    const nm = total % 60;
+                    const newVal = nh + ":" + String(nm).padStart(2,'0');
+
+                    // update Vue model (input is bound via v-model)
+                    if(this.form && typeof this.form === 'object'){
+                        this.$set(this.form, 'Hours', newVal);
                     }
-                    
-                    let tarr = Loadmin.split(":");
-                    // 날짜데이터로 바꾸고 날짜변경체크
-                    let date1 = new Date(this.sltdate);
-                    let date2 = new Date(this.sltdate.setHours(tarr[0],tarr[1],0,0)+(60000*minute));
 
-                    // 자리수 맞추기
-                    let nminutes = date2.getMinutes().toString().padStart(2,'0');
-                    let nhours = date2.getHours().toString();
-
-                    if(date1.getDate() != date2.getDate()) {
-                        $("#f_Hours").val("0:00");
-                    }else{
-                        $("#f_Hours").val(nhours + ":" + nminutes);
-                    }
                     this.setDayData();
                 },
                 setTypeData(type, bool=true){
-                    let loadData = $("#f_"+type).val();
-
-                    if(bool){
-                        $("#f_"+type).val(++loadData);
-                    }else{
-                        if(loadData != 0) $("#f_"+type).val(--loadData);
-                    }
-
-                    // console.log(loadData,type);
+                    // Works with Vue model instead of DOM; type is one of 'Revisit' | 'Studies'
+                    const key = String(type);
+                    if(!this.form || !(key in this.form)) return;
+                    let v = parseInt(this.form[key]) || 0;
+                    v = bool ? v + 1 : Math.max(0, v - 1);
+                    this.$set(this.form, key, v);
                     this.setDayData();
                 },
                 
@@ -948,17 +1168,45 @@
                         window.location.reload();
                     }
                 },
-                showTime(date){
-                    if(typeof date != 'object'){
-                        console.log(date, 'not object');
-                        return false;
-                    }
-                    // minutes 기반 표시
-                    let minutes = parseInt(this.getData(date, 'hours') || 0) || 0;
-                    const h = Math.floor(minutes/60);
+                // 분 단위를 H:MM 형식으로 변환
+                formatMinutes(minutes) {
+                    if (isNaN(minutes) || minutes === 0) return '';
+                    const h = Math.floor(minutes / 60);
                     const m = minutes % 60;
-                    const txt = h + ":" + this.pad2(m);
-                    return (txt === "0:00") ? "" : txt;
+                    return `${h}:${this.pad2(m)}`;
+                },
+                
+                // 시간을 H:MM 형식으로 표시
+                showTime(date) {
+                    if (!(date instanceof Date)) return '';
+                    const dayData = this.getDayData(date);
+                    if (!dayData) return '';
+                    
+                    // hours가 없으면 0으로 처리
+                    const minutes = parseInt(dayData.hours) || 0;
+                    return this.formatMinutes(minutes);
+                },
+                
+                // 총 시간 표시 (hours + assist)
+                displayTime(date) {
+                    if (!(date instanceof Date)) return '';
+                    const dayData = this.getDayData(date);
+                    if (!dayData) return '';
+                    
+                    const base = parseInt(dayData.hours) || 0;
+                    const assist = parseInt(dayData.assist) || 0;
+                    const total = base + assist; // 모두 분 단위이므로 그냥 더함
+                    return this.formatMinutes(total);
+                },
+                
+                // 보조시간 표시 (분 단위 -> H:MM)
+                formatAssist(date) {
+                    if (!(date instanceof Date)) return '';
+                    const dayData = this.getDayData(date);
+                    if (!dayData) return '';
+                    
+                    const minutes = parseInt(dayData.assist) || 0;
+                    return this.formatMinutes(minutes);
                 },
                 dbtabblock(){
                     var lastTouchEnd = 0;
@@ -973,13 +1221,50 @@
                 },
 
                 getDayData(day){
-                    let d;
-                    this.tdate.forEach((itm, ele) => {
-                        if(itm.Date.getDate() == day){
-                            d = itm;
+                    if (!(day instanceof Date)) {
+                        if (typeof day === 'string') {
+                            day = new Date(day);
+                        } else {
+                            return null;
+                        }
+                    }
+                    
+                    // 날짜 비교를 위해 시간을 00:00:00으로 설정
+                    const targetDate = new Date(day);
+                    targetDate.setHours(0, 0, 0, 0);
+                    
+                    let foundItem = null;
+                    this.tdate.forEach((item) => {
+                        if (!item.Date) return;
+                        
+                        const itemDate = new Date(item.Date);
+                        itemDate.setHours(0, 0, 0, 0);
+                        
+                        if (itemDate.getTime() === targetDate.getTime()) {
+                            foundItem = item;
                         }
                     });
-                    return d;
+                    
+                    return foundItem;
+                },
+                goToMonth(m){
+                    if(typeof m !== 'number' || isNaN(m)) return;
+                    // Navigate within the same academic year (Sep..Aug) as current cdate
+                    // If current month is Sep-Dec (>=8): months 8..11 -> same year, months 0..7 -> next year
+                    // If current month is Jan-Aug (<8): months 8..11 -> previous year, months 0..7 -> same year
+                    const curY = this.cdate.getFullYear();
+                    const curM = this.cdate.getMonth();
+                    let targetYear;
+                    if(curM >= 8){
+                        targetYear = (m >= 8) ? curY : (curY + 1);
+                    } else {
+                        targetYear = (m >= 8) ? (curY - 1) : curY;
+                    }
+                    this.cdate = new Date(targetYear, m, 1);
+                    // recompute month grid and reload current month's data
+                    this.c_month(this.cdate);
+                    // close the bottom bar expanded area (optional UX)
+                    // this.ysHeight = 0;
                 }
             },
             computed: {
@@ -1000,14 +1285,21 @@
                     const rows = [];
                     for(let i=0;i<12;i++){
                         const m = order[i];
-                        let total = 0;
+                        let baseMinutes = 0;
+                        let assistMinutes = 0;
                         (this.tdate||[]).forEach(it=>{
                             if(!it || !it.Date) return;
                             if(typeof it.Date === 'string') it.Date = new Date(it.Date);
-                            if(it.Date.getMonth() === m && it.hours){ total += parseInt(it.hours); }
+                            if(it.Date.getMonth() === m){
+                                if(it.hours) baseMinutes += parseInt(it.hours)||0; // minutes
+                                if(it.assist){ assistMinutes += (parseInt(it.assist)||0)*30; }
+                            }
                         });
-                        const hh = Math.floor(total/60), mm = total%60;
-                        rows.push({ key: 'm'+m, label: labels[i], time: hh+':'+this.pad2(mm) });
+                        // cap ONLY the assist portion so base hours are never reduced
+                        const roomForAssist = Math.max(0, 55*60 - baseMinutes);
+                        const capped = baseMinutes + Math.min(assistMinutes, roomForAssist);
+                        const hh = Math.floor(capped/60), mm = capped%60;
+                        rows.push({ key: 'm'+m, m, label: labels[i], time: hh+':'+this.pad2(mm) });
                     }
                     return rows;
                 },
@@ -1020,14 +1312,34 @@
                     const row2 = row2Months.map(m=> this.yearMonthTotals[findIdx(m)]).filter(Boolean);
                     return [row1, row2];
                 },
-                yearTotalHoursHhMm(){
-                    let total = 0;
+                monthCombinedTotalHhMm(){
+                    // Sum current month: base hours (minutes) + assist (assist*30 minutes)
+                    const curMonth = this.cdate.getMonth();
+                    let baseMinutes = 0;
+                    let assistMinutes = 0;
                     (this.tdate||[]).forEach(it=>{
                         if(!it || !it.Date) return;
                         if(typeof it.Date === 'string') it.Date = new Date(it.Date);
-                        if(it.hours) total += parseInt(it.hours);
+                        if(it.Date.getMonth() !== curMonth) return;
+                        if(it.hours) baseMinutes += parseInt(it.hours) || 0; // minutes
+                        if(it.assist) assistMinutes += (parseInt(it.assist)||0) * 30;
                     });
-                    const hh = Math.floor(total/60), mm = total%60;
+                    // cap ONLY the assist portion so base hours are never reduced
+                    const roomForAssist = Math.max(0, 55*60 - baseMinutes);
+                    const capped = baseMinutes + Math.min(assistMinutes, roomForAssist);
+                    const hh = Math.floor(capped/60), mm = capped % 60;
+                    return hh + ':' + this.pad2(mm);
+                },
+                yearTotalCombinedCappedHhMm(){
+                    // Sum the academic year's 12 months using the same capped-per-month combined totals
+                    // Reuse yearMonthTotals which already computes combined+capped times per month
+                    let totalMinutes = 0;
+                    this.yearMonthTotals.forEach(cell=>{
+                        const [hh,mm] = String(cell.time).split(':');
+                        const m = (parseInt(hh)||0)*60 + (parseInt(mm)||0);
+                        totalMinutes += m;
+                    });
+                    const hh = Math.floor(totalMinutes/60), mm = totalMinutes%60;
                     return hh + ':' + this.pad2(mm);
                 }
             },
