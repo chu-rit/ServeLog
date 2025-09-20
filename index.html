@@ -254,7 +254,7 @@
                                                 {{ displayTime(date) }}
                                             </p>
                                         <div class="extra_report">
-                                            <span v-if="tipDay && sameDay(tipDay, date) && getData(date,'assist')>0" class="assist_tip">{{ formatAssist(date) }}</span>
+                                            <span v-if="tipDay && sameDay(tipDay, date) && getData(date,'assist')>0" class="assist_tip">{{ formatMinutes(getData(date, 'assist')) }}</span>
                                             <p class="revisit_sum sub_sum" v-show="getData(date,'revisit') != 0" v-for="i in getData(date,'revisit')"></p>
                                             <p class="studies_sum sub_sum" v-show="getData(date,'studies') != 0" v-for="i in getData(date,'studies')"></p>
                                         </div>
@@ -363,7 +363,7 @@
                                         <p class="hours_sum half" :class="{assist_on: !!getData(date,'assist')}">
                                             {{ displayTime(date) }}
                                         </p>
-                                        <span v-if="tipDay && sameDay(tipDay, date) && getData(date,'assist')>0" class="assist_tip">{{ formatAssist(date) }}</span>
+                                        <span v-if="tipDay && sameDay(tipDay, date) && getData(date,'assist')>0" class="assist_tip">{{ formatMinutes(getData(date, 'assist')) }}</span>
                                     </div>
                                 </td>
                             </template>
@@ -608,12 +608,7 @@
                 // helpers
                 sameDay(a, b){ return a.setHours(0,0,0,0) === b.setHours(0,0,0,0); },
                 pad2(n){ return String(n).padStart(2,'0'); },
-                // 보조시간을 시간:분 형식으로 변환 (예: 3.5 => '3:30')
-                formatAssistTime(hours) {
-                    const h = Math.floor(hours);
-                    const m = Math.round((hours - h) * 60);
-                    return `${h}:${m < 10 ? '0' + m : m}`;
-                },
+                // formatMinutes로 통일
                 // 학년도 계산: 9~12월은 다음 해로 귀속 (예: 2023-09~2024-08 => 2024)
                 academicYear(d){ const y=d.getFullYear(); const m=d.getMonth(); return (m>=8)?(y+1):y; },
                 // 연도기반(학년도) 저장 키: tdate_YYYY
@@ -734,10 +729,19 @@
 
                     tempDate.forEach((itm, ele) => {
                         if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
+
+                            // 테스트 콘솔
+                            console.log(JSON.stringify(itm));
+                            
                             if(this.mode == 'hours'){
                                 // minutes 기반: 현재 분 +30
                                 let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
                                 itm['hours'] = curMin + 30;
+                            } else if(this.mode == 'assist'){
+                                // assist도 동일하게 30분 단위로 조정
+                                let curMin = parseInt(this.getData(sltDate,'assist')||0) || 0;
+                                // console.log(curMin,'curMin');
+                                itm['assist'] = curMin + 30;
                             } else {
                                 itm[this.mode] = nData;
                             }
@@ -750,6 +754,8 @@
                     if(!boo){
                         if(this.mode === 'hours'){
                             this.tdate.push({ Date: sltDate, hours: 30 });
+                        }else if(this.mode === 'assist'){
+                            this.tdate.push({ Date : sltDate , assist : 30});
                         }else{
                             this.tdate.push({ Date : sltDate , [this.mode] : nData});
                         }
@@ -780,7 +786,11 @@
                                 // minutes 기반: 현재 분 +30
                                 let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
                                 this.$set(itm, 'hours', curMin + 30);
-                            } else {
+                            } else if(this.mode === 'assist'){
+                                // minutes 기반: 현재 분 +30
+                                let curMin = parseInt(this.getData(sltDate,'assist')||0) || 0;
+                                this.$set(itm, 'assist', curMin + 30);
+                            }else {
                                 this.$set(itm, this.mode, nData);
                             }
                             boo = true;
@@ -792,7 +802,9 @@
                     if(!boo){
                         if(this.mode === 'hours'){
                             this.tdate.push({ Date: sltDate, hours: 30 });
-                        }else{
+                        } else if(this.mode === 'assist') {
+                            this.tdate.push({ Date: sltDate, assist: 30 }); // 초기값 30분
+                        } else {
                             this.tdate.push({ Date : sltDate , [this.mode] : nData});
                         }
                         // push 후에도 참조 변경로 반응성 강화
@@ -844,6 +856,11 @@
                                 let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
                                 curMin = Math.max(0, curMin - 30);
                                 if(curMin === 0){ this.$delete(itm, 'hours'); } else { this.$set(itm, 'hours', curMin); }
+                            } else if(this.mode == 'assist'){
+                                // minutes 기반: 현재 분 -30, 0 미만 방지
+                                let curMin = parseInt(this.getData(sltDate,'assist')||0) || 0;
+                                curMin = Math.max(0, curMin - 30);
+                                if(curMin === 0){ this.$delete(itm, 'assist'); } else { this.$set(itm, 'assist', curMin); }
                             } else {
                                 this.$set(itm, this.mode, ndata);
                             }
@@ -1232,12 +1249,6 @@
                     return this.formatMinutes(total);
                 },
                 
-                // 보조시간 표시 (분 단위 -> H:MM)
-                formatAssist(date) {
-                    if (!(date instanceof Date)) return '';
-                    const minutes = parseInt(this.getData(date, 'assist') || 0);
-                    return this.formatMinutes(minutes);
-                },
                 dbtabblock(){
                     var lastTouchEnd = 0;
                     document.documentElement.addEventListener('touchend', function (event) {
