@@ -138,9 +138,45 @@
         .dayDetail {padding: 10px 20px 150px;}
         .dayDetail>div {padding:10px 0; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between;}
         .dayDetail label {width: 40px; display: block; color: #000; line-height: 28px; text-align: center;}
-        .dayDetail input {width: 40px; background: none; border: none; font-size: 15px;  font-weight: bold; color: #000; text-align: center;}
+        /* 기존 스타일 유지 */
+        .dayDetail input {width: 40px; background: none; border: none; font-size: 15px; font-weight: bold; color: #000; text-align: center;}
         .dayDetail .time label {width: 60px;}
         .dayDetail .time input {width: 60px;}
+        
+        /* 재방문, 연구 폼 전용 스타일 */
+        .dayDetail .vertical-controls {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 15px;
+        }
+        .dayDetail .control-group {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .dayDetail .control-group label {
+            width: auto;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .dayDetail .button-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .dayDetail .button-group .value-input {
+            width: 45px;
+            text-align: center;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 2px 0;
+        }
+        .dayDetail .vertical-controls a {
+            width: 30px;
+            margin: 0;
+        }
         .dayDetail a {padding:6px 0; background-color: #7B716A; line-height: 100%; font-size: 12px; text-align: center; width: 40px; border-radius: 5px; margin:2px; color: #fff; display: block;}
         .dayDetail a:hover {background-color: #231306;}
         .dayDetail .time a {padding:6px 4px;}
@@ -347,7 +383,7 @@
                 <div class="time">
                     <div>
                         <label for="f_Hours">시간</label>
-                        <input readonly type="text" id="f_Hours" value="0:00">
+                        <input readonly type="text" id="f_Hours" :value="formatMinutes(form.Hours)">
                     </div>
                     <div><a class="increase" @click.prevent="setTimeData(1)">+1m</a><a class="decrease" @click.prevent="setTimeData(-1)">-1m</a></div>
                     <div><a class="increase" @click.prevent="setTimeData(5)">+5m</a><a class="decrease" @click.prevent="setTimeData(-5)">-5m</a></div>
@@ -358,7 +394,7 @@
                 <div class="time">
                     <div>
                         <label for="f_Assist">보조시간</label>
-                        <input readonly type="number" id="f_Assist" v-model.number="form.Assist">
+                        <input readonly type="text" id="f_Assist" :value="formatMinutes(form.Assist)">
                     </div>
                     <div><a class="increase" @click.prevent="adjustTime('Assist', 1/60)">+1m</a><a class="decrease" @click.prevent="adjustTime('Assist', -1/60)">-1m</a></div>
                     <div><a class="increase" @click.prevent="adjustTime('Assist', 5/60)">+5m</a><a class="decrease" @click.prevent="adjustTime('Assist', -5/60)">-5m</a></div>
@@ -366,23 +402,33 @@
                     <div><a class="increase" @click.prevent="adjustTime('Assist', 30/60)">+30m</a><a class="decrease" @click.prevent="adjustTime('Assist', -30/60)">-30m</a></div>
                     <div><a class="increase" @click.prevent="adjustTime('Assist', 1)">+1h</a><a class="decrease" @click.prevent="adjustTime('Assist', -1)">-1h</a></div>
                 </div>
-                <div class="column4">
-                    <div><label for="f_Revisit">재방문</label><input readonly type="number" id="f_Revisit" v-model.number="form.Revisit" min="0"></div>
-                    <!-- <div> -->
-                        <a class="increase" @click.prevent="setTypeData('Revisit')">+1</a>
-                        <a class="decrease" @click.prevent="setTypeData('Revisit', false)">-1</a>
-                    <!-- </div> -->
+                <div class="vertical-controls">
+                    <div class="control-group">
+                        <label for="f_Revisit">재방문</label>
+                        <input readonly type="number" id="f_Revisit" v-model.number="form.Revisit" min="0" class="value-input">
+                        <div class="button-group">
+                            <a class="increase" @click.prevent="setTypeData('Revisit')">+1</a>
+                            <a class="decrease" @click.prevent="setTypeData('Revisit', false)">-1</a>
+                        </div>
+                    </div>
                     
-                    <div><label for="f_Studies">연구</label><input readonly type="number" id="f_Studies" v-model.number="form.Studies" min="0"></div>
-                    <!-- <div> -->
-                        <a class="increase" @click.prevent="setTypeData('Studies')">+1</a>
-                        <a class="decrease" @click.prevent="setTypeData('Studies', false)">-1</a>
-                    <!-- </div> -->
+                    <div class="control-group">
+                        <label for="f_Studies">연구</label>
+                        <input readonly type="number" id="f_Studies" v-model.number="form.Studies" min="0" class="value-input">
+                        <div class="button-group">
+                            <a class="increase" @click.prevent="setTypeData('Studies')">+1</a>
+                            <a class="decrease" @click.prevent="setTypeData('Studies', false)">-1</a>
+                        </div>
+                    </div>
                 </div>
                 <div class="memo_wrapper">
-                    <label for="">메모</label>
-                    <textarea id="f_Memo" v-model="form.Memo"></textarea>
-                    <!-- <a @click="setDayData" class="btn1">저장</a> -->
+                    <label for="f_Memo">메모</label>
+                    <textarea 
+                        id="f_Memo" 
+                        v-model="form.Memo"
+                        @blur="setDayData"
+                        placeholder="메모를 입력하세요">
+                    </textarea>
                 </div>
             </div>
 
@@ -495,75 +541,42 @@
                 adjustTime(field, delta) {
                     if (!(this.sltdate instanceof Date)) return;
                     
-                    // 현재 시간 가져오기 (분 단위)
-                    const cur = this.form[field] || 0;
+                    // 분 단위로 계산
+                    const minutesToAdd = Math.round(delta * 60); // 시간을 분으로 변환 (예: 0.5시간 -> 30분)
+                    this.form[field] = Math.max(0, this.form[field] + minutesToAdd);
                     
-                    // 시간 조정 (delta는 시간 단위로 전달됨)
-                    let next = cur + (delta * 60);
-                    if (next < 0) next = 0;
-                    
-                    // 폼에 반영 (분 단위로 저장)
-                    this.$set(this.form, field, next);
-                    
-                    // tdate에 저장 (분 단위로 저장)
-                    const sltDay = this.sltdate;
-                    let found = false;
-                    (this.tdate || []).forEach(it => {
-                        if (typeof it.Date === 'string') it.Date = new Date(it.Date);
-                        if (this.sameDay(it.Date, sltDay)) {
-                            this.$set(it, field.toLowerCase(), next);
-                            found = true;
-                        }
-                    });
-                    
-                    if (!found) {
-                        this.tdate.push({ 
-                            Date: new Date(sltDay), 
-                            assist: timeStr 
-                        });
-                    }
-                    
-                    this.tdate = this.tdate.slice();
+                    // 변경사항 저장
                     this.setDayData();
                     this.$forceUpdate();
                 },
                 setTimeData(minute) {
                     if (!(this.sltdate instanceof Date)) return;
                     
-                    // 현재 시간 가져오기 (분 단위)
-                    const cur = this.form.Hours ? this.form.Hours.split(':').reduce((h, m) => parseInt(h) * 60 + parseInt(m)) : 0;
+                    // 분 단위로 시간 조정
+                    this.form.Hours = Math.max(0, (this.form.Hours || 0) + minute);
                     
-                    // 시간 조정
-                    let next = cur + minute;
-                    if (next < 0) next = 0;
-                    
-                    // 시간 형식으로 변환 (HH:MM)
-                    const hours = Math.floor(next / 60);
-                    const minutes = next % 60;
-                    const timeStr = `${hours}:${minutes < 10 ? '0' + minutes : minutes}`;
-                    
-                    // 폼에 반영
-                    this.$set(this.form, 'Hours', timeStr);
-                    
-                    // tdate에 저장
+                    // tdate 배열에서 해당 날짜의 데이터를 찾아 업데이트
                     const sltDay = this.sltdate;
                     let found = false;
+                    
                     (this.tdate || []).forEach(it => {
                         if (typeof it.Date === 'string') it.Date = new Date(it.Date);
                         if (this.sameDay(it.Date, sltDay)) {
-                            this.$set(it, 'Hours', timeStr);
+                            this.$set(it, 'Hours', this.form.Hours);
                             found = true;
                         }
                     });
                     
+                    // 해당 날짜의 데이터가 없으면 새로 추가
                     if (!found) {
-                        this.tdate.push({ 
-                            Date: new Date(sltDay), 
-                            Hours: timeStr 
+                        const newDate = new Date(sltDay);
+                        this.tdate.push({
+                            Date: newDate,
+                            Hours: this.form.Hours
                         });
                     }
                     
-                    this.tdate = this.tdate.slice();
+                    // 변경사항 저장
                     this.setDayData();
                     this.$forceUpdate();
                 },
@@ -589,14 +602,7 @@
                     }
                 };
 
-                if(this.appUi == 'B'){
-                    setTimeout(()=>{
-                        let day = $(".cal2 .today").attr('day');
-                        let date2 = new Date(app.cdate); 
-                        date2.setDate(day);
-                        app.sltdate = date2;
-                    },0);
-                }
+                // UI B 모드에서 오늘 날짜 자동 선택 비활성화
             },
             methods: {
                 // helpers
@@ -889,23 +895,22 @@
                         this.tdate.forEach(itm=>{
                             if(!itm || !itm.Date) return;
                             if(typeof itm.Date === 'string') itm.Date = new Date(itm.Date);
-                            if(itm.Date.getMonth()===curMonth && itm.hours){
+                            if(itm.Date.getMonth()===curMonth && itm.hours !== undefined){
                                 totalMinutes += parseInt(itm.hours) || 0;
                             }
                         });
-                        const hh = Math.floor(totalMinutes/60); const mm = totalMinutes % 60;
-                        return hh+":"+this.pad2(mm);
+                        return this.formatMinutes(totalMinutes);
                     }
                     if(data==='assist'){
-                        let aSum = 0;
+                        let totalMinutes = 0;
                         this.tdate.forEach(itm=>{
                             if(!itm || !itm.Date) return;
                             if(typeof itm.Date === 'string') itm.Date = new Date(itm.Date);
-                            if(itm.Date.getMonth()===curMonth) aSum += parseInt(itm.assist||0) || 0;
+                            if(itm.Date.getMonth()===curMonth && itm.assist !== undefined) {
+                                totalMinutes += parseInt(itm.assist) || 0;
+                            }
                         });
-                        const totalMinutes = aSum * 30;
-                        const hh = Math.floor(totalMinutes/60); const mm = totalMinutes % 60;
-                        return hh+":"+this.pad2(mm);
+                        return this.formatMinutes(totalMinutes);
                     }
                     let sum=0;
                     this.tdate.forEach(itm=>{
@@ -944,25 +949,56 @@
                 },
                 setTdate(){ const txt=this.tkey(); window.localStorage.setItem(txt, JSON.stringify(this.tdate)); },
 
-                sltCLK(event){
+                sltCLK(event) {
                     let target = event.currentTarget;
                     let day = target.getAttribute('day');
-                    let sltDate = new Date(this.cdate.getFullYear(),this.cdate.getMonth(),day);
-
-                    if(this.sltdate == ""){
+                    let sltDate = new Date(this.cdate.getFullYear(), this.cdate.getMonth(), day);
+                    
+                    // 날짜 선택/해제 로직
+                    if (this.sltdate === '' || !this.sameDay(sltDate, this.sltdate)) {
                         this.sltdate = sltDate;
-                    }else{
-                        if(sltDate.setHours(0,0,0,0) == this.sltdate.setHours(0,0,0,0)){
-                            this.sltdate = "";
-                        }else{
-                            this.sltdate = sltDate;
+                        this.loadDayData(); // 메모 값 동기화를 위해 호출 추가
+                        
+                        // UI B 모드에서 스크롤 조정
+                        if (this.appUi === 'B') {
+                            this.$nextTick(() => {
+                                const dayDetail = document.querySelector('.dayDetail');
+                                if (dayDetail) {
+                                    // 약간의 지연 후 스크롤 실행
+                                    setTimeout(() => {
+                                        const viewportHeight = window.innerHeight;
+                                        // 화면의 80% 지점으로 스크롤 (20%는 여유 공간으로 남김)
+                                        const scrollPosition = (document.body.scrollHeight - viewportHeight) * 0.8;
+                                        
+                                        window.scrollTo({
+                                            top: scrollPosition,
+                                            behavior: 'smooth'
+                                        });
+                                    }, 50);
+                                }
+                            });
                         }
+                    } else {
+                        this.sltdate = ''; // 같은 날짜 클릭 시 선택 해제
+                        this.loadDayData(); // 선택 해제 시에도 호출
                     }
                 },
                 loadDayData(){
                     let sltDay = this.sltdate;
                     if(sltDay == "") return;
                     
+                    // Initialize form object if it doesn't exist
+                    if (!this.form || typeof this.form !== 'object') {
+                        this.form = {
+                            Hours: 0,
+                            Assist: 0,
+                            Revisit: 0,
+                            Studies: 0,
+                            Memo: ''
+                        };
+                    }
+                    
+                    // Get data from storage
                     let hours = this.getData(sltDay, 'hours') || 0;
                     let ctime = this.getData(sltDay, 'ctime');
                     let assist = this.getData(sltDay, 'assist') || 0;
@@ -970,33 +1006,50 @@
                     let studies = this.getData(sltDay, 'studies') || 0;
                     let memo = this.getData(sltDay, 'memo') || '';
                     
-                    if(this.form && typeof this.form === 'object'){
-                        this.$set(this.form, 'Hours', hours);
-                        this.$set(this.form, 'Assist', assist);
-                        this.$set(this.form, 'Revisit', revisit);
-                        this.$set(this.form, 'Studies', studies);
+                    // Convert legacy format (time string) to minutes if needed
+                    if (typeof hours === 'string' && hours.includes(':')) {
+                        const [h, m] = hours.split(':').map(Number);
+                        hours = h * 60 + m;
                     }
+                    
+                    if (typeof assist === 'string' && assist.includes(':')) {
+                        const [h, m] = assist.split(':').map(Number);
+                        assist = h * 60 + m;
+                    }
+                    
+                    // Update form with values
+                    this.$set(this.form, 'Hours', parseInt(hours) || 0);
+                    this.$set(this.form, 'Assist', parseInt(assist) || 0);
+                    this.$set(this.form, 'Revisit', parseInt(revisit) || 0);
+                    this.$set(this.form, 'Studies', parseInt(studies) || 0);
+                    this.$set(this.form, 'Memo', memo || '');
+                    
+                    // Update form inputs
                     $("#f_Ctime").val(ctime || "");
-                    $("#f_Memo").val(memo || "");
+                    
+                    // Force update to ensure UI reflects the changes
+                    this.$nextTick(() => {
+                        this.$forceUpdate();
+                    });
                 },
                 setDayData(){
                     let sltDay = this.sltdate;
                     if(sltDay == "") return;
                   
-                    // read from Vue model
+                    // read from Vue model (all values are in minutes now)
                     let d_Hours = (this.form && this.form.Hours !== undefined) ? parseInt(this.form.Hours) : 0;
                     let d_Ctime = $("#f_Ctime").val() || '';
                     let d_Assist = (this.form && this.form.Assist !== undefined) ? parseInt(this.form.Assist) : 0;
                     let d_Revisit = (this.form && this.form.Revisit !== undefined) ? parseInt(this.form.Revisit) : 0;
                     let d_Studies = (this.form && this.form.Studies !== undefined) ? parseInt(this.form.Studies) : 0;
-                    let d_Memo = $("#f_Memo").val() || '';
+                    let d_Memo = (this.form && this.form.Memo !== undefined) ? this.form.Memo : '';
 
                     let found = false;
                     this.tdate.forEach((itm) => {
                         if(itm.Date.setHours(0,0,0,0) == sltDay.setHours(0,0,0,0)){
                             found = true;
                             
-                            // Update existing item
+                            // Update existing item with minute values
                             if(d_Hours >= 0) this.$set(itm, 'hours', d_Hours);
                             if(d_Assist >= 0) this.$set(itm, 'assist', d_Assist);
                             if(d_Revisit >= 0) this.$set(itm, 'revisit', d_Revisit);
@@ -1004,8 +1057,9 @@
                             if(d_Ctime !== undefined) this.$set(itm, 'ctime', d_Ctime);
                             if(d_Memo !== undefined) this.$set(itm, 'memo', d_Memo);
                             
-                            // Remove legacy hour field if it exists
+                            // Remove legacy fields if they exist
                             if('hour' in itm) delete itm.hour;
+                            if('Hours' in itm) delete itm.Hours;
                         }
                     });
 
