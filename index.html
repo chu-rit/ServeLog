@@ -54,14 +54,24 @@
         th {padding: 0 3px; font-size: 13px; color: #666; font-weight: bold; }
         th.weekend {color: #D1635D;}
         td {font-size: 15px; text-align: center;}
-        td>div {border-radius: 16px; height: 66px; padding: 3px; overflow: visible; border:3px solid #fff; position: relative;}
+        td>div {border-radius: 16px; height: 74px; padding: 3px; overflow: visible; border:3px solid #fff; position: relative;}
         .cal2 td>div {height: 54px;} 
         td .date {color: #000; font-weight: bold;}
         td .date2 {color: #000; opacity: 0.2;}
         td .half {display: block;  margin-bottom: -6px; height: 22px;}
-        td .hours_sum {color: #2f200b; margin-bottom: -2px; font-size: 13px;}
-        td .hours_sum.assist_on {color: #65C891;}
-        td .extra_report {display: flex; flex-wrap: wrap; justify-content: center;}
+        td .hours_sum {
+            color: #2f200b; 
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-top: -4px;
+        }
+        td .assist_time {
+            color: #65C891;
+            font-size: 12px;
+        }
+        td .extra_report {display: flex; flex-wrap: wrap; justify-content: center; min-height: 20px; align-items: center; margin-top: 1px;}
         td .extra_report p {border-radius: 24px; width: 5px; height: 5px; margin: 1px;}
         td .extra_report .studies_sum {background-color: #0bc0ed;}
         td .sub_sum {display: inline-block;}
@@ -250,14 +260,19 @@
                                     @touchmove="touchMove($event)" >
                                     <div>
                                         <p class="date half">{{ date.getDate() }}</p>
-                                        <p class="hours_sum half" :class="{assist_on: !!getData(date,'assist')}">
-                                                {{ displayTime(date) }}
-                                            </p>
                                         <div class="extra_report">
                                             <span v-if="tipDay && sameDay(tipDay, date) && getData(date,'assist')>0" class="assist_tip">{{ formatMinutes(getData(date, 'assist')) }}</span>
-                                            <p class="revisit_sum sub_sum" v-show="getData(date,'revisit') != 0" v-for="i in getData(date,'revisit')"></p>
-                                            <p class="studies_sum sub_sum" v-show="getData(date,'studies') != 0" v-for="i in getData(date,'studies')"></p>
+                                            <template v-if="(getData(date,'revisit') || 0) + (getData(date,'studies') || 0) > 0">
+                                                <p class="revisit_sum sub_sum" 
+                                                   v-for="i in Math.min(getData(date,'revisit') || 0, 10)"></p>
+                                                <p class="studies_sum sub_sum" 
+                                                   v-for="i in Math.min(getData(date,'studies') || 0, 10 - Math.min(getData(date,'revisit') || 0, 10))"></p>
+                                            </template>
                                         </div>
+                                        <p class="hours_sum half">
+                                            {{ showTime(date) }}
+                                        </p>
+                                        <p v-if="getData(date, 'assist') > 0" class="assist_time">{{ formatMinutes(getData(date, 'assist')) }}</p>
                                     </div>
                                 </td>
                             </template>
