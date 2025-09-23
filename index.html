@@ -14,7 +14,6 @@
     <meta property="og:image" content="homeicon.jpg" />
 
     <script src="vendor/vue.min.js"></script>
-    <script src="vendor/jquery-3.7.1.min.js"></script>
 
     <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
 </head>
@@ -81,9 +80,7 @@
         .today2>div {border:3px solid #c7b3a6;  background: #eae4e0;}
         .sltday>div {border:3px solid #D1635D;}
 
-        /* assist-only tip bubble (top-right) */
-        .assist_tip {position: absolute; right: 2px; top: -8px; z-index: 11; background: #231306; color: #fff; font-weight: 700; font-size: 12px; line-height: 14px; padding: 2px 6px; border-radius: 12px; box-shadow: 0 0 0 2px #65C891 inset; pointer-events: none;}
-        .assist_tip::after {content: ""; position: absolute; right: 6px; top: 100%; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid #231306;}
+        
 
         .itmbar {padding: 10px 10px 30px 10px; width: 100vw; position: fixed; bottom: 0; color: #fff; background-color: #231306; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); border-radius: 30px 30px 0 0;}
         .itmbar a {display: block; color: #fff; height: 30px; padding: 6px 0; border-radius: 8px; position: relative; overflow: hidden; background-color: white; padding-left: 12px;}
@@ -133,13 +130,11 @@
         .itmbar .assist-badge { display: inline-block; width: 22px; height: 22px; position: relative; vertical-align: middle; margin-right: 4px; }
         .itmbar .assist-badge .fa-plus { position: absolute; right: 0; bottom: 0; font-size: 8px; color: #FFF; border-radius: 50%; width: 10px; height: 10px; display: flex; align-items: center; justify-content: center; line-height: 1; transform: none; margin-right: -2px; margin-bottom: -2px; }
         .itmbar .icon_studies i      {color: #97D0DE;}
-        .itmbar .icon_ctime::after {background: #1704ed;}
-        .itmbar .icon_ctime i       {color: #1704ed;}
-        .extra_report .ctime_sum   {color: #1704ed; text-align: right;}
+        
 
         .memo .input_text {width: 70%; background: #FFFFFF; box-sizing: border-box; border: solid 2px #1E90FF; border-radius: 5px; font-size: 18px; margin: 10px;}
         .memo textarea {width: 82%; height: 80%; display: inline-block; box-sizing: border-box; border-radius: 5px; font-size: 18px; margin: 5px; border:1px solid #ddd;}
-        .memo2 textarea {border-radius: 5px; font-size: 15px; border: 1px solid #DDDDDD;width: 90%;height: 44px;}
+        
         /* .memo :nth-child(even) textarea { background: #e3e3e3;} */
         .memo span {font-size: 20px; font-weight: bold; vertical-align: top;}
         .memo li { height: 50px; display: block; line-height: 50px; text-align: center;}
@@ -266,7 +261,6 @@
                                     <div>
                                         <p class="date half">{{ date.getDate() }}</p>
                                         <div class="extra_report">
-                                            <span v-if="tipDay && sameDay(tipDay, date) && getData(date,'assist')>0" class="assist_tip">{{ formatMinutes(getData(date, 'assist')) }}</span>
                                             <template v-if="(getData(date,'revisit') || 0) + (getData(date,'studies') || 0) > 0">
                                                 <p class="revisit_sum sub_sum" 
                                                    v-for="i in Math.min(getData(date,'revisit') || 0, 10)"></p>
@@ -300,15 +294,15 @@
                 <h3>{{(cdate.getMonth()+1)}}월 합계({{ monthCombinedTotalHhMm }})</h3>
                 <table>
                     <tr>
-                        <th><a :class="(this.mode == 'hours') ? 'active':''" class="icon_hours" onclick="app.setMode('hours')"><i class="fa-solid fa-stopwatch"></i></a><!-- 시간 --></th>
-                        <th><a :class="(this.mode == 'assist') ? 'active':''" class="icon_assist" onclick="app.setMode('assist')" title="보조시간">
+                        <th><a :class="(this.mode == 'hours') ? 'active':''" class="icon_hours" @click.prevent="setMode('hours')"><i class="fa-solid fa-stopwatch"></i></a><!-- 시간 --></th>
+                        <th><a :class="(this.mode == 'assist') ? 'active':''" class="icon_assist" @click.prevent="setMode('assist')" title="보조시간">
                             <span class="assist_icon">
                                 <i class="fa-regular fa-clock base_clock"></i>
                                 <i class="fa-solid fa-plus assist_badge_plus"></i>
                             </span>
                         </a><!-- 보조시간 --></th>
-                        <th><a :class="(this.mode == 'revisit') ? 'active':''" class="icon_revisit" onclick="app.setMode('revisit')"><i class="fa-solid fa-person-walking-arrow-loop-left"></i></a><!-- 재방문 --></th>
-                        <th><a :class="(this.mode == 'studies') ? 'active':''" class="icon_studies" onclick="app.setMode('studies')"><i class="fa-solid fa-book-open-reader"></i></a><!-- 연구 --></th>
+                        <th><a :class="(this.mode == 'revisit') ? 'active':''" class="icon_revisit" @click.prevent="setMode('revisit')"><i class="fa-solid fa-person-walking-arrow-loop-left"></i></a><!-- 재방문 --></th>
+                        <th><a :class="(this.mode == 'studies') ? 'active':''" class="icon_studies" @click.prevent="setMode('studies')"><i class="fa-solid fa-book-open-reader"></i></a><!-- 연구 --></th>
                     </tr>
                     <tr>
                         <td>{{totalDate('hours')}}</td>
@@ -391,7 +385,6 @@
                                         <p class="hours_sum half" :class="{assist_on: !!getData(date,'assist')}">
                                             {{ displayTime(date) }}
                                         </p>
-                                        <span v-if="tipDay && sameDay(tipDay, date) && getData(date,'assist')>0" class="assist_tip">{{ formatMinutes(getData(date, 'assist')) }}</span>
                                     </div>
                                 </td>
                             </template>
@@ -534,6 +527,310 @@
         // 데이터 유형
         // NAME => hours(봉사시간), assist(보조시간), revisit(재방문), studies(연구)
 
+        const uiAHandler = {
+            dayCLK(event) {
+                // 기존 UI A dayCLK 로직
+                let target = event.currentTarget;
+                let day = target.getAttribute('day');
+                let cdate = this.cdate;
+                let sltDate = new Date(cdate.getFullYear(),cdate.getMonth(),day);
+                let jData = this.getData(sltDate, this.mode);
+                let nData = (jData == "") ? 1 : parseInt(jData)+1;
+
+                if(!Array.isArray(this.tdate)){
+                    console.log("ERROR: 배열이 아닙니다.");
+                    this.tdate = [];
+                    return;
+                }
+
+                let boo = false;
+                let tempDate = this.tdate;
+                tempDate.forEach((itm, ele) => {
+                    if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
+                        if(this.mode === 'hours'){
+                            // assist 포함하여 +30 분단위 조정이 아닌 base hours만 증가
+                            let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
+                            itm['hours'] = curMin + 30;
+                        } else if(this.mode === 'assist'){
+                            let curMin = parseInt(this.getData(sltDate,'assist')||0) || 0;
+                            itm['assist'] = curMin + 30;
+                        } else {
+                            itm[this.mode] = nData;
+                        }
+                        boo = true;
+                    }
+                });
+                this.tdate = tempDate;
+
+                if(!boo){
+                    if(this.mode === 'hours'){
+                        this.tdate.push({ Date: sltDate, hours: 30 });
+                    }else if(this.mode === 'assist'){
+                        this.tdate.push({ Date : sltDate , assist : 30});
+                    }else{
+                        this.tdate.push({ Date : sltDate , [this.mode] : nData});
+                    }
+                }
+
+                // ensure reactivity and debounce save
+                this.tdate = this.tdate.slice();
+                this.scheduleSave(250);
+            },
+            incData(target){
+                let day = target.getAttribute('day');
+                let cdate = this.cdate;
+                let sltDate = new Date(cdate.getFullYear(),cdate.getMonth(),day);
+                let jData = this.getData(sltDate, this.mode);
+                let nData = (jData == "") ? 1 : parseInt(jData)+1;
+
+                if(!Array.isArray(this.tdate)){
+                    this.tdate = [];
+                }
+
+                let boo = false;
+                let tempDate = this.tdate;
+                tempDate.forEach((itm, ele) => {
+                    if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
+                        if(this.mode === 'hours'){
+                            let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
+                            this.$set(itm, 'hours', curMin + 30);
+                        } else if(this.mode === 'assist'){
+                            let curMin = parseInt(this.getData(sltDate,'assist')||0) || 0;
+                            this.$set(itm, 'assist', curMin + 30);
+                        } else {
+                            this.$set(itm, this.mode, nData);
+                        }
+                        boo = true;
+                    }
+                });
+                this.tdate = tempDate.slice();
+
+                if(!boo){
+                    if(this.mode === 'hours'){
+                        this.tdate.push({ Date: sltDate, hours: 30 });
+                    } else if(this.mode === 'assist') {
+                        this.tdate.push({ Date: sltDate, assist: 30 });
+                    } else {
+                        this.tdate.push({ Date : sltDate , [this.mode] : nData});
+                    }
+                    this.tdate = this.tdate.slice();
+                }
+
+                this.setTdate();
+                this.$forceUpdate();
+            },
+            dayLCLK(event){
+                this.didDrag = false;
+                try{
+                    let target = event.currentTarget;
+                    let day = target.getAttribute('day');
+                    if(event && event.touches && event.touches[0]){
+                        this.touchY = parseInt(event.touches[0].clientY);
+                    }
+                }catch(e){}
+            },
+            dayLCLK2(event){
+                if(this.didDrag && event && event.cancelable){
+                    event.preventDefault();
+                }
+                this.touchY = 0;
+            },
+            decData(target){
+                let day = target.getAttribute('day');
+                let cdate = this.cdate;
+                let sltDate = new Date(cdate.getFullYear(),cdate.getMonth(),day);
+                let jdata = this.getData(sltDate, this.mode);
+                if(jdata == "" || jdata == "0") return;
+
+                let ndata = parseInt(jdata)-1;
+
+                this.tdate.forEach((itm, ele) => {
+                    if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
+                        if(this.mode == 'hours'){
+                            let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
+                            curMin = Math.max(0, curMin - 30);
+                            if(curMin === 0){ this.$delete(itm, 'hours'); } else { this.$set(itm, 'hours', curMin); }
+                        } else if(this.mode == 'assist'){
+                            let curMin = parseInt(this.getData(sltDate,'assist')||0) || 0;
+                            curMin = Math.max(0, curMin - 30);
+                            if(curMin === 0){ this.$delete(itm, 'assist'); } else { this.$set(itm, 'assist', curMin); }
+                        } else {
+                            this.$set(itm, this.mode, ndata);
+                        }
+                    }
+                });
+                this.tdate = this.tdate.slice();
+                this.interval2 = true;
+                this.scheduleSave(200);
+            },
+            touchMove(evt){
+                const now = Date.now();
+                if (this.lastTouchTs && (now - this.lastTouchTs) < 50) return; // throttle 50ms
+                this.lastTouchTs = now;
+                if(this.touchY == 0) this.touchY = parseInt(evt.changedTouches[0].clientY);
+                let ctouchY = parseInt(evt.changedTouches[0].clientY);
+                let ele = evt.currentTarget;
+                if(!ele || !ele.getAttribute || ele.getAttribute('day') == null){
+                    let n = evt.target;
+                    while(n && (!n.getAttribute || n.getAttribute('day') == null)){
+                        n = n.parentElement;
+                    }
+                    if(n) ele = n;
+                }
+                if(ctouchY > (this.touchY + 20)) {
+                    this.touchY = this.touchY + 20;
+                    this.didDrag = true;
+                    uiAHandler.decData.call(this, ele);
+                }
+                else if(ctouchY < (this.touchY - 20)){
+                    this.touchY = this.touchY - 20;
+                    this.didDrag = true;
+                    uiAHandler.incData.call(this, ele);
+                }
+            },
+            setMemo(event){
+                let target = event.currentTarget;
+                let day = target.getAttribute('day');
+                let cdate = this.cdate;
+                let sltDate = new Date(cdate.getFullYear(),cdate.getMonth(),day);
+                let nData = target.value;
+
+                if(!Array.isArray(this.tdate)){
+                    console.log("ERROR: 배열이 아닙니다.");
+                    this.tdate = [];
+                    return;
+                }
+
+                let boo = false;
+                let tempDate = this.tdate;
+                tempDate.forEach((itm, ele) => {
+                    if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
+                        itm['memo'] = nData;
+                        boo = true;
+                    }
+                });
+
+                if(!boo) this.tdate.push({ Date : sltDate , 'memo' : nData});
+
+                this.tdate = tempDate;
+                this.setTdate();
+            }
+        };
+
+        const uiBHandler = {
+            sltCLK(event) {
+                let target = event.currentTarget;
+                let day = target.getAttribute('day');
+                let sltDate = new Date(this.cdate.getFullYear(), this.cdate.getMonth(), day);
+                if (this.sltdate === '' || !this.sameDay(sltDate, this.sltdate)) {
+                    this.sltdate = sltDate;
+                    this.loadDayData();
+                    if (this.appUi === 'B' && !this.uiBScrolled) {
+                        this.$nextTick(() => {
+                            const dayDetail = document.querySelector('.dayDetail');
+                            if (dayDetail) {
+                                setTimeout(() => {
+                                    const viewportHeight = window.innerHeight;
+                                    const scrollPosition = (document.body.scrollHeight - viewportHeight) * 0.8;
+                                    window.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+                                    this.uiBScrolled = true;
+                                }, 50);
+                            }
+                        });
+                    }
+                } else {
+                    this.sltdate = '';
+                    this.loadDayData();
+                    this.uiBScrolled = false;
+                }
+            },
+            loadDayData(){
+                let sltDay = this.sltdate;
+                if(sltDay == "") return;
+                if (!this.form || typeof this.form !== 'object') {
+                    this.form = { Hours: 0, Assist: 0, Revisit: 0, Studies: 0, Memo: '' };
+                }
+                let hours = this.getData(sltDay, 'hours') || 0;
+                let ctime = this.getData(sltDay, 'ctime');
+                let assist = this.getData(sltDay, 'assist') || 0;
+                let revisit = this.getData(sltDay, 'revisit') || 0;
+                let studies = this.getData(sltDay, 'studies') || 0;
+                let memo = this.getData(sltDay, 'memo') || '';
+                if (typeof hours === 'string' && hours.includes(':')) {
+                    const [h, m] = hours.split(':').map(Number);
+                    hours = h * 60 + m;
+                }
+                if (typeof assist === 'string' && assist.includes(':')) {
+                    const [h, m] = assist.split(':').map(Number);
+                    assist = h * 60 + m;
+                }
+                this.$set(this.form, 'Hours', parseInt(hours) || 0);
+                this.$set(this.form, 'Assist', parseInt(assist) || 0);
+                this.$set(this.form, 'Revisit', parseInt(revisit) || 0);
+                this.$set(this.form, 'Studies', parseInt(studies) || 0);
+                this.$set(this.form, 'Memo', memo || '');
+                this.$set(this.form, 'Ctime', ctime || '');
+                this.$nextTick(() => this.$forceUpdate());
+            },
+            setDayData(){
+                let sltDay = this.sltdate;
+                if(sltDay == "") return;
+                let d_Hours = (this.form && this.form.Hours !== undefined) ? parseInt(this.form.Hours) : 0;
+                let d_Ctime = (this.form && this.form.Ctime !== undefined) ? this.form.Ctime : '';
+                let d_Assist = (this.form && this.form.Assist !== undefined) ? parseInt(this.form.Assist) : 0;
+                let d_Revisit = (this.form && this.form.Revisit !== undefined) ? parseInt(this.form.Revisit) : 0;
+                let d_Studies = (this.form && this.form.Studies !== undefined) ? parseInt(this.form.Studies) : 0;
+                let d_Memo = (this.form && this.form.Memo !== undefined) ? this.form.Memo : '';
+                let found = false;
+                this.tdate.forEach((itm) => {
+                    if(itm.Date.setHours(0,0,0,0) == sltDay.setHours(0,0,0,0)){
+                        found = true;
+                        if(d_Hours >= 0) this.$set(itm, 'hours', d_Hours);
+                        if(d_Assist >= 0) this.$set(itm, 'assist', d_Assist);
+                        if(d_Revisit >= 0) this.$set(itm, 'revisit', d_Revisit);
+                        if(d_Studies >= 0) this.$set(itm, 'studies', d_Studies);
+                        if(d_Ctime !== undefined) this.$set(itm, 'ctime', d_Ctime);
+                        if(d_Memo !== undefined) this.$set(itm, 'memo', d_Memo);
+                        if('hour' in itm) delete itm.hour;
+                        if('Hours' in itm) delete itm.Hours;
+                    }
+                });
+                if(!found){
+                    let newItem = { Date: new Date(sltDay) };
+                    if(d_Hours > 0) newItem.hours = d_Hours;
+                    if(d_Assist > 0) newItem.assist = d_Assist;
+                    if(d_Revisit > 0) newItem.revisit = d_Revisit;
+                    if(d_Studies > 0) newItem.studies = d_Studies;
+                    if(d_Ctime) newItem.ctime = d_Ctime;
+                    if(d_Memo) newItem.memo = d_Memo;
+                    this.tdate.push(newItem);
+                }
+                this.tdate = this.tdate.slice();
+                this.interval2 = true;
+                this.scheduleSave(200);
+            },
+            adjustTime(field, delta){
+                const minutesToAdd = Math.round(delta * 60);
+                const cur = parseInt(this.form[field] || 0) || 0;
+                this.$set(this.form, field, Math.max(0, cur + minutesToAdd));
+                this.setDayData();
+            },
+            setTimeData(minute){
+                const cur = parseInt(this.form.Hours || 0) || 0;
+                const total = Math.max(0, cur + (parseInt(minute) || 0));
+                this.$set(this.form, 'Hours', total);
+                this.setDayData();
+            },
+            setTypeData(type, bool=true){
+                const key = String(type);
+                if(!this.form || !(key in this.form)) return;
+                let v = parseInt(this.form[key]) || 0;
+                v = bool ? v + 1 : Math.max(0, v - 1);
+                this.$set(this.form, key, v);
+                this.setDayData();
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof Vue !== 'undefined') {
                 Vue.config.devtools = false;
@@ -552,12 +849,13 @@
                 appUi: 'A',
                 isSettingsOpen: false,
                 schtxt: '',
-                interval : false,
                 interval2 : false,
                 touchY: 0,
+                lastTouchTs: 0,
                 didDrag: false,
                 updateX: 0,
-                tipDay: null,
+                uiBScrolled: false,
+                saveTimer: null,
                 form: {
                     Hours: 0,
                     Ctime: '',
@@ -565,48 +863,6 @@
                     Revisit: 0,
                     Studies: 0,
                     Memo: ''
-                },
-                adjustTime(field, delta) {
-                    if (!(this.sltdate instanceof Date)) return;
-                    
-                    // 분 단위로 계산
-                    const minutesToAdd = Math.round(delta * 60); // 시간을 분으로 변환 (예: 0.5시간 -> 30분)
-                    this.form[field] = Math.max(0, this.form[field] + minutesToAdd);
-                    
-                    // 변경사항 저장
-                    this.setDayData();
-                    this.$forceUpdate();
-                },
-                setTimeData(minute) {
-                    if (!(this.sltdate instanceof Date)) return;
-                    
-                    // 분 단위로 시간 조정
-                    this.form.Hours = Math.max(0, (this.form.Hours || 0) + minute);
-                    
-                    // tdate 배열에서 해당 날짜의 데이터를 찾아 업데이트
-                    const sltDay = this.sltdate;
-                    let found = false;
-                    
-                    (this.tdate || []).forEach(it => {
-                        if (typeof it.Date === 'string') it.Date = new Date(it.Date);
-                        if (this.sameDay(it.Date, sltDay)) {
-                            this.$set(it, 'Hours', this.form.Hours);
-                            found = true;
-                        }
-                    });
-                    
-                    // 해당 날짜의 데이터가 없으면 새로 추가
-                    if (!found) {
-                        const newDate = new Date(sltDay);
-                        this.tdate.push({
-                            Date: newDate,
-                            Hours: this.form.Hours
-                        });
-                    }
-                    
-                    // 변경사항 저장
-                    this.setDayData();
-                    this.$forceUpdate();
                 },
                 // yearly summary drag state
                 ysHeight: 0,
@@ -633,6 +889,9 @@
                 // UI B 모드에서 오늘 날짜 자동 선택 비활성화
             },
             methods: {
+                // =====================
+                // Common methods (공용)
+                // =====================
                 // helpers
                 sameDay(a, b){ return a.setHours(0,0,0,0) === b.setHours(0,0,0,0); },
                 pad2(n){ return String(n).padStart(2,'0'); },
@@ -733,205 +992,32 @@
                         window.removeEventListener('touchcancel', this._ysOnUp);
                     }
                 },
-                dayCLK(event){
-                    // 롱 클릭에는 작동 안하게
-                    if(this.interval2) {
-                        this.interval2 = false;
-                        return;
-                    }
-                    let target = event.currentTarget;
-                    let day = target.getAttribute('day');
-                    let cdate = this.cdate;
-                    let sltDate = new Date(cdate.getFullYear(),cdate.getMonth(),day);
-                    let jData = this.getData(sltDate, this.mode);
-                    let nData = (jData == "") ? 1 : parseInt(jData)+1;
 
-                    let boo = false;
-                    if(!Array.isArray(this.tdate)){
-                        console.log("ERROR: 배열이 아닙니다.");
-                        this.tdate = [];
-                        return;
-                    }
-
-                    let tempDate = this.tdate;
-
-                    tempDate.forEach((itm, ele) => {
-                        if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
-
-                            // 테스트 콘솔
-                            console.log(JSON.stringify(itm));
-                            
-                            if(this.mode == 'hours'){
-                                // minutes 기반: 현재 분 +30
-                                let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
-                                itm['hours'] = curMin + 30;
-                            } else if(this.mode == 'assist'){
-                                // assist도 동일하게 30분 단위로 조정
-                                let curMin = parseInt(this.getData(sltDate,'assist')||0) || 0;
-                                // console.log(curMin,'curMin');
-                                itm['assist'] = curMin + 30;
-                            } else {
-                                itm[this.mode] = nData;
-                            }
-
-                            boo = true;
-                        }
-                    });
-                    this.tdate = tempDate;
-
-                    if(!boo){
-                        if(this.mode === 'hours'){
-                            this.tdate.push({ Date: sltDate, hours: 30 });
-                        }else if(this.mode === 'assist'){
-                            this.tdate.push({ Date : sltDate , assist : 30});
-                        }else{
-                            this.tdate.push({ Date : sltDate , [this.mode] : nData});
-                        }
-                    }
-
-                    this.setTdate();
-
-                    // 랜더링 안되는 경우 방지
-                    this.$forceUpdate();
-                },
+                // =====================
+                // UI A methods (UI A 전용)
+                // =====================
+                dayCLK(event){ if(this.appUi === 'A'){ if(this.interval2){ this.interval2=false; return; } return uiAHandler.dayCLK.call(this, event); } },
                 incData(target){
-                    // console.log('inc!', this.mode);
-                    let day = target.getAttribute('day');
-                    let cdate = this.cdate;
-                    let sltDate = new Date(cdate.getFullYear(),cdate.getMonth(),day);
-                    let jData = this.getData(sltDate, this.mode);
-                    let nData = (jData == "") ? 1 : parseInt(jData)+1;
-
-                    if(!Array.isArray(this.tdate)){
-                        this.tdate = [];
-                    }
-
-                    let boo = false;
-                    let tempDate = this.tdate;
-                    tempDate.forEach((itm, ele) => {
-                        if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
-                            if(this.mode === 'hours'){
-                                // minutes 기반: 현재 분 +30
-                                let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
-                                this.$set(itm, 'hours', curMin + 30);
-                            } else if(this.mode === 'assist'){
-                                // minutes 기반: 현재 분 +30
-                                let curMin = parseInt(this.getData(sltDate,'assist')||0) || 0;
-                                this.$set(itm, 'assist', curMin + 30);
-                            }else {
-                                this.$set(itm, this.mode, nData);
-                            }
-                            boo = true;
-                        }
-                    });
-                    // 배열 참조를 변경해 반응성 보장
-                    this.tdate = tempDate.slice();
-
-                    if(!boo){
-                        if(this.mode === 'hours'){
-                            this.tdate.push({ Date: sltDate, hours: 30 });
-                        } else if(this.mode === 'assist') {
-                            this.tdate.push({ Date: sltDate, assist: 30 }); // 초기값 30분
-                        } else {
-                            this.tdate.push({ Date : sltDate , [this.mode] : nData});
-                        }
-                        // push 후에도 참조 변경로 반응성 강화
-                        this.tdate = this.tdate.slice();
-                    }
-
-                    this.setTdate();
-                    this.$forceUpdate();
+                    if(this.appUi === 'A') return uiAHandler.incData.call(this, target);
                 },
                 dayLCLK(event){
-                    // show assist-only tip while holding and prepare tap/drag state
-                    this.didDrag = false;
-                    try{
-                        let target = event.currentTarget;
-                        let day = target.getAttribute('day');
-                        this.tipDay = new Date(this.cdate.getFullYear(), this.cdate.getMonth(), day);
-                        if(event && event.touches && event.touches[0]){
-                            this.touchY = parseInt(event.touches[0].clientY);
-                        }
-                    }catch(e){}
+                    if(this.appUi === 'A') return uiAHandler.dayLCLK.call(this, event);
                 },
                 dayLCLK2(event){
-                    // end hold: no increment here; click (tap) or drag handles changes
-                    if(this.didDrag && event && event.cancelable){
-                        // prevent synthetic click after a drag-adjust
-                        event.preventDefault();
-                    }
-                    clearInterval(this.interval);
-                    this.interval = false;
-                    this.touchY = 0;
-                    this.tipDay = null;
+                    if(this.appUi === 'A') return uiAHandler.dayLCLK2.call(this, event);
                 },
                 dayClass(day){ if(this.sameDay(day, new Date())) return "today"; if(this.sltdate && this.sameDay(day, this.sltdate)) return "sltday"; return ""; },
                 
                 decData(target){
-                    // console.log('dec!', this.mode);
-                    let day = target.getAttribute('day');
-                    let cdate = this.cdate;
-                    let sltDate = new Date(cdate.getFullYear(),cdate.getMonth(),day);
-                    let jdata = this.getData(sltDate, this.mode);
-                    if(jdata == "" || jdata == "0") return;
-
-                    let ndata = parseInt(jdata)-1;
-
-                    this.tdate.forEach((itm, ele) => {
-                        if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
-                            if(this.mode == 'hours'){
-                                // minutes 기반: 현재 분 -30, 0 미만 방지
-                                let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
-                                curMin = Math.max(0, curMin - 30);
-                                if(curMin === 0){ this.$delete(itm, 'hours'); } else { this.$set(itm, 'hours', curMin); }
-                            } else if(this.mode == 'assist'){
-                                // minutes 기반: 현재 분 -30, 0 미만 방지
-                                let curMin = parseInt(this.getData(sltDate,'assist')||0) || 0;
-                                curMin = Math.max(0, curMin - 30);
-                                if(curMin === 0){ this.$delete(itm, 'assist'); } else { this.$set(itm, 'assist', curMin); }
-                            } else {
-                                this.$set(itm, this.mode, ndata);
-                            }
-                        }
-                    });
-                    // 배열 참조 변경로 반응성 보장
-                    this.tdate = this.tdate.slice();
-                
-                    this.interval2 = true;
-                    this.setTdate();
-
-                    // 랜더링 안되는 경우 방지
-                    this.$forceUpdate();
+                    if(this.appUi === 'A') return uiAHandler.decData.call(this, target);
                 },
                 touchMove(evt){                    
-                    if(this.touchY == 0) this.touchY = parseInt(evt.changedTouches[0].clientY);
-                    
-                    let ctouchY = parseInt(evt.changedTouches[0].clientY);
-                    // Prefer the bound element (<td>) as the action target
-                    let ele = evt.currentTarget;
-                    // Fallback: walk up from the actual touched node until we find an element with a 'day' attribute
-                    if(!ele || !ele.getAttribute || ele.getAttribute('day') == null){
-                        let n = evt.target;
-                        while(n && (!n.getAttribute || n.getAttribute('day') == null)){
-                            n = n.parentElement;
-                        }
-                        if(n) ele = n;
-                    }
+                    if(this.appUi === 'A') return uiAHandler.touchMove.call(this, evt);
+                },
 
-                    // drag down => decrease
-                    if(ctouchY > (this.touchY + 20)) {
-                        this.touchY = this.touchY + 20;
-                        this.didDrag = true;
-                        app.decData(ele);
-                    }
-                    // drag up => increase
-                    else if(ctouchY < (this.touchY - 20)){
-                        this.touchY = this.touchY - 20;
-                        this.didDrag = true;
-                        app.incData(ele);
-                    }
-                }
-,
+                // =====================
+                // UI B methods (UI B 전용)
+                // =====================
                 totalDate(data){
                     const curMonth = this.cdate.getMonth();
                     if(data==='hours'){
@@ -989,234 +1075,34 @@
                     const txt=this.tkey();
                     const raw=window.localStorage.getItem(txt);
                     let arr = raw? JSON.parse(raw): [];
-                    try{ console.log('[ServeLog] load', txt, '(records='+ (Array.isArray(arr)?arr.length:0) +', month='+ this.pad2(this.cdate.getMonth()+1) +')'); }catch(e){}
+                    try{ }catch(e){}
                     this.tdate = arr;
                 },
                 setTdate(){ const txt=this.tkey(); window.localStorage.setItem(txt, JSON.stringify(this.tdate)); },
-
-                sltCLK(event) {
-                    let target = event.currentTarget;
-                    let day = target.getAttribute('day');
-                    let sltDate = new Date(this.cdate.getFullYear(), this.cdate.getMonth(), day);
-                    
-                    // 날짜 선택/해제 로직
-                    if (this.sltdate === '' || !this.sameDay(sltDate, this.sltdate)) {
-                        this.sltdate = sltDate;
-                        this.loadDayData(); // 메모 값 동기화를 위해 호출 추가
-                        
-                        // UI B 모드에서 스크롤 조정
-                        if (this.appUi === 'B') {
-                            this.$nextTick(() => {
-                                const dayDetail = document.querySelector('.dayDetail');
-                                if (dayDetail) {
-                                    // 약간의 지연 후 스크롤 실행
-                                    setTimeout(() => {
-                                        const viewportHeight = window.innerHeight;
-                                        // 화면의 80% 지점으로 스크롤 (20%는 여유 공간으로 남김)
-                                        const scrollPosition = (document.body.scrollHeight - viewportHeight) * 0.8;
-                                        
-                                        window.scrollTo({
-                                            top: scrollPosition,
-                                            behavior: 'smooth'
-                                        });
-                                    }, 50);
-                                }
-                            });
-                        }
-                    } else {
-                        this.sltdate = ''; // 같은 날짜 클릭 시 선택 해제
-                        this.loadDayData(); // 선택 해제 시에도 호출
-                    }
+                // Debounced save to localStorage to avoid frequent writes
+                scheduleSave(delay=200){
+                    try{ if(this.saveTimer) clearTimeout(this.saveTimer); }catch(e){}
+                    this.saveTimer = setTimeout(()=>{
+                        this.setTdate();
+                        this.saveTimer = null;
+                    }, Math.max(50, delay));
                 },
-                loadDayData(){
-                    let sltDay = this.sltdate;
-                    if(sltDay == "") return;
-                    
-                    // Initialize form object if it doesn't exist
-                    if (!this.form || typeof this.form !== 'object') {
-                        this.form = {
-                            Hours: 0,
-                            Assist: 0,
-                            Revisit: 0,
-                            Studies: 0,
-                            Memo: ''
-                        };
-                    }
-                    
-                    // Get data from storage
-                    let hours = this.getData(sltDay, 'hours') || 0;
-                    let ctime = this.getData(sltDay, 'ctime');
-                    let assist = this.getData(sltDay, 'assist') || 0;
-                    let revisit = this.getData(sltDay, 'revisit') || 0;
-                    let studies = this.getData(sltDay, 'studies') || 0;
-                    let memo = this.getData(sltDay, 'memo') || '';
-                    
-                    // Convert legacy format (time string) to minutes if needed
-                    if (typeof hours === 'string' && hours.includes(':')) {
-                        const [h, m] = hours.split(':').map(Number);
-                        hours = h * 60 + m;
-                    }
-                    
-                    if (typeof assist === 'string' && assist.includes(':')) {
-                        const [h, m] = assist.split(':').map(Number);
-                        assist = h * 60 + m;
-                    }
-                    
-                    // Update form with values
-                    this.$set(this.form, 'Hours', parseInt(hours) || 0);
-                    this.$set(this.form, 'Assist', parseInt(assist) || 0);
-                    this.$set(this.form, 'Revisit', parseInt(revisit) || 0);
-                    this.$set(this.form, 'Studies', parseInt(studies) || 0);
-                    this.$set(this.form, 'Memo', memo || '');
-                    
-                    // Update form inputs
-                    $("#f_Ctime").val(ctime || "");
-                    
-                    // Force update to ensure UI reflects the changes
-                    this.$nextTick(() => {
-                        this.$forceUpdate();
-                    });
-                },
-                setDayData(){
-                    let sltDay = this.sltdate;
-                    if(sltDay == "") return;
-                  
-                    // read from Vue model (all values are in minutes now)
-                    let d_Hours = (this.form && this.form.Hours !== undefined) ? parseInt(this.form.Hours) : 0;
-                    let d_Ctime = $("#f_Ctime").val() || '';
-                    let d_Assist = (this.form && this.form.Assist !== undefined) ? parseInt(this.form.Assist) : 0;
-                    let d_Revisit = (this.form && this.form.Revisit !== undefined) ? parseInt(this.form.Revisit) : 0;
-                    let d_Studies = (this.form && this.form.Studies !== undefined) ? parseInt(this.form.Studies) : 0;
-                    let d_Memo = (this.form && this.form.Memo !== undefined) ? this.form.Memo : '';
 
-                    let found = false;
-                    this.tdate.forEach((itm) => {
-                        if(itm.Date.setHours(0,0,0,0) == sltDay.setHours(0,0,0,0)){
-                            found = true;
-                            
-                            // Update existing item with minute values
-                            if(d_Hours >= 0) this.$set(itm, 'hours', d_Hours);
-                            if(d_Assist >= 0) this.$set(itm, 'assist', d_Assist);
-                            if(d_Revisit >= 0) this.$set(itm, 'revisit', d_Revisit);
-                            if(d_Studies >= 0) this.$set(itm, 'studies', d_Studies);
-                            if(d_Ctime !== undefined) this.$set(itm, 'ctime', d_Ctime);
-                            if(d_Memo !== undefined) this.$set(itm, 'memo', d_Memo);
-                            
-                            // Remove legacy fields if they exist
-                            if('hour' in itm) delete itm.hour;
-                            if('Hours' in itm) delete itm.Hours;
-                        }
-                    });
-
-                    // Add new item if not found
-                    if(!found){
-                        let newItem = {
-                            Date: new Date(sltDay)
-                        };
-                        
-                        if(d_Hours > 0) newItem.hours = d_Hours;
-                        if(d_Assist > 0) newItem.assist = d_Assist;
-                        if(d_Revisit > 0) newItem.revisit = d_Revisit;
-                        if(d_Studies > 0) newItem.studies = d_Studies;
-                        if(d_Ctime) newItem.ctime = d_Ctime;
-                        if(d_Memo) newItem.memo = d_Memo;
-                        
-                        this.tdate.push(newItem);
-                    }
-
-                    // 배열 참조 변경로 반응성 보장
-                    this.tdate = this.tdate.slice();
-
-                    this.interval2 = true;
-                    this.setTdate();
-
-                    // this.sltdate = "";
-                    
-                    // 랜더링 안되는 경우 방지
-                    this.$forceUpdate();
-                },
+                // UI B 날짜 선택 전용
+                sltCLK(event) { if(this.appUi === 'B') return uiBHandler.sltCLK.call(this, event); },
+                loadDayData(){ if(this.appUi === 'B') return uiBHandler.loadDayData.call(this); },
+                setDayData(){ if(this.appUi === 'B') return uiBHandler.setDayData.call(this); },
                 
-                // classic: treat time as duration; accumulate by minutes without day-boundary logic
-                setTimeData(minute){
-                    // current value from Vue model (fallback to DOM once for compatibility)
-                    let load = (this.form && this.form.Hours) ? this.form.Hours : (($("#f_Hours").val()) || "0:00");
-                    if(!load || typeof load !== 'string') load = "0:00";
-
-                    // Parse H:MM
-                    let [hhStr, mmStr] = String(load).split(":");
-                    let hh = parseInt(hhStr)||0;
-                    let mm = parseInt(mmStr)||0;
-                    let total = hh*60 + mm + (parseInt(minute)||0);
-                    if(total < 0) total = 0;
-                    const nh = Math.floor(total/60);
-                    const nm = total % 60;
-                    const newVal = nh + ":" + String(nm).padStart(2,'0');
-
-                    // update Vue model (input is bound via v-model)
-                    if(this.form && typeof this.form === 'object'){
-                        this.$set(this.form, 'Hours', newVal);
-                    }
-
-                    this.setDayData();
-                },
-                setTypeData(type, bool=true){
-                    // Works with Vue model instead of DOM; type is one of 'Revisit' | 'Studies'
-                    const key = String(type);
-                    if(!this.form || !(key in this.form)) return;
-                    let v = parseInt(this.form[key]) || 0;
-                    v = bool ? v + 1 : Math.max(0, v - 1);
-                    this.$set(this.form, key, v);
-                    this.setDayData();
-                },
+                // adjust helper: delta는 시간 단위(예: 0.5 = 30분)
+                adjustTime(field, delta){ if(this.appUi === 'B') return uiBHandler.adjustTime.call(this, field, delta); },
+                setTimeData(minute){ if(this.appUi === 'B') return uiBHandler.setTimeData.call(this, minute); },
+                setTypeData(type, bool=true){ if(this.appUi === 'B') return uiBHandler.setTypeData.call(this, type, bool); },
                 
                 setMode(mode){
                     this.mode = mode;
                 },
-                setMemo(event){
-                    let target = event.currentTarget;
-                    let day = target.getAttribute('day');
-                    let cdate = this.cdate;
-                    let sltDate = new Date(cdate.getFullYear(),cdate.getMonth(),day);
-                    let nData = target.value;
-
-                    if(!Array.isArray(this.tdate)){
-                        console.log("ERROR: 배열이 아닙니다.");
-                        this.tdate = [];
-                        return;
-                    }
-
-                    let boo = false;
-                    let tempDate = this.tdate;
-                    tempDate.forEach((itm, ele) => {
-                        if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
-                            itm['memo'] = nData;
-                            boo = true;
-                        }
-                    });
-
-                    if(!boo) this.tdate.push({ Date : sltDate , 'memo' : nData});
-
-                    this.tdate = tempDate;
-                    this.setTdate();
-                    // console.log("저장", nData);
-                    
-                },
-                schFunc(){
-                    let sch_txt = $("#sch_txt").val();
-
-                    if($("#sch_txt").val() == ""){
-                        $(".memo [id^='memo_']").each(function(idx, itm){
-                            $(itm).show();
-                        });
-                        return;
-                    };
-
-                    $(".memo [id^='memo_']").each(function(idx, itm){
-                        $(itm).hide();
-                        if(itm.id == 'memo_'+sch_txt) $(itm).show();
-                        if($("#"+itm.id+" textarea").val().includes(sch_txt)) $(itm).show();
-                    });
-                },
+                // UI A memo 전용
+                setMemo(event){ if(this.appUi === 'A') return uiAHandler.setMemo.call(this, event); },
 
                 setOpt(){
                     let setting = window.localStorage.getItem('appSetting');
@@ -1230,7 +1116,7 @@
                     }
                 },
                 newOpt(){
-                    let style_type = $("input[name='appUi']:checked").val();
+                    let style_type = this.appUi;
 
                     let settingJson = {"appUi":style_type};
                     settingJson = JSON.stringify(settingJson);
@@ -1277,27 +1163,6 @@
                     return this.formatMinutes(total);
                 },
                 
-                dbtabblock(){
-                    var lastTouchEnd = 0;
-                    document.documentElement.addEventListener('touchend', function (event) {
-                        var now = (new Date()).getTime();
-                        if (now - lastTouchEnd <= 300) {
-                            event.preventDefault();
-                            this.dayCLK(event);
-                        }
-                        lastTouchEnd = now;
-                    }, false);
-                },
-
-                getDayData(day){
-                    let d;
-                    this.tdate.forEach((itm, ele) => {
-                        if(itm.Date.getDate() == day){
-                            d = itm;
-                        }
-                    });
-                    return d;
-                },
                 goToMonth(m){
                     if(typeof m !== 'number' || isNaN(m)) return;
                     // Navigate within the same academic year (Sep..Aug) as current cdate
