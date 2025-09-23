@@ -202,19 +202,19 @@
 
         #app_pop .dim {display: block; position: fixed; z-index: 8; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); top: 0; left: 0; opacity: 0; transition: opacity 300ms; visibility: hidden;}
         #app_pop .wrapper {position: fixed; height: 100vh; width: 75vw; top: 0; background: #fff; box-shadow: 0px 0px 10px rgba(0,0,0,0.2); z-index: 9;
-        padding: 70px 30px 30px; transition: right 300ms ease-out; right: -78vw;}
+        padding: 70px 30px 30px; transition: right 300ms ease-out; right: -78vw; overflow-y: auto;}
+        #app_pop .close_btn {position: absolute; top: 20px; right: 20px; font-size: 24px; color: #333; cursor: pointer; z-index: 10;}
         #app_pop.on .dim {opacity: 1; visibility: visible;}
         #app_pop.on .wrapper {right: 0;}
         #app_pop input[type=radio] {vertical-align: middle;}
         #app_pop label {color: #000; font-weight: bold; vertical-align: middle;}
         #app_pop label+p {padding-left: 25px;}
         #app_pop .desc {font-size: 12px;  margin-left: 25px; line-height: 150%; color: #888;}
-        #app_pop h3 {font-size: 18px; font-weight: bold; margin-top: 30px; margin-bottom: 10px; color: #000;}
+        #app_pop h3 {font-size: 18px; font-weight: bold; margin-top: 10px; margin-bottom: 10px; color: #000;}
         #app_pop .btn_red {display: block; padding: 5px 0; text-align: center; border: 1px solid #bd0808; cursor: pointer; color: #bd0808;}
         #app_pop ul {list-style: disc;}
         #app_pop ul li {margin-bottom: 20px; vertical-align: middle; margin-left: 15px;}
         #app_pop ul li strong{margin-bottom: 20px; vertical-align: top; color: #000;}
-        #app_pop .btn_confirm {position: absolute; bottom: 0; right: 0; font-size: 20px; color: #fff; width: 75vw; background: #113a6b; padding:20px 0 30px; text-align: center;}
 
         @media (orientation: portrait) { /* 세로 */
             .cal, .itmbar {display: block;}
@@ -503,6 +503,7 @@
 
         <div id="app_pop" :class="{on: isSettingsOpen}">
             <div class="wrapper" onclick="event.stopPropagation();">
+                <a class="close_btn" @click="isSettingsOpen = false"><i class="fa-solid fa-xmark"></i></a>
                 <h3>UI 스타일</h3>
                 <input type="radio" id="default_style" name="appUi" value="A" @change="newOpt()" v-model="appUi">
                 <label for="default_style">기본 스타일</label>
@@ -523,7 +524,6 @@
                         서버에 데이터를 보내거나 보관하지 않기 때문에 바로가기를 삭제하거나 기기를 변경할때 유의하시기 바랍니다.</li>
                 </ul>
 
-                <a class="btn_confirm" @click="isSettingsOpen = false">확인</a>
             </div>
             <div class="dim" @click="isSettingsOpen = false"></div>
         </div>
