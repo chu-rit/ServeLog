@@ -70,7 +70,7 @@
             color: #65C891;
             font-size: 12px;
         }
-        td .extra_report {display: flex; flex-wrap: wrap; justify-content: center; min-height: 20px; align-items: center; margin-top: 1px; width: 35px; margin-left: auto; margin-right: auto;}
+        td .extra_report {display: flex; flex-wrap: wrap; justify-content: center; min-height: 15px; align-items: center; margin-top: 1px; width: 35px; margin-left: auto; margin-right: auto;}
         td .extra_report p {border-radius: 24px; width: 5px; height: 5px; margin: 1px;}
         td .extra_report .studies_sum {background-color: #0bc0ed;}
         td .sub_sum {display: inline-block;}
@@ -79,6 +79,9 @@
         .today>div  {border:3px solid #c7b3a6;  background: #eae4e0;}
         .today2>div {border:3px solid #c7b3a6;  background: #eae4e0;}
         .sltday>div {border:3px solid #D1635D;}
+
+        /* Long-press visual feedback (UI A) */
+        td.select > div { box-shadow: inset 0 0 0 2px #D1635D; }
 
         
 
@@ -627,12 +630,34 @@
                     if(event && event.touches && event.touches[0]){
                         this.touchY = parseInt(event.touches[0].clientY);
                     }
+                    // add visual feedback
+                    try { target.classList.add('select'); } catch(e) {}
+                    // setup long-press autorepeat (decrement): first at 1500ms, then every 1000ms
+                    if(this.holdDelayTimer){ clearTimeout(this.holdDelayTimer); this.holdDelayTimer = null; }
+                    if(this.holdTimer){ clearInterval(this.holdTimer); this.holdTimer = null; }
+                    this.holdTarget = target;
+                    this.holdDelayTimer = setTimeout(()=>{
+                        if(this.holdTarget){ uiAHandler.decData.call(this, this.holdTarget); }
+                        this.holdTimer = setInterval(()=>{
+                            if(this.holdTarget){ uiAHandler.decData.call(this, this.holdTarget); }
+                        }, 750);
+                    }, 1000);
                 }catch(e){}
             },
             dayLCLK2(event){
                 if(this.didDrag && event && event.cancelable){
                     event.preventDefault();
                 }
+                // clear long-press timers
+                if(this.holdDelayTimer){ clearTimeout(this.holdDelayTimer); this.holdDelayTimer = null; }
+                if(this.holdTimer){ clearInterval(this.holdTimer); this.holdTimer = null; }
+                this.holdTarget = null;
+                // remove visual feedback only on touchend/touchcancel (robust)
+                try {
+                    if(event && (event.type === 'touchend' || event.type === 'touchcancel')){
+                        this.clearHoldVisual(event.currentTarget);
+                    }
+                } catch(e) {}
                 this.touchY = 0;
             },
             decData(target){
@@ -680,11 +705,19 @@
                 if(ctouchY > (this.touchY + 20)) {
                     this.touchY = this.touchY + 20;
                     this.didDrag = true;
+                    // cancel long-press while dragging
+                    if(this.holdDelayTimer){ clearTimeout(this.holdDelayTimer); this.holdDelayTimer = null; }
+                    if(this.holdTimer){ clearInterval(this.holdTimer); this.holdTimer = null; }
+                    this.holdTarget = null;
                     uiAHandler.decData.call(this, ele);
                 }
                 else if(ctouchY < (this.touchY - 20)){
                     this.touchY = this.touchY - 20;
                     this.didDrag = true;
+                    // cancel long-press while dragging
+                    if(this.holdDelayTimer){ clearTimeout(this.holdDelayTimer); this.holdDelayTimer = null; }
+                    if(this.holdTimer){ clearInterval(this.holdTimer); this.holdTimer = null; }
+                    this.holdTarget = null;
                     uiAHandler.incData.call(this, ele);
                 }
             },
@@ -854,6 +887,10 @@
                 lastTouchTs: 0,
                 didDrag: false,
                 updateX: 0,
+                // UI A long-press timers
+                holdDelayTimer: null,
+                holdTimer: null,
+                holdTarget: null,
                 uiBScrolled: false,
                 saveTimer: null,
                 form: {
@@ -863,6 +900,18 @@
                     Revisit: 0,
                     Studies: 0,
                     Memo: ''
+                },
+                // Robust helper to clear 'select' class from the held cell
+                clearHoldVisual(fallbackEl){
+                    try{
+                        if(this.holdTarget && this.holdTarget.classList){ this.holdTarget.classList.remove('select'); }
+                        else if(fallbackEl && fallbackEl.classList){ fallbackEl.classList.remove('select'); }
+                        else {
+                            // final fallback: remove from any td.select (should be rare)
+                            const sel = document.querySelectorAll('td.select');
+                            sel.forEach(el=> el.classList.remove('select'));
+                        }
+                    }catch(err){}
                 },
                 // yearly summary drag state
                 ysHeight: 0,
@@ -887,6 +936,14 @@
                 };
 
                 // UI B 모드에서 오늘 날짜 자동 선택 비활성화
+
+                // Global touchend safeguard to clear long-press visual (UI A)
+                document.addEventListener('touchend', (e)=>{
+                    try{ this.clearHoldVisual(); }catch(err){}
+                }, {passive:true});
+                document.addEventListener('touchcancel', (e)=>{
+                    try{ this.clearHoldVisual(); }catch(err){}
+                }, {passive:true});
             },
             methods: {
                 // =====================
@@ -1165,9 +1222,6 @@
                 
                 goToMonth(m){
                     if(typeof m !== 'number' || isNaN(m)) return;
-                    // Navigate within the same academic year (Sep..Aug) as current cdate
-                    // If current month is Sep-Dec (>=8): months 8..11 -> same year, months 0..7 -> next year
-                    // If current month is Jan-Aug (<8): months 8..11 -> previous year, months 0..7 -> same year
                     const curY = this.cdate.getFullYear();
                     const curM = this.cdate.getMonth();
                     let targetYear;
@@ -1177,10 +1231,7 @@
                         targetYear = (m >= 8) ? (curY - 1) : curY;
                     }
                     this.cdate = new Date(targetYear, m, 1);
-                    // recompute month grid and reload current month's data
                     this.c_month(this.cdate);
-                    // close the bottom bar expanded area (optional UX)
-                    // this.ysHeight = 0;
                 }
             },
             computed: {
