@@ -694,6 +694,8 @@
                 const now = Date.now();
                 if (this.lastTouchTs && (now - this.lastTouchTs) < 50) return; // throttle 50ms
                 this.lastTouchTs = now;
+                // prevent default scrolling during touch move
+                if(evt.cancelable){ evt.preventDefault(); }
                 if(this.touchY == 0) this.touchY = parseInt(evt.changedTouches[0].clientY);
                 let ctouchY = parseInt(evt.changedTouches[0].clientY);
                 let ele = evt.currentTarget;
