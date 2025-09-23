@@ -625,6 +625,8 @@
             dayLCLK(event){
                 this.didDrag = false;
                 try{
+                    // clear previous visual feedback
+                    this.clearHoldVisual();
                     let target = event.currentTarget;
                     let day = target.getAttribute('day');
                     if(event && event.touches && event.touches[0]){
@@ -654,7 +656,7 @@
                 this.holdTarget = null;
                 // remove visual feedback only on touchend/touchcancel (robust)
                 try {
-                    if(event && (event.type === 'touchend' || event.type === 'touchcancel')){
+                    if(event && event.type === 'touchcancel'){
                         this.clearHoldVisual(event.currentTarget);
                     }
                 } catch(e) {}
@@ -935,14 +937,18 @@
                     }
                 };
 
-                // UI B 모드에서 오늘 날짜 자동 선택 비활성화
-
                 // Global touchend safeguard to clear long-press visual (UI A)
                 document.addEventListener('touchend', (e)=>{
-                    try{ this.clearHoldVisual(); }catch(err){}
+                    try{ 
+                        if(!this.didDrag) this.clearHoldVisual(); 
+                        this.didDrag = false;
+                    }catch(err){}
                 }, {passive:true});
                 document.addEventListener('touchcancel', (e)=>{
-                    try{ this.clearHoldVisual(); }catch(err){}
+                    try{ 
+                        if(!this.didDrag) this.clearHoldVisual(); 
+                        this.didDrag = false;
+                    }catch(err){}
                 }, {passive:true});
             },
             methods: {
