@@ -54,13 +54,13 @@
         th.weekend {color: #D1635D;}
         td {font-size: 15px; text-align: center;}
         td>div {border-radius: 16px; height: 74px; padding: 3px; overflow: visible; border:3px solid #fff; position: relative;}
-        .cal2 td>div {height: 54px;} 
+        .cal2 td>div {height: 60px;} 
         td .date {color: #000; font-weight: bold;}
         td .date2 {color: #000; opacity: 0.2;}
         td .half {display: block;  margin-bottom: -6px; height: 22px;}
         td .hours_sum {
             color: #2f200b; 
-            font-size: 12px;
+            font-size: 14px;
             display: flex;
             flex-direction: column;
             gap: 2px;
@@ -86,8 +86,8 @@
         
 
         .itmbar {padding: 10px 10px 30px 10px; width: 100vw; position: fixed; bottom: 0; color: #fff; background-color: #231306; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); border-radius: 30px 30px 0 0;}
-        .itmbar a {display: block; color: #fff; height: 30px; padding: 6px 0; border-radius: 8px; position: relative; overflow: hidden; background-color: white; padding-left: 12px;}
-        .itmbar a i {color: #000; position: absolute; z-index: 9;}
+        .itmbar a {display: block; color: #fff; height: 30px; padding: 6px 0; border-radius: 8px; position: relative; overflow: hidden; background-color: white;}
+        .itmbar a i {color: #000; position: absolute; z-index: 9; left: 50%; transform: translate(-50%,0);}
         .itmbar a::after {content: ""; display: block; width: 15px; height: 100%; position: absolute; left: 0; top: 0; transition: width 200ms ease-out;}
         .itmbar h3 {font-size: 14px; margin-bottom: 6px; display: block; text-align: center; font-weight: 700;}
         .itmbar ul {display: flex; justify-content: space-around;}
@@ -148,11 +148,11 @@
         .date_icons .assist-badge-small .fa-clock { position: absolute; left: 0; top: 0; font-size: 10px; color: #000; }
         .date_icons .assist-badge-small .fa-plus { position: absolute; right: 0; bottom: 0; font-size: 6px; color: #000; border-radius: 50%; width: 6px; height: 6px; display: flex; align-items: center; justify-content: center; line-height: 1; margin-right: -1px; margin-bottom: -1px; }
         .icon_small { color: #000; font-size: 10px; margin: 0 1px; }
-        .dayDetail {padding: 10px 20px 10px; background-color: #f6f3f1; box-shadow: 2px 2px 16px rgba(0,0,0,0.2); height: calc(100vh - 50px - 50px);}
-        .dayDetail>div {padding:10px 0; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between;}
+        .dayDetail {padding: 10px 20px 10px;}
+        .dayDetail>div {padding:10px 0; display: flex; justify-content: space-between;}
         .dayDetail label {width: 40px; display: block; color: #000; line-height: 28px; text-align: center;}
         /* 기존 스타일 유지 */
-        .dayDetail input {width: 24px; background: none; border: none; font-size: 15px; font-weight: bold; color: #000; text-align: center;}
+        .dayDetail input {width: 100%; background: none; border: none; font-size: 15px; font-weight: bold; color: #000; text-align: center;}
         .dayDetail .time label {width: 60px;}
         .dayDetail .time input {width: 60px;}
         
@@ -162,22 +162,18 @@
             border-bottom: 1px solid #ccc;
             padding-bottom: 15px;
         }
-        .dayDetail .control-group {
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+        .dayDetail .control-group { margin-bottom: 10px; align-items: center; justify-content: space-between; border-left: 1px solid #ccc;}
+        .dayDetail .control-group .title {margin-bottom: 10px;}
         .dayDetail .control-group label {
             width: auto;
-            margin-right: 10px;
             font-weight: bold;
         }
         .dayDetail .button-group {
-            display: flex;
             align-items: center;
             gap: 12px;
         }
+        .dayDetail .control-group ul {display: flex; justify-content: center;}
+        .dayDetail .control-group ul li {padding: 0 2px;}
         .dayDetail .button-group .value-input {
             width: 45px;
             text-align: center;
@@ -190,12 +186,11 @@
             width: 30px;
             margin: 0;
         }
-        .dayDetail a, .dayDetail button {padding:6px 0; background-color: #7B716A; line-height: 100%; font-size: 12px; text-align: center; width: 40px; border-radius: 5px; margin:2px; color: #fff; display: block;}
+        .dayDetail a, .dayDetail button {padding:12px 0; background-color: #7B716A; line-height: 100%; font-size: 12px; text-align: center; width: 40px; border-radius: 5px; margin:2px auto; color: #fff; display: block;}
         .dayDetail a:hover, .dayDetail button:hover {background-color: #231306;}
         .dayDetail .time a, .dayDetail .time button {padding:6px 4px;}
         .dayDetail .memo_wrapper {align-items: center;}
-        .dayDetail .memo_wrapper label {vertical-align: top;}
-        .dayDetail .memo_wrapper textarea {width: calc(100% - 45px); border-radius: 5px; height: 25px; border: 2px solid #B7B2AE;}
+        .dayDetail .memo_wrapper textarea {width: 100%; border-radius: 5px; height: 80px; border: 2px solid #B7B2AE; padding: 8px;}
         .dayDetail .memo_wrapper .btn1 {background: #7B716A; color: #fff; display: inline-block; width: 60px; vertical-align: top;}
 
         #app_pop .dim {display: block; position: fixed; z-index: 8; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); top: 0; left: 0; opacity: 0; transition: opacity 300ms; visibility: hidden;}
@@ -298,12 +293,12 @@
                 <table>
                     <tr>
                         <th><a :class="(this.mode == 'hours') ? 'active':''" class="icon_hours" @click.prevent="setMode('hours')"><i class="fa-solid fa-stopwatch"></i></a><!-- 시간 --></th>
-                        <th><a :class="(this.mode == 'assist') ? 'active':''" class="icon_assist" @click.prevent="setMode('assist')" title="보조시간">
-                            <span class="assist_icon">
-                                <i class="fa-regular fa-clock base_clock"></i>
-                                <i class="fa-solid fa-plus assist_badge_plus"></i>
+                        <th><a :class="(this.mode == 'assist') ? 'active':''" class="icon_assist" @click.prevent="setMode('assist')" title="고려시간">
+                            <span class="fa-stack fa-2x">
+                                 <i class="fa-regular fa-clock fa-stack-2x"></i>
+                                 <i class="fa-solid fa-circle-plus fa-stack-1x" style="margin-left: 11px; margin-top: -9px; font-size: 12px;"></i>
                             </span>
-                        </a><!-- 보조시간 --></th>
+                        </a><!-- 고려시간 --></th>
                         <th><a :class="(this.mode == 'revisit') ? 'active':''" class="icon_revisit" @click.prevent="setMode('revisit')"><i class="fa-solid fa-person-walking-arrow-loop-left"></i></a><!-- 재방문 --></th>
                         <th><a :class="(this.mode == 'studies') ? 'active':''" class="icon_studies" @click.prevent="setMode('studies')"><i class="fa-solid fa-book-open-reader"></i></a><!-- 연구 --></th>
                     </tr>
@@ -404,41 +399,46 @@
             </div>
 
             <div v-if="sltdate != ''" class="dayDetail">
-                <div class="time">
-                    <div>
-                        <label for="f_Hours">시간</label>
-                        <input readonly type="text" id="f_Hours" :value="formatMinutes(form.Hours)">
+                <div class="flex-wrapper" style="display: flex;">
+                    <div class="control-group" style="border-left: 0;">
+                        <div class="title">
+                            <label for="f_Hours">시간</label>
+                            <input readonly type="text" id="f_Hours" :value="formatMinutes(form.Hours)">
+                        </div>
+                        <ul style="display: flex;">
+                            <li><a class="increase" @click.prevent="setTimeData(5)">+5m</a><a class="decrease" @click.prevent="setTimeData(-5)">-5m</a></li>
+                            <li><a class="increase" @click.prevent="setTimeData(30)">+30m</a><a class="decrease" @click.prevent="setTimeData(-30)">-30m</a></li>
+                            <li><a class="increase" @click.prevent="setTimeData(60)">+1h</a><a class="decrease" @click.prevent="setTimeData(-60)">-1h</a></li>
+                        </ul>
                     </div>
-                    <div><a class="increase" @click.prevent="setTimeData(1)">+1m</a><a class="decrease" @click.prevent="setTimeData(-1)">-1m</a></div>
-                    <div><a class="increase" @click.prevent="setTimeData(5)">+5m</a><a class="decrease" @click.prevent="setTimeData(-5)">-5m</a></div>
-                    <div><a class="increase" @click.prevent="setTimeData(10)">+10m</a><a class="decrease" @click.prevent="setTimeData(-10)">-10m</a></div>
-                    <div><a class="increase" @click.prevent="setTimeData(30)">+30m</a><a class="decrease" @click.prevent="setTimeData(-30)">-30m</a></div>
-                    <div><a class="increase" @click.prevent="setTimeData(60)">+1h</a><a class="decrease" @click.prevent="setTimeData(-60)">-1h</a></div>
-                </div>
-                <div class="time">
-                    <div>
-                        <label for="f_Assist">보조시간</label>
-                        <input readonly type="text" id="f_Assist" :value="formatMinutes(form.Assist)">
-                    </div>
-                    <div><a class="increase" @click.prevent="adjustTime('Assist', 1/60)">+1m</a><a class="decrease" @click.prevent="adjustTime('Assist', -1/60)">-1m</a></div>
-                    <div><a class="increase" @click.prevent="adjustTime('Assist', 5/60)">+5m</a><a class="decrease" @click.prevent="adjustTime('Assist', -5/60)">-5m</a></div>
-                    <div><a class="increase" @click.prevent="adjustTime('Assist', 10/60)">+10m</a><a class="decrease" @click.prevent="adjustTime('Assist', -10/60)">-10m</a></div>
-                    <div><a class="increase" @click.prevent="adjustTime('Assist', 30/60)">+30m</a><a class="decrease" @click.prevent="adjustTime('Assist', -30/60)">-30m</a></div>
-                    <div><a class="increase" @click.prevent="adjustTime('Assist', 1)">+1h</a><a class="decrease" @click.prevent="adjustTime('Assist', -1)">-1h</a></div>
-                </div>
-                <div class="vertical-controls">
                     <div class="control-group">
-                        <label for="f_Revisit">재방문</label>
-                        <input readonly type="number" id="f_Revisit" v-model.number="form.Revisit" min="0" class="value-input">
+                        <div class="title">
+                            <label for="f_Assist">고려시간</label>
+                            <input readonly type="text" id="f_Assist" :value="formatMinutes(form.Assist)">
+                        </div>
+                        <ul style="display: flex;">
+                            <li><a class="increase" @click.prevent="adjustTime('Assist', 5/60)">+5m</a><a class="decrease" @click.prevent="adjustTime('Assist', -5/60)">-5m</a></li>
+                            <li><a class="increase" @click.prevent="adjustTime('Assist', 30/60)">+30m</a><a class="decrease" @click.prevent="adjustTime('Assist', -30/60)">-30m</a></li>
+                            <li><a class="increase" @click.prevent="adjustTime('Assist', 1)">+1h</a><a class="decrease" @click.prevent="adjustTime('Assist', -1)">-1h</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="control-group" style="width: 17%;">
+                        <div class="title">
+                            <label for="f_Revisit">재방문</label>
+                            <input readonly type="number" id="f_Revisit" v-model.number="form.Revisit" min="0" class="value-input">
+                        </div>
                         <div class="button-group">
                             <a class="increase" @click.prevent="setTypeData('Revisit')">+1</a>
                             <a class="decrease" @click.prevent="setTypeData('Revisit', false)">-1</a>
                         </div>
                     </div>
                     
-                    <div class="control-group">
-                        <label for="f_Studies">연구</label>
-                        <input readonly type="number" id="f_Studies" v-model.number="form.Studies" min="0" class="value-input">
+                    <div class="control-group" style="width: 17%;">
+                        <div class="title">
+                            <label for="f_Studies">연구</label>
+                            <input readonly type="number" id="f_Studies" v-model.number="form.Studies" min="0" class="value-input">
+                        </div>
                         <div class="button-group">
                             <a class="increase" @click.prevent="setTypeData('Studies')">+1</a>
                             <a class="decrease" @click.prevent="setTypeData('Studies', false)">-1</a>
@@ -446,7 +446,6 @@
                     </div>
                 </div>
                 <div class="memo_wrapper">
-                    <label for="f_Memo">메모</label>
                     <textarea 
                         id="f_Memo" 
                         v-model="form.Memo"
@@ -463,10 +462,10 @@
                 <h3>{{(cdate.getMonth()+1)}}월 합계({{ monthCombinedTotalHhMm }})</h3>
                 <ul>
                     <li><i class="fa-solid fa-stopwatch"></i> <span>{{totalDate('hours')}}</span></li><!--시간-->
-                    <li title="보조시간">
-                        <span class="assist-badge">
-                            <i class="fa-regular fa-clock"></i>
-                            <i class="fa-solid fa-plus"></i>
+                    <li title="고려시간">
+                        <span class="fa-stack fa-2x" style="padding-top: 5px;">
+                                <i class="fa-regular fa-clock fa-stack-2x"></i>
+                                <i class="fa-solid fa-circle-plus fa-stack-1x" style="margin-left: 11px; margin-top: -9px; font-size: 12px;"></i>
                         </span>
                         <span>{{totalDate('assist')}}</span>
                     </li>
@@ -528,7 +527,7 @@
     
     <script>
         // 데이터 유형
-        // NAME => hours(봉사시간), assist(보조시간), revisit(재방문), studies(연구)
+        // NAME => hours(봉사시간), assist(고려시간), revisit(재방문), studies(연구)
 
         const uiAHandler = {
             dayCLK(event) {
