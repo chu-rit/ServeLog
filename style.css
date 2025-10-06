@@ -1,0 +1,879 @@
+/* http://meyerweb.com/eric/tools/css/reset/   v2.0 | 20110126 */
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: middle;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
+body {
+  line-height: 1;
+  -ms-user-select: none;
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+blockquote, q {
+  quotes: none;
+}
+
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: '';
+  content: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+strong {
+  font-weight: bold;
+}
+
+*, *:before, *:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+}
+
+html {
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  touch-action: pan-y;
+}
+
+.textarea {
+  user-select: text;
+}
+
+/* app custom by 128bit | 20230210 */
+.app {
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  background-color: #f6f3f1;
+}
+
+.headerbar {
+  padding-top: 50px;
+  position: relative;
+  color: #333;
+  background: #fff;
+}
+
+.headerbar .title {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  padding: 0 25vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerbar .set_btn {
+  position: absolute;
+  right: 25px;
+  top: 52px;
+}
+
+.headerbar .set_btn i {
+  font-size: 25px;
+  color: #333;
+}
+
+.cal,
+.cal2 {
+  width: 100%;
+  background: #fff;
+  box-shadow: 2px 2px 16px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+}
+
+body {
+  color: #666;
+  font: 14px/24px "Open Sans", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", Sans-Serif;
+}
+
+table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+th {
+  padding: 0 3px;
+  font-size: 13px;
+  color: #666;
+  font-weight: bold;
+}
+
+th.weekend {
+  color: #d1635d;
+}
+
+td {
+  font-size: 15px;
+  text-align: center;
+}
+
+td > div {
+  border-radius: 16px;
+  height: 74px;
+  padding: 3px;
+  overflow: visible;
+  border: 3px solid #fff;
+  position: relative;
+}
+
+.cal2 td > div {
+  height: 60px;
+}
+
+td .date {
+  color: #000;
+  font-weight: bold;
+}
+
+td .date2 {
+  color: #000;
+  opacity: 0.2;
+}
+
+td .half {
+  display: block;
+  margin-bottom: -6px;
+  height: 22px;
+}
+
+td .hours_sum {
+  color: #2f200b;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: -4px;
+}
+
+td .assist_time {
+  color: #65c891;
+  font-size: 12px;
+}
+
+td .extra_report {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 15px;
+  align-items: center;
+  margin-top: 1px;
+  width: 35px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+td .extra_report p {
+  border-radius: 24px;
+  width: 5px;
+  height: 5px;
+  margin: 1px;
+}
+
+td .extra_report .studies_sum {
+  background-color: #0bc0ed;
+}
+
+td .sub_sum {
+  display: inline-block;
+}
+
+/* tr:nth-child(even) td>div {background: #e3e3e3;} */
+
+.today > div {
+  border: 3px solid #c7b3a6;
+  background: #eae4e0;
+}
+
+.today2 > div {
+  border: 3px solid #c7b3a6;
+  background: #eae4e0;
+}
+
+.sltday > div {
+  border: 3px solid #d1635d;
+}
+
+/* Long-press visual feedback (UI A) */
+td.select > div {
+  box-shadow: inset 0 0 0 2px #d1635d;
+}
+
+.itmbar {
+  padding: 10px 10px 30px 10px;
+  width: 100vw;
+  position: fixed;
+  bottom: 0;
+  color: #fff;
+  background-color: #231306;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 30px 30px 0 0;
+}
+
+.itmbar a {
+  display: block;
+  color: #fff;
+  height: 30px;
+  padding: 6px 0;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  background-color: white;
+}
+
+.itmbar a i {
+  color: #000;
+  position: absolute;
+  z-index: 9;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+.itmbar a::after {
+  content: "";
+  display: block;
+  width: 15px;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: width 200ms ease-out;
+}
+
+.itmbar h3 {
+  font-size: 14px;
+  margin-bottom: 6px;
+  display: block;
+  text-align: center;
+  font-weight: 700;
+}
+
+.itmbar ul {
+  display: flex;
+  justify-content: space-around;
+}
+
+.itmbar i {
+  font-size: 18px;
+}
+
+.itmbar td {
+  font-weight: bold;
+  font-size: 14px;
+  color: #fff;
+}
+
+.itmbar span {
+  font-weight: bold;
+  font-size: 14px;
+  color: #fff;
+  margin-left: 4px;
+}
+
+.itmbar table .active i {
+  color: #fff;
+}
+
+.itmbar .active::after {
+  width: 100%;
+}
+
+/* yearly summary (inside bottom bar) */
+.year_summary {
+  margin-top: 6px;
+}
+
+.year_summary .ym_table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.year_summary .ym_table td {
+  padding: 4px 2px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.year_summary .ym_table td {
+  cursor: pointer;
+}
+
+.year_summary .ym_label {
+  display: block;
+  color: #b7b2ae;
+  font-size: 11px;
+}
+
+.year_summary .ym_time {
+  display: block;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+/* toggle buttons (classic style) */
+.time .toggle {
+  display: inline-block;
+  padding: 4px 8px;
+  border: 1px solid #b7b2ae;
+  border-radius: 6px;
+  margin-right: 4px;
+  color: #333;
+  background: #fff;
+  font-size: 12px;
+}
+
+.time .toggle.active {
+  background: #231306;
+  color: #fff;
+  border-color: #231306;
+}
+
+/* drag handle icon */
+.itmbar .drag_handle {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 6px;
+  touch-action: none;
+  cursor: ns-resize;
+}
+
+.itmbar .drag_handle i {
+  color: #b7b2ae;
+  font-size: 20px;
+}
+
+/* yearly summary reveal wrapper */
+.year_summary_wrap {
+  height: 0;
+  overflow: hidden;
+  transition: height 120ms ease-out;
+}
+
+.year_title {
+  text-align: center;
+  color: #fff;
+  font-size: 12px;
+  margin: 0;
+  padding: 4px 0 2px;
+  font-weight: 700;
+}
+
+/* assist icon (FA layered: clock + plus badge) */
+.icon_assist .assist_icon {
+  position: relative;
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
+}
+
+.icon_assist .assist_icon i {
+  position: absolute !important;
+  left: 0;
+  top: 0;
+}
+
+.icon_assist .assist_icon .base_clock {
+  font-size: 18px;
+  line-height: 20px;
+  left: 0;
+  top: -3px;
+}
+
+.icon_assist .assist_icon .assist_badge_plus {
+  right: 0;
+  bottom: 0;
+  left: auto;
+  top: auto;
+  font-size: 10px;
+  z-index: 2;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+.itmbar .icon_hours::after {
+  background: #6a665c;
+}
+
+.itmbar .icon_hours i {
+  color: #6a665c;
+}
+
+.itmbar .icon_revisit::after {
+  background: #b15ed2;
+}
+
+.itmbar .icon_revisit i {
+  color: #b15ed2;
+}
+
+.extra_report .revisit_sum {
+  background: #b15ed2;
+}
+
+.itmbar .icon_assist::after {
+  background: #65c891;
+}
+
+.itmbar .icon_assist i {
+  color: #65c891;
+}
+
+.itmbar .icon_studies::after {
+  background: #97d0de;
+}
+
+/* B style assist icon */
+.itmbar .assist-badge {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  position: relative;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.itmbar .assist-badge .fa-plus {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  font-size: 8px;
+  color: #fff;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transform: none;
+  margin-right: -2px;
+  margin-bottom: -2px;
+}
+
+.itmbar .icon_studies i {
+  color: #97d0de;
+}
+
+.memo .input_text {
+  width: 70%;
+  background: #ffffff;
+  box-sizing: border-box;
+  border: solid 2px #1e90ff;
+  border-radius: 5px;
+  font-size: 18px;
+  margin: 10px;
+}
+
+.memo textarea {
+  width: 82%;
+  height: 80%;
+  display: inline-block;
+  box-sizing: border-box;
+  border-radius: 5px;
+  font-size: 18px;
+  margin: 5px;
+  border: 1px solid #ddd;
+}
+
+/* .memo :nth-child(even) textarea { background: #e3e3e3;} */
+
+.memo span {
+  font-size: 20px;
+  font-weight: bold;
+  vertical-align: top;
+}
+
+.memo li {
+  height: 50px;
+  display: block;
+  line-height: 50px;
+  text-align: center;
+}
+
+.c_red {
+  color: #d1635d;
+}
+
+.dayDetail {
+  padding: 10px 20px 100px;
+}
+
+.dayDetail > div {
+  padding: 10px 0;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+}
+
+.dayDetail label {
+  width: 40px;
+  display: block;
+  color: #000;
+  line-height: 28px;
+  text-align: center;
+}
+
+.dayDetail input {
+  width: 40px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  font-weight: bold;
+  color: #000;
+  text-align: center;
+}
+
+.dayDetail .time {
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.dayDetail .time_label {
+  min-width: 60px;
+  font-weight: bold;
+  color: #231306;
+  line-height: 36px;
+}
+
+.dayDetail .time_controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dayDetail .hour_dial {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid #b7b2ae;
+  background: #f5f1ed;
+  cursor: grab;
+  touch-action: none;
+}
+
+.dayDetail .hour_dial.dragging {
+  cursor: grabbing;
+}
+
+.dayDetail .hour_dial .dial_face {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1px dashed #cfc9c4;
+}
+
+.dayDetail .hour_dial .dial_pointer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 26px;
+  background: #7b716a;
+  transform-origin: 50% 100%;
+  transition: transform 120ms ease-out;
+  pointer-events: none;
+}
+
+.dayDetail .hour_dial.dragging .dial_pointer {
+  transition: none;
+}
+
+.dayDetail .hour_dial .dial_center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  font-size: 18px;
+  color: #231306;
+}
+
+.dayDetail .time_values {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 110px;
+}
+
+.dayDetail .time_row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dayDetail .time_row_label {
+  font-size: 13px;
+  color: #7b716a;
+}
+
+.dayDetail .time_row_value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #231306;
+}
+
+.dayDetail .time_values input {
+  width: 72px;
+  height: 32px;
+  border: 1px solid #b7b2ae;
+  border-radius: 4px;
+  padding: 0 8px;
+  font-size: 16px;
+  color: #231306;
+  background: #fff;
+  text-align: right;
+}
+
+.dayDetail a {
+  padding: 6px 0;
+  background-color: #7b716a;
+  line-height: 100%;
+  font-size: 12px;
+  text-align: center;
+  width: 40px;
+  border-radius: 5px;
+  margin: 2px;
+  color: #fff;
+  display: block;
+}
+
+.dayDetail a:hover {
+  background-color: #231306;
+}
+
+.dayDetail .time a {
+  padding: 6px 4px;
+}
+
+.dayDetail .memo_wrapper {
+  align-items: center;
+}
+
+.dayDetail .memo_wrapper label {
+  vertical-align: top;
+}
+
+.dayDetail .memo_wrapper textarea {
+  width: calc(100% - 45px);
+  border-radius: 5px;
+  height: 25px;
+  border: 2px solid #b7b2ae;
+}
+
+.dayDetail .memo_wrapper .btn1 {
+  background: #7b716a;
+  color: #fff;
+  display: inline-block;
+  width: 60px;
+  vertical-align: top;
+}
+
+.date_icons {
+  display: flex;
+  justify-content: center;
+  margin-top: 5px;
+  min-height: 12px;
+}
+
+.date_icons .assist-badge-small {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  position: relative;
+  vertical-align: middle;
+  margin: 0 1px;
+}
+
+.date_icons .assist-badge-small .fa-clock {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 10px;
+  color: #000;
+}
+
+.date_icons .assist-badge-small .fa-plus {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  font-size: 6px;
+  color: #000;
+  border-radius: 50%;
+  width: 6px;
+  height: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  margin-right: -1px;
+  margin-bottom: -1px;
+}
+
+.icon_small {
+  color: #000;
+  font-size: 10px;
+  margin: 0 1px;
+}
+
+#app_pop .dim {
+  display: block;
+  position: fixed;
+  z-index: 8;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 300ms;
+  visibility: hidden;
+}
+
+#app_pop .wrapper {
+  position: fixed;
+  height: 100vh;
+  width: 75vw;
+  top: 0;
+  background: #fff;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  z-index: 9;
+  padding: 70px 30px 30px;
+  transition: right 300ms ease-out;
+  right: -78vw;
+  overflow-y: auto;
+}
+
+#app_pop .close_btn {
+  position: absolute;
+  top: 50px;
+  right: 20px;
+  font-size: 24px;
+  color: #333;
+  cursor: pointer;
+  z-index: 10;
+}
+
+#app_pop.on .dim {
+  opacity: 1;
+  visibility: visible;
+}
+
+#app_pop.on .wrapper {
+  right: 0;
+}
+
+#app_pop input[type=radio] {
+  vertical-align: middle;
+}
+
+#app_pop label {
+  color: #000;
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+#app_pop label + p {
+  padding-left: 25px;
+}
+
+#app_pop .desc {
+  font-size: 12px;
+  margin-left: 25px;
+  line-height: 150%;
+  color: #888;
+}
+
+#app_pop h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+#app_pop .btn_red {
+  display: block;
+  padding: 5px 0;
+  text-align: center;
+  border: 1px solid #bd0808;
+  cursor: pointer;
+  color: #bd0808;
+}
+
+#app_pop ul {
+  list-style: disc;
+}
+
+#app_pop ul li {
+  margin-bottom: 20px;
+  vertical-align: middle;
+  margin-left: 15px;
+}
+
+#app_pop ul li strong {
+  margin-bottom: 20px;
+  vertical-align: top;
+  color: #000;
+}
+
+@media (orientation: portrait) {
+  /* 세로 */
+  .cal,
+  .itmbar {
+    display: block;
+  }
+
+  .memo {
+    display: none;
+  }
+}
+
+@media (orientation: landscape) {
+  /* 가로 */
+  .cal,
+  .itmbar,
+  .headerbar {
+    display: none;
+  }
+
+  .memo {
+    display: block;
+  }
+}

@@ -1,0 +1,1117 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>봉사시간 기록</title>
+    <meta name="viewport" content="initial-scale=1, viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="HandheldFriendly" content="true">
+    
+    <link rel="shortcut icon" href="homeicon.png" type="image/x-icon">
+    <link rel="apple-touch-icon" href="homeicon.png" />
+    <link rel="icon" href="homeicon.png" type="image/x-icon">
+    <meta property="og:title" content="봉시시간 기록" />
+    <meta property="og:image" content="homeicon.jpg" />
+
+    <script src="vendor/vue.min.js"></script>
+    <!-- <script src="pwaCheck.js"></script> -->
+
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app" class="app">
+
+        <div class="headerbar">
+            <p class="title">
+                <a class="prev_btn" @click="prevM">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </a>
+                <span><template v-if="cdate != ''">{{ cdate.getFullYear() + ".  " + (cdate.getMonth()+1)}}</template></span>
+                <a class="next_btn" @click="nextM">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            </p>
+            <a class="set_btn" @click="isSettingsOpen = true">
+                <i class="fa-solid fa-ellipsis"></i>
+            </a>
+        </div>
+
+        <template v-if="appUi == 'A'">
+            <div class="cal">
+                <table>
+                    <tr>
+                        <th class="weekend">Sun</th>
+                        <th>Mon</th>
+                        <th>Tus</th>
+                        <th>Wed</th>
+                        <th>Thu</th>
+                        <th>Fri</th>
+                        <th class="weekend">Sat</th>
+                    </tr>
+                    <tr v-for="days, idx1 in week">
+                        <template v-for="date, idx2 in days">
+                            <template v-if="date.getMonth() == cdate.getMonth()">
+                                <td @click.stop="dayCLK($event)" :day="date.getDate()" :class="dayClass(date)"
+                                    @mousedown="dayLCLK($event)" @mouseleave="dayLCLK2" @mouseup="dayLCLK2" 
+                                    @touchstart="dayLCLK($event)" @touchend="dayLCLK2" @touchcancel="dayLCLK2"
+                                    @touchmove="touchMove($event)" >
+                                    <div>
+                                        <p class="date half">{{ date.getDate() }}</p>
+                                        <div class="extra_report">
+                                            <template v-if="(getData(date,'revisit') || 0) + (getData(date,'studies') || 0) > 0">
+                                                <p class="revisit_sum sub_sum" 
+                                                   v-for="i in Math.min(getData(date,'revisit') || 0, 10)"></p>
+                                                <p class="studies_sum sub_sum" 
+                                                   v-for="i in Math.min(getData(date,'studies') || 0, 10 - Math.min(getData(date,'revisit') || 0, 10))"></p>
+                                            </template>
+                                        </div>
+                                        <p class="hours_sum half">
+                                            {{ showTime(date) }}
+                                        </p>
+                                        <p v-if="getData(date, 'assist') > 0" class="assist_time">{{ formatMinutes(getData(date, 'assist')) }}</p>
+                                    </div>
+                                </td>
+                            </template>
+                            <template v-else>
+                                <td>
+                                    <div>
+                                        <p class="date2">{{ date.getDate() }}</p>
+                                    </div>
+                                </td>
+                            </template>
+                        </template>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="itmbar">
+                <div class="drag_handle" @mousedown.prevent="ysDown($event)" @touchstart.prevent="ysDown($event)">
+                    <i class="fa-solid fa-grip-lines"></i>
+                </div>
+                <h3>{{(cdate.getMonth()+1)}}월 합계({{ monthCombinedTotalHhMm }})</h3>
+                <table>
+                    <tr>
+                        <th><a :class="(this.mode == 'hours') ? 'active':''" class="icon_hours" @click.prevent="setMode('hours')"><i class="fa-solid fa-stopwatch"></i></a><!-- 시간 --></th>
+                        <th><a :class="(this.mode == 'assist') ? 'active':''" class="icon_assist" @click.prevent="setMode('assist')" title="고려시간">
+                            <span class="fa-stack fa-2x">
+                                 <i class="fa-regular fa-clock fa-stack-2x"></i>
+                                 <i class="fa-solid fa-circle-plus fa-stack-1x" style="margin-left: 11px; margin-top: -9px; font-size: 12px;"></i>
+                            </span>
+                        </a><!-- 고려시간 --></th>
+                        <th><a :class="(this.mode == 'revisit') ? 'active':''" class="icon_revisit" @click.prevent="setMode('revisit')"><i class="fa-solid fa-person-walking-arrow-loop-left"></i></a><!-- 재방문 --></th>
+                        <th><a :class="(this.mode == 'studies') ? 'active':''" class="icon_studies" @click.prevent="setMode('studies')"><i class="fa-solid fa-book-open-reader"></i></a><!-- 연구 --></th>
+                    </tr>
+                    <tr>
+                        <td>{{totalDate('hours')}}</td>
+                        <td>{{totalDate('assist')}}</td>
+                        <td>{{totalDate('revisit')}}</td>
+                        <td>{{totalDate('studies')}}</td>
+                    </tr>
+                </table>
+                <div class="year_summary_wrap" :style="{height: ysHeight + 'px'}">
+                    <div ref="ysInner">
+                        <div class="year_title" style="padding-top:5px;">{{ academicYear(cdate) }} 봉사연도({{ yearTotalCombinedCappedHhMm }})</div>
+                        <div class="year_summary" style="padding-top:1px;">
+                            <table class="ym_table">
+                            <tr>
+                                <td v-for="cell in yearRows[0]" :key="'ys1_'+cell.key" @click="goToMonth(cell.m)">
+                                    <span class="ym_label">{{ cell.label }}</span>
+                                    <span class="ym_time">{{ cell.time }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td v-for="cell in yearRows[1]" :key="'ys2_'+cell.key" @click="goToMonth(cell.m)">
+                                    <span class="ym_label">{{ cell.label }}</span>
+                                    <span class="ym_time">{{ cell.time }}</span>
+                                </td>
+                            </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="memo">
+                <ul>
+                    <li class="border1">
+                        <span>FILTER: </span>
+                        <input type="text" class="input_text" id="sch_txt" v-model="schtxt" @input="schtxt=$event.target.value"/>
+                    </li>
+                    <template v-for="day, idx1 in filteredMemoDays" :key="'memo_'+day.getTime()">
+                        <li 
+                            :class="day.setHours(0,0,0,0) == new Date().setHours(0,0,0,0) ? 'today2':''"
+                            :id="'memo_'+day.getDate()" 
+                            >   
+                            <span :class="day.getDay() == 0 || day.getDay() == 6 ? 'c_red':''">
+                                {{ day.getDate() }} ({{ getYoil(day.getDay()) }})
+                            </span>
+                            <textarea @blur="setMemo($event)" :day="day.getDate()" :key="updateX">{{ getData(day,'memo') }}</textarea>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </template>
+
+        <template v-if="appUi == 'B'">
+            <div class="cal2">
+                <table>
+                    <tr>
+                        <th class="weekend">Sun</th>
+                        <th>Mon</th>
+                        <th>Tus</th>
+                        <th>Wed</th>
+                        <th>Thu</th>
+                        <th>Fri</th>
+                        <th class="weekend">Sat</th>
+                    </tr>
+                    <tr v-for="days, idx1 in week">
+                        <template v-for="date, idx2 in days">
+                            <template v-if="date.getMonth() == cdate.getMonth()">
+                                <td @click="sltCLK($event)" :day="date.getDate()"
+                                    :class="dayClass(date)">
+                                    <div>
+                                        <p class="date half">{{ date.getDate() }}</p>
+                                        <div class="date_icons">
+                                            <span v-if="getData(date,'assist') > 0" class="assist-badge-small">
+                                                <i class="fa-regular fa-clock"></i>
+                                                <i class="fa-solid fa-plus"></i>
+                                            </span>
+                                            <i v-if="getData(date,'revisit') > 0" class="fa-solid fa-person-walking-arrow-loop-left icon_small"></i>
+                                            <i v-if="getData(date,'studies') > 0" class="fa-solid fa-book-open-reader icon_small"></i>
+                                        </div>
+                                        <p class="hours_sum half" :class="{assist_on: !!getData(date,'assist')}">
+                                            {{ displayTime(date) }}
+                                        </p>
+                                    </div>
+                                </td>
+                            </template>
+                            <template v-else>
+                                <td>
+                                    <div>
+                                        <p class="date2">{{ date.getDate() }}</p>
+                                    </div>
+                                </td>
+                            </template>
+                        </template>
+                    </tr>
+                </table>
+            </div>
+
+            <div v-if="sltdate != ''" class="dayDetail">
+                <div class="time">
+                    <div><label for="f_Hours">시간</label><input readonly type="text" id="f_Hours" value="0:00"></div>
+                    <div><a class="increase" @click="setTimeData(1)">+1m</a><a class="decrease" @click="setTimeData(-1)">-1m</a></div>
+                    <div><a class="increase" @click="setTimeData(5)">+5m</a><a class="decrease" @click="setTimeData(-5)">-5m</a></div>
+                    <div><a class="increase" @click="setTimeData(10)">+10m</a><a class="decrease" @click="setTimeData(-10)">-10m</a></div>
+                    <div><a class="increase" @click="setTimeData(30)">+30m</a><a class="decrease" @click="setTimeData(-30)">-30m</a></div>
+                    <div><a class="increase" @click="setTimeData(60)">+1h</a><a class="decrease"  @click="setTimeData(-60)">-1h</a></div>
+                </div>
+                <div class="column4">
+                    <div><label for="f_Placements">출판물</label><input readonly type="number" id="f_Placements" value="0" min="0"></div>
+                    <div>
+                        <a class="increase" @click="setTypeData('Placements')">+1</a>
+                        <a class="decrease" @click="setTypeData('Placements', false)">-1</a>
+                    </div>
+
+                    <div><label for="f_Revisit">재방문</label><input readonly type="number" id="f_Revisit" value="0" min="0"></div>
+                    <div>
+                        <a class="increase" @click="setTypeData('Revisit')">+1</a>
+                        <a class="decrease" @click="setTypeData('Revisit', false)">-1</a>
+                    </div>
+
+                    <div><label for="f_Videos">동영상</label><input readonly type="number" id="f_Videos" value="0" min="0"></div>
+                    <div>
+                        <a class="increase" @click="setTypeData('Videos')">+1</a>
+                        <a class="decrease" @click="setTypeData('Videos', false)">-1</a>
+                    </div>
+                    
+                    <div><label for="f_Studies">연구</label><input readonly type="number" id="f_Studies" value="0" min="0"></div>
+                    <div>
+                        <a class="increase" @click="setTypeData('Studies')">+1</a>
+                        <a class="decrease" @click="setTypeData('Studies', false)">-1</a>
+                    </div>
+                </div>
+                <div class="memo_wrapper">
+                    <label for="">메모</label>
+                    <textarea id="f_Memo" ></textarea>
+                    <!-- <a @click="setDayData" class="btn1">저장</a> -->
+                </div>
+            </div>
+
+            <div class="itmbar">
+                <div class="drag_handle" @mousedown.prevent="ysDown($event)" @touchstart.prevent="ysDown($event)">
+                    <i class="fa-solid fa-grip-lines"></i>
+                </div>
+                <h3>{{(cdate.getMonth()+1)}}월 합계({{ monthCombinedTotalHhMm }})</h3>
+                <ul>
+                    <li><i class="fa-solid fa-stopwatch"></i> <span>{{totalDate('hours')}}</span></li><!--시간-->
+                    <li title="고려시간">
+                        <span class="fa-stack fa-2x" style="padding-top: 5px;">
+                                <i class="fa-regular fa-clock fa-stack-2x"></i>
+                                <i class="fa-solid fa-circle-plus fa-stack-1x" style="margin-left: 11px; margin-top: -9px; font-size: 12px;"></i>
+                        </span>
+                        <span>{{totalDate('assist')}}</span>
+                    </li>
+                    <li><i class="fa-solid fa-person-walking-arrow-loop-left"></i> <span>{{totalDate('revisit')}}</span></li><!--재방문-->
+                    <li><i class="fa-solid fa-book-open-reader"></i> <span>{{totalDate('studies')}}</span></li><!--연구-->
+                </ul>
+                <div class="year_summary_wrap" :style="{height: ysHeight + 'px'}">
+                    <div ref="ysInner">
+                        <div class="year_title" style="padding-top:5px;">{{ academicYear(cdate) }} 봉사연도({{ yearTotalCombinedCappedHhMm }})</div>
+                        <div class="year_summary" style="padding-top:1px;">
+                            <table class="ym_table">
+                            <tr>
+                                <td v-for="cell in yearRows[0]" :key="'ys1_'+cell.key" @click="goToMonth(cell.m)">
+                                    <span class="ym_label">{{ cell.label }}</span>
+                                    <span class="ym_time">{{ cell.time }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td v-for="cell in yearRows[1]" :key="'ys2_'+cell.key" @click="goToMonth(cell.m)">
+                                    <span class="ym_label">{{ cell.label }}</span>
+                                    <span class="ym_time">{{ cell.time }}</span>
+                                </td>
+                            </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <div id="app_pop" :class="{on: isSettingsOpen}">
+            <div class="wrapper" onclick="event.stopPropagation();">
+                <a class="close_btn" @click="isSettingsOpen = false"><i class="fa-solid fa-xmark"></i></a>
+                <h3>UI 스타일</h3>
+                <input type="radio" id="default_style" name="appUi" value="A" @change="newOpt()" v-model="appUi">
+                <label for="default_style">기본 스타일</label>
+                <p>날짜를 직접 눌러서 봉사내역을 빠르게 입력할 수 있는 방식입니다.</p>
+                <p class="desc">- 스마트폰을 가로로 돌려서 메모 입력<br>
+                    - 날짜를 길게눌러서 봉사기록 삭제</p>
+                <input type="radio" id="classic_style" name="appUi" value="B" @change="newOpt()" v-model="appUi">
+                <label for="classic_style">클래식 스타일</label>
+                <p>날짜를 누른 다음 해당 날짜의 봉사내역을 입력하는 방식입니다.</p>
+                
+                <h3>데이터삭제</h3>
+                <a @click="cleardata()" class="btn_red">현재 달 데이터삭제</a>
+
+                <h3>안내사항</h3>
+                <ul>
+                    <li>이 프로그램은 웹앱 형식으로 개발되었습니다. 홈 화면에 <strong>바로가기를 만들어서 사용</strong>해주시기 바랍니다.</li>
+                    <li>앱에 입력되는 모든 데이터는 <strong>현재 스마트폰에만 저장</strong>됩니다. 
+                        서버에 데이터를 보내거나 보관하지 않기 때문에 바로가기를 삭제하거나 기기를 변경할때 유의하시기 바랍니다.</li>
+                </ul>
+
+            </div>
+            <div class="dim" @click="isSettingsOpen = false"></div>
+        </div>
+    </div>
+
+    
+    <script>
+        // 데이터 유형
+        // NAME => hours(봉사시간), assist(고려시간), revisit(재방문), studies(연구)
+
+        const uiAHandler = {
+            dayCLK(event) {
+                // 기존 UI A dayCLK 로직
+                let target = event.currentTarget;
+                let day = target.getAttribute('day');
+                let cdate = this.cdate;
+                let sltDate = new Date(cdate.getFullYear(),cdate.getMonth(),day);
+                let jData = this.getData(sltDate, this.mode);
+                let nData = (jData == "") ? 1 : parseInt(jData)+1;
+
+                if(!Array.isArray(this.tdate)){
+                    console.log("ERROR: 배열이 아닙니다.");
+                    this.tdate = [];
+                    return;
+                }
+
+                let boo = false;
+                let tempDate = this.tdate;
+                tempDate.forEach((itm, ele) => {
+                    if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
+                        if(this.mode === 'hours'){
+                            // assist 포함하여 +30 분단위 조정이 아닌 base hours만 증가
+                            let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
+                            itm['hours'] = curMin + 30;
+                        } else if(this.mode === 'assist'){
+                            let curMin = parseInt(this.getData(sltDate,'assist')||0) || 0;
+                            itm['assist'] = curMin + 30;
+                        } else {
+                            itm[this.mode] = nData;
+                        }
+                        boo = true;
+                    }
+                });
+                this.tdate = tempDate;
+
+                if(!boo){
+                    if(this.mode === 'hours'){
+                        this.tdate.push({ Date: sltDate, hours: 30 });
+                    }else if(this.mode === 'assist'){
+                        this.tdate.push({ Date : sltDate , assist : 30});
+                    }else{
+                        this.tdate.push({ Date : sltDate , [this.mode] : nData});
+                    }
+                }
+
+                // ensure reactivity and debounce save
+                this.tdate = this.tdate.slice();
+                this.scheduleSave(250);
+            },
+            incData(target){
+                let day = target.getAttribute('day');
+                let cdate = this.cdate;
+                let sltDate = new Date(cdate.getFullYear(),cdate.getMonth(),day);
+                let jData = this.getData(sltDate, this.mode);
+                let nData = (jData == "") ? 1 : parseInt(jData)+1;
+
+                if(!Array.isArray(this.tdate)){
+                    this.tdate = [];
+                }
+
+                let boo = false;
+                let tempDate = this.tdate;
+                tempDate.forEach((itm, ele) => {
+                    if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
+                        if(this.mode === 'hours'){
+                            let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
+                            this.$set(itm, 'hours', curMin + 30);
+                        } else if(this.mode === 'assist'){
+                            let curMin = parseInt(this.getData(sltDate,'assist')||0) || 0;
+                            this.$set(itm, 'assist', curMin + 30);
+                        } else {
+                            this.$set(itm, this.mode, nData);
+                        }
+                        boo = true;
+                    }
+                });
+                this.tdate = tempDate.slice();
+
+                if(!boo){
+                    if(this.mode === 'hours'){
+                        this.tdate.push({ Date: sltDate, hours: 30 });
+                    } else if(this.mode === 'assist') {
+                        this.tdate.push({ Date: sltDate, assist: 30 });
+                    } else {
+                        this.tdate.push({ Date : sltDate , [this.mode] : nData});
+                    }
+                    this.tdate = this.tdate.slice();
+                }
+
+                this.setTdate();
+                this.$forceUpdate();
+            },
+            dayLCLK(event){
+                this.didDrag = false;
+                try{
+                    // clear previous visual feedback
+                    this.clearHoldVisual();
+                    let target = event.currentTarget;
+                    let day = target.getAttribute('day');
+                    if(event && event.touches && event.touches[0]){
+                        this.touchY = parseInt(event.touches[0].clientY);
+                    }
+                    // add visual feedback
+                    try { target.classList.add('select'); } catch(e) {}
+                    // setup long-press autorepeat (decrement): first at 1500ms, then every 1000ms
+                    if(this.holdDelayTimer){ clearTimeout(this.holdDelayTimer); this.holdDelayTimer = null; }
+                    if(this.holdTimer){ clearInterval(this.holdTimer); this.holdTimer = null; }
+                    this.holdTarget = target;
+                    this.holdDelayTimer = setTimeout(()=>{
+                        if(this.holdTarget){ uiAHandler.decData.call(this, this.holdTarget); }
+                        this.holdTimer = setInterval(()=>{
+                            if(this.holdTarget){ uiAHandler.decData.call(this, this.holdTarget); }
+                        }, 750);
+                    }, 1000);
+                }catch(e){}
+            },
+            dayLCLK2(event){
+                if(this.didDrag && event && event.cancelable){
+                    event.preventDefault();
+                }
+                // clear long-press timers
+                if(this.holdDelayTimer){ clearTimeout(this.holdDelayTimer); this.holdDelayTimer = null; }
+                if(this.holdTimer){ clearInterval(this.holdTimer); this.holdTimer = null; }
+                this.holdTarget = null;
+                // remove visual feedback only on touchend/touchcancel (robust)
+                try {
+                    if(event && event.type === 'touchcancel'){
+                        this.clearHoldVisual(event.currentTarget);
+                    }
+                } catch(e) {}
+                this.touchY = 0;
+            },
+            decData(target){
+                let day = target.getAttribute('day');
+                let cdate = this.cdate;
+                let sltDate = new Date(cdate.getFullYear(),cdate.getMonth(),day);
+                let jdata = this.getData(sltDate, this.mode);
+                if(jdata == "" || jdata == "0") return;
+
+                let ndata = parseInt(jdata)-1;
+
+                this.tdate.forEach((itm, ele) => {
+                    if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
+                        if(this.mode == 'hours'){
+                            let curMin = parseInt(this.getData(sltDate,'hours')||0) || 0;
+                            curMin = Math.max(0, curMin - 30);
+                            if(curMin === 0){ this.$delete(itm, 'hours'); } else { this.$set(itm, 'hours', curMin); }
+                        } else if(this.mode == 'assist'){
+                            let curMin = parseInt(this.getData(sltDate,'assist')||0) || 0;
+                            curMin = Math.max(0, curMin - 30);
+                            if(curMin === 0){ this.$delete(itm, 'assist'); } else { this.$set(itm, 'assist', curMin); }
+                        } else {
+                            this.$set(itm, this.mode, ndata);
+                        }
+                    }
+                });
+                this.tdate = this.tdate.slice();
+                this.interval2 = true;
+                this.scheduleSave(200);
+            },
+            touchMove(evt){
+                const now = Date.now();
+                if (this.lastTouchTs && (now - this.lastTouchTs) < 50) return; // throttle 50ms
+                this.lastTouchTs = now;
+                // prevent default scrolling during touch move
+                if(evt.cancelable){ evt.preventDefault(); }
+                if(this.touchY == 0) this.touchY = parseInt(evt.changedTouches[0].clientY);
+                let ctouchY = parseInt(evt.changedTouches[0].clientY);
+                let ele = evt.currentTarget;
+                if(!ele || !ele.getAttribute || ele.getAttribute('day') == null){
+                    let n = evt.target;
+                    while(n && (!n.getAttribute || n.getAttribute('day') == null)){
+                        n = n.parentElement;
+                    }
+                    if(n) ele = n;
+                }
+                if(ctouchY > (this.touchY + 20)) {
+                    this.touchY = this.touchY + 20;
+                    this.didDrag = true;
+                    // cancel long-press while dragging
+                    if(this.holdDelayTimer){ clearTimeout(this.holdDelayTimer); this.holdDelayTimer = null; }
+                    if(this.holdTimer){ clearInterval(this.holdTimer); this.holdTimer = null; }
+                    this.holdTarget = null;
+                    uiAHandler.decData.call(this, ele);
+                }
+                else if(ctouchY < (this.touchY - 20)){
+                    this.touchY = this.touchY - 20;
+                    this.didDrag = true;
+                    // cancel long-press while dragging
+                    if(this.holdDelayTimer){ clearTimeout(this.holdDelayTimer); this.holdDelayTimer = null; }
+                    if(this.holdTimer){ clearInterval(this.holdTimer); this.holdTimer = null; }
+                    this.holdTarget = null;
+                    uiAHandler.incData.call(this, ele);
+                }
+            },
+            setMemo(event){
+                let target = event.currentTarget;
+                let day = target.getAttribute('day');
+                let cdate = this.cdate;
+                let sltDate = new Date(cdate.getFullYear(),cdate.getMonth(),day);
+                let nData = target.value;
+
+                if(!Array.isArray(this.tdate)){
+                    console.log("ERROR: 배열이 아닙니다.");
+                    this.tdate = [];
+                    return;
+                }
+
+                let boo = false;
+                let tempDate = this.tdate;
+                tempDate.forEach((itm, ele) => {
+                    if(itm.Date.setHours(0,0,0,0) == sltDate.setHours(0,0,0,0)){
+                        itm['memo'] = nData;
+                        boo = true;
+                    }
+                });
+
+                if(!boo) this.tdate.push({ Date : sltDate , 'memo' : nData});
+
+                this.tdate = tempDate;
+                this.setTdate();
+            }
+        };
+
+        const uiBHandler = {
+            sltCLK(event) {
+                let target = event.currentTarget;
+                let day = target.getAttribute('day');
+                let sltDate = new Date(this.cdate.getFullYear(), this.cdate.getMonth(), day);
+                if (this.sltdate === '' || !this.sameDay(sltDate, this.sltdate)) {
+                    this.sltdate = sltDate;
+                    this.loadDayData();
+                    if (this.appUi === 'B' && !this.uiBScrolled) {
+                        this.$nextTick(() => {
+                            const dayDetail = document.querySelector('.dayDetail');
+                            if (dayDetail) {
+                                setTimeout(() => {
+                                    const viewportHeight = window.innerHeight;
+                                    const scrollPosition = (document.body.scrollHeight - viewportHeight) * 0.8;
+                                    window.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+                                    this.uiBScrolled = true;
+                                }, 50);
+                            }
+                        });
+                    }
+                } else {
+                    this.sltdate = '';
+                    this.loadDayData();
+                    this.uiBScrolled = false;
+                }
+            },
+            loadDayData(){
+                let sltDay = this.sltdate;
+                if(sltDay == "") return;
+                if (!this.form || typeof this.form !== 'object') {
+                    this.form = { Hours: 0, Assist: 0, Revisit: 0, Studies: 0, Memo: '' };
+                }
+                let hours = this.getData(sltDay, 'hours') || 0;
+                let ctime = this.getData(sltDay, 'ctime');
+                let assist = this.getData(sltDay, 'assist') || 0;
+                let revisit = this.getData(sltDay, 'revisit') || 0;
+                let studies = this.getData(sltDay, 'studies') || 0;
+                let memo = this.getData(sltDay, 'memo') || '';
+                if (typeof hours === 'string' && hours.includes(':')) {
+                    const [h, m] = hours.split(':').map(Number);
+                    hours = h * 60 + m;
+                }
+                if (typeof assist === 'string' && assist.includes(':')) {
+                    const [h, m] = assist.split(':').map(Number);
+                    assist = h * 60 + m;
+                }
+                this.$set(this.form, 'Hours', parseInt(hours) || 0);
+                this.$set(this.form, 'Assist', parseInt(assist) || 0);
+                this.$set(this.form, 'Revisit', parseInt(revisit) || 0);
+                this.$set(this.form, 'Studies', parseInt(studies) || 0);
+                this.$set(this.form, 'Memo', memo || '');
+                this.$set(this.form, 'Ctime', ctime || '');
+                this.$nextTick(() => this.$forceUpdate());
+            },
+            setDayData(){
+                let sltDay = this.sltdate;
+                if(sltDay == "") return;
+                let d_Hours = (this.form && this.form.Hours !== undefined) ? parseInt(this.form.Hours) : 0;
+                let d_Ctime = (this.form && this.form.Ctime !== undefined) ? this.form.Ctime : '';
+                let d_Assist = (this.form && this.form.Assist !== undefined) ? parseInt(this.form.Assist) : 0;
+                let d_Revisit = (this.form && this.form.Revisit !== undefined) ? parseInt(this.form.Revisit) : 0;
+                let d_Studies = (this.form && this.form.Studies !== undefined) ? parseInt(this.form.Studies) : 0;
+                let d_Memo = (this.form && this.form.Memo !== undefined) ? this.form.Memo : '';
+                let found = false;
+                this.tdate.forEach((itm) => {
+                    if(itm.Date.setHours(0,0,0,0) == sltDay.setHours(0,0,0,0)){
+                        found = true;
+                        if(d_Hours >= 0) this.$set(itm, 'hours', d_Hours);
+                        if(d_Assist >= 0) this.$set(itm, 'assist', d_Assist);
+                        if(d_Revisit >= 0) this.$set(itm, 'revisit', d_Revisit);
+                        if(d_Studies >= 0) this.$set(itm, 'studies', d_Studies);
+                        if(d_Ctime !== undefined) this.$set(itm, 'ctime', d_Ctime);
+                        if(d_Memo !== undefined) this.$set(itm, 'memo', d_Memo);
+                        if('hour' in itm) delete itm.hour;
+                        if('Hours' in itm) delete itm.Hours;
+                    }
+                });
+                if(!found){
+                    let newItem = { Date: new Date(sltDay) };
+                    if(d_Hours > 0) newItem.hours = d_Hours;
+                    if(d_Assist > 0) newItem.assist = d_Assist;
+                    if(d_Revisit > 0) newItem.revisit = d_Revisit;
+                    if(d_Studies > 0) newItem.studies = d_Studies;
+                    if(d_Ctime) newItem.ctime = d_Ctime;
+                    if(d_Memo) newItem.memo = d_Memo;
+                    this.tdate.push(newItem);
+                }
+                this.tdate = this.tdate.slice();
+                this.interval2 = true;
+                this.scheduleSave(200);
+            },
+            adjustTime(field, delta){
+                const minutesToAdd = Math.round(delta * 60);
+                const cur = parseInt(this.form[field] || 0) || 0;
+                this.$set(this.form, field, Math.max(0, cur + minutesToAdd));
+                this.setDayData();
+            },
+            setTimeData(minute){
+                const cur = parseInt(this.form.Hours || 0) || 0;
+                const total = Math.max(0, cur + (parseInt(minute) || 0));
+                this.$set(this.form, 'Hours', total);
+                this.setDayData();
+            },
+            setTypeData(type, bool=true){
+                const key = String(type);
+                if(!this.form || !(key in this.form)) return;
+                let v = parseInt(this.form[key]) || 0;
+                v = bool ? v + 1 : Math.max(0, v - 1);
+                this.$set(this.form, key, v);
+                this.setDayData();
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Vue !== 'undefined') {
+                Vue.config.devtools = false;
+            }
+        });
+
+        let app = new Vue({
+            el: '#app',
+            data: {
+                week: [],
+                days: [],
+                tdate: [],
+                cdate: new Date(),
+                sltdate: '',
+                mode: 'hours', 
+                appUi: 'A',
+                isSettingsOpen: false,
+                schtxt: '',
+                interval2 : false,
+                touchY: 0,
+                lastTouchTs: 0,
+                didDrag: false,
+                updateX: 0,
+                // UI A long-press timers
+                holdDelayTimer: null,
+                holdTimer: null,
+                holdTarget: null,
+                uiBScrolled: false,
+                saveTimer: null,
+                form: {
+                    Hours: 0,
+                    Ctime: '',
+                    Assist: 0,
+                    Revisit: 0,
+                    Studies: 0,
+                    Memo: ''
+                },
+                // Robust helper to clear 'select' class from the held cell
+                clearHoldVisual(fallbackEl){
+                    try{
+                        if(this.holdTarget && this.holdTarget.classList){ this.holdTarget.classList.remove('select'); }
+                        else if(fallbackEl && fallbackEl.classList){ fallbackEl.classList.remove('select'); }
+                        else {
+                            // final fallback: remove from any td.select (should be rare)
+                            const sel = document.querySelectorAll('td.select');
+                            sel.forEach(el=> el.classList.remove('select'));
+                        }
+                    }catch(err){}
+                },
+                // yearly summary drag state
+                ysHeight: 0,
+                ysDragging: false,
+                ysStartY: 0,
+                ysStartH: 0,
+                _ysOnMove: null,
+                _ysOnUp: null,
+                _ysMaxH: 0,
+                _loadedAY: null
+            },
+            mounted() {
+                this.c_month();
+                this.setOpt();
+
+                window.oncontextmenu = function(event) {
+                    if(event.target.tagName != 'TEXTAREA'){
+                        event.preventDefault(); // 기본 태그 기능 막기
+                        event.stopPropagation(); // 이벤트 전달 막기
+                        return false;
+                    }
+                };
+
+                // Global touchend safeguard to clear long-press visual (UI A)
+                document.addEventListener('touchend', (e)=>{
+                    try{ 
+                        if(!this.didDrag) this.clearHoldVisual(); 
+                        this.didDrag = false;
+                    }catch(err){}
+                }, {passive:true});
+                document.addEventListener('touchcancel', (e)=>{
+                    try{ 
+                        if(!this.didDrag) this.clearHoldVisual(); 
+                        this.didDrag = false;
+                    }catch(err){}
+                }, {passive:true});
+            },
+            methods: {
+                // =====================
+                // Common methods (공용)
+                // =====================
+                // helpers
+                sameDay(a, b){ return a.setHours(0,0,0,0) === b.setHours(0,0,0,0); },
+                pad2(n){ return String(n).padStart(2,'0'); },
+                // formatMinutes로 통일
+                // 학년도 계산: 9~12월은 다음 해로 귀속 (예: 2023-09~2024-08 => 2024)
+                academicYear(d){ const y=d.getFullYear(); const m=d.getMonth(); return (m>=8)?(y+1):y; },
+                // 연도기반(학년도) 저장 키: tdate_YYYY
+                tkey(){ return "tdate_" + this.academicYear(this.cdate).toString(); },
+                c_month(cdate = new Date()) {
+                    var startDay = new Date(cdate.getFullYear(), cdate.getMonth(), 0);
+                    var prevDate = startDay.getDate();
+                    var prevDay = startDay.getDay();
+
+                    this.days = [];
+                    
+                    for (var i = prevDate - prevDay; i <= prevDate; i++) {
+                        let tempDate = new Date(startDay.getFullYear(), startDay.getMonth(), i);
+                        this.days.push(tempDate);
+                    }
+
+                    let cyear = cdate.getFullYear();
+                    let cmonth = cdate.getMonth(); 
+
+                    let boo = true;
+                    for (day = 1; boo; day++){
+                        let tempDate = new Date(cyear, cmonth, day);
+                        this.days.push(tempDate);
+                        
+                        // 다른 달이 면서 월요일이 되면 멈춘다.
+                        if(tempDate.getMonth() != cmonth){
+                            if(tempDate.getDay() == 6) boo = false;
+                        }
+                        if(day > 42) boo = false; // 무한루프 방지
+                        if(day == 15) this.cdate = tempDate;
+                    }
+
+                    this.week = [];
+                    for (var i = 0; i < (this.days.length / 7); i++) {
+                        let ii = i * 7;
+                        this.week.push(this.days.slice((ii), (ii + 7)));
+                    }
+
+                    // 학년도 경계를 넘길 때에만 스토리지 재로딩
+                    const newAY = this.academicYear(cdate);
+                    if(this._loadedAY !== newAY){
+                        this._loadedAY = newAY;
+                        this.getTdate();
+                    }
+                    // this.totaltxt();
+                },
+                prevM(){ const d=this.cdate; this.c_month(new Date(d.getFullYear(), d.getMonth(), 0)); this.updateX++; },
+                nextM(){ const d=this.cdate; this.c_month(new Date(d.getFullYear(), d.getMonth()+1, 1)); this.updateX++; },
+                
+                // yearly summary drag handlers
+                ysDown(evt){
+                    this.ysDragging = true;
+                    this.ysStartY = (evt.touches && evt.touches[0]) ? evt.touches[0].clientY : evt.clientY;
+                    this.ysStartH = this.ysHeight || 0;
+                    // measure inner height and set a safe cap
+                    this.$nextTick(()=>{
+                        const inner = this.$refs.ysInner;
+                        const innerH = inner ? (inner.offsetHeight || 0) : 0;
+                        const safe = Math.floor(window.innerHeight * 0.5);
+                        this._ysMaxH = Math.min(Math.max(innerH, 120), safe); // at least 120px, at most 50vh
+                    });
+                    if(!this._ysOnMove) this._ysOnMove = (e)=>this.ysMove(e);
+                    if(!this._ysOnUp) this._ysOnUp = (e)=>this.ysUp(e);
+                    window.addEventListener('mousemove', this._ysOnMove, {passive:false});
+                    window.addEventListener('mouseup', this._ysOnUp, {passive:false});
+                    window.addEventListener('touchmove', this._ysOnMove, {passive:false});
+                    window.addEventListener('touchend', this._ysOnUp, {passive:false});
+                    window.addEventListener('touchcancel', this._ysOnUp, {passive:false});
+                },
+                ysMove(evt){
+                    if(!this.ysDragging) return;
+                    const y = (evt.touches && evt.touches[0]) ? evt.touches[0].clientY : evt.clientY;
+                    const dy = this.ysStartY - y; // drag up => positive
+                    const maxH = this._ysMaxH || Math.floor(window.innerHeight * 0.5); // cap at 50vh
+                    let nh = this.ysStartH + dy;
+                    if(nh < 0) nh = 0;
+                    if(nh > maxH) nh = maxH;
+                    this.ysHeight = nh;
+                    if(evt.cancelable){ evt.preventDefault(); }
+                },
+                ysUp(){
+                    if(!this.ysDragging) return;
+                    this.ysDragging = false;
+                    // snap: close if small, else snap to content fit height
+                    const maxH = this._ysMaxH || Math.floor(window.innerHeight * 0.5);
+                    if(this.ysHeight < maxH/2) this.ysHeight = 0; else this.ysHeight = maxH;
+                    if(this._ysOnMove){
+                        window.removeEventListener('mousemove', this._ysOnMove);
+                        window.removeEventListener('touchmove', this._ysOnMove);
+                    }
+                    if(this._ysOnUp){
+                        window.removeEventListener('mouseup', this._ysOnUp);
+                        window.removeEventListener('touchend', this._ysOnUp);
+                        window.removeEventListener('touchcancel', this._ysOnUp);
+                    }
+                },
+
+                // =====================
+                // UI A methods (UI A 전용)
+                // =====================
+                dayCLK(event){ if(this.appUi === 'A'){ if(this.interval2){ this.interval2=false; return; } return uiAHandler.dayCLK.call(this, event); } },
+                incData(target){
+                    if(this.appUi === 'A') return uiAHandler.incData.call(this, target);
+                },
+                dayLCLK(event){
+                    if(this.appUi === 'A') return uiAHandler.dayLCLK.call(this, event);
+                },
+                dayLCLK2(event){
+                    if(this.appUi === 'A') return uiAHandler.dayLCLK2.call(this, event);
+                },
+                dayClass(day){ if(this.sameDay(day, new Date())) return "today"; if(this.sltdate && this.sameDay(day, this.sltdate)) return "sltday"; return ""; },
+                
+                decData(target){
+                    if(this.appUi === 'A') return uiAHandler.decData.call(this, target);
+                },
+                touchMove(evt){                    
+                    if(this.appUi === 'A') return uiAHandler.touchMove.call(this, evt);
+                },
+
+                // =====================
+                // UI B methods (UI B 전용)
+                // =====================
+                totalDate(data){
+                    const curMonth = this.cdate.getMonth();
+                    if(data==='hours'){
+                        // sum only base hours (minutes), do not include assist here
+                        let totalMinutes = 0;
+                        this.tdate.forEach(itm=>{
+                            if(!itm || !itm.Date) return;
+                            if(typeof itm.Date === 'string') itm.Date = new Date(itm.Date);
+                            if(itm.Date.getMonth()===curMonth && itm.hours !== undefined){
+                                totalMinutes += parseInt(itm.hours) || 0;
+                            }
+                        });
+                        return this.formatMinutes(totalMinutes);
+                    }
+                    if(data==='assist'){
+                        let totalMinutes = 0;
+                        this.tdate.forEach(itm=>{
+                            if(!itm || !itm.Date) return;
+                            if(typeof itm.Date === 'string') itm.Date = new Date(itm.Date);
+                            if(itm.Date.getMonth()===curMonth && itm.assist !== undefined) {
+                                totalMinutes += parseInt(itm.assist) || 0;
+                            }
+                        });
+                        return this.formatMinutes(totalMinutes);
+                    }
+                    let sum=0;
+                    this.tdate.forEach(itm=>{
+                        if(!itm || !itm.Date) return;
+                        if(typeof itm.Date === 'string') itm.Date = new Date(itm.Date);
+                        if(itm.Date.getMonth()===curMonth && itm[data]!==undefined) sum += parseInt(itm[data]);
+                    });
+                    return sum;
+                }
+,
+                getData(date, data){
+                    if(!Array.isArray(this.tdate)){ this.tdate=[]; return 0; }
+                    for(const itm of this.tdate){
+                        if(typeof itm.Date==="string") itm.Date=new Date(itm.Date);
+                        if(this.sameDay(itm.Date, date)){
+                            let v = (itm[data]===undefined)?0:itm[data];
+                            if(['assist','revisit','studies'].includes(data)) v=parseInt(v);
+                            if(data==='memo' && v===0) v="";
+                            return v;
+                        }
+                    }
+                    return 0;
+                },
+                getYoil(int){    
+                    let week = ['일', '월', '화', '수', '목', '금', '토'];
+                    let weektxt = week[int];
+                    
+                    return weektxt;
+                },
+                getTdate(){
+                    const txt=this.tkey();
+                    const raw=window.localStorage.getItem(txt);
+                    let arr = raw? JSON.parse(raw): [];
+                    try{ }catch(e){}
+                    this.tdate = arr;
+                },
+                setTdate(){ const txt=this.tkey(); window.localStorage.setItem(txt, JSON.stringify(this.tdate)); },
+                // Debounced save to localStorage to avoid frequent writes
+                scheduleSave(delay=200){
+                    try{ if(this.saveTimer) clearTimeout(this.saveTimer); }catch(e){}
+                    this.saveTimer = setTimeout(()=>{
+                        this.setTdate();
+                        this.saveTimer = null;
+                    }, Math.max(50, delay));
+                },
+
+                // UI B 날짜 선택 전용
+                sltCLK(event) { if(this.appUi === 'B') return uiBHandler.sltCLK.call(this, event); },
+                loadDayData(){ if(this.appUi === 'B') return uiBHandler.loadDayData.call(this); },
+                setDayData(){ if(this.appUi === 'B') return uiBHandler.setDayData.call(this); },
+                
+                // adjust helper: delta는 시간 단위(예: 0.5 = 30분)
+                adjustTime(field, delta){ if(this.appUi === 'B') return uiBHandler.adjustTime.call(this, field, delta); },
+                setTimeData(minute){ if(this.appUi === 'B') return uiBHandler.setTimeData.call(this, minute); },
+                setTypeData(type, bool=true){ if(this.appUi === 'B') return uiBHandler.setTypeData.call(this, type, bool); },
+                
+                setMode(mode){
+                    this.mode = mode;
+                },
+                // UI A memo 전용
+                setMemo(event){ if(this.appUi === 'A') return uiAHandler.setMemo.call(this, event); },
+
+                setOpt(){
+                    let setting = window.localStorage.getItem('appSetting');
+                    let settingJson = JSON.parse(setting);
+                    // console.log(settingJson);
+
+                    if(settingJson == null || settingJson == ""){
+                        // this.style = 'A'
+                    }else{
+                        this.appUi = settingJson.appUi;                    
+                    }
+                },
+                newOpt(){
+                    let style_type = this.appUi;
+
+                    let settingJson = {"appUi":style_type};
+                    settingJson = JSON.stringify(settingJson);
+
+                    if(style_type == 'A') this.sltdate = "";
+
+                    window.localStorage.setItem('appSetting', settingJson);
+                },
+
+                cleardata(){
+                    if(confirm("현재 달의 모든 봉사기록을 삭제 하시겠습니까?")){
+                        const curMonth = this.cdate.getMonth();
+                        // 연(학년도) 배열에서 현재 월 항목만 제거
+                        this.tdate = (this.tdate||[]).filter(it=>{
+                            if(!it || !it.Date) return true;
+                            if(typeof it.Date === 'string') it.Date = new Date(it.Date);
+                            return it.Date.getMonth() !== curMonth;
+                        });
+                        this.setTdate();
+                        window.location.reload();
+                    }
+                },
+                // 분 단위를 H:MM 형식으로 변환
+                formatMinutes(minutes) {
+                    if (isNaN(minutes) || minutes === 0) return '';
+                    const h = Math.floor(minutes / 60);
+                    const m = minutes % 60;
+                    return `${h}:${this.pad2(m)}`;
+                },
+                
+                // 시간을 분 단위로 표시 (H:MM -> 분)
+                showTime(date) {
+                    if (!(date instanceof Date)) return '';
+                    const minutes = parseInt(this.getData(date, 'hours') || 0);
+                    return this.formatMinutes(minutes);
+                },
+                
+                // 총 시간 표시 (hours + assist)
+                displayTime(date) {
+                    if (!(date instanceof Date)) return '';
+                    const base = parseInt(this.getData(date, 'hours') || 0);
+                    const assist = parseInt(this.getData(date, 'assist') || 0);
+                    const total = base + assist; // 모두 분 단위이므로 그냥 더함
+                    return this.formatMinutes(total);
+                },
+                
+                goToMonth(m){
+                    if(typeof m !== 'number' || isNaN(m)) return;
+                    const curY = this.cdate.getFullYear();
+                    const curM = this.cdate.getMonth();
+                    let targetYear;
+                    if(curM >= 8){
+                        targetYear = (m >= 8) ? curY : (curY + 1);
+                    } else {
+                        targetYear = (m >= 8) ? (curY - 1) : curY;
+                    }
+                    this.cdate = new Date(targetYear, m, 1);
+                    this.c_month(this.cdate);
+                }
+            },
+            computed: {
+                filteredMemoDays(){
+                    const days = this.days.filter(d => d.getMonth() == this.cdate.getMonth());
+                    const q = (this.schtxt || '').trim();
+                    if(!q) return days;
+                    return days.filter(day => {
+                        if(String(day.getDate()) === q) return true;
+                        const memo = this.getData(day,'memo') || '';
+                        return String(memo).includes(q);
+                    });
+                },
+                yearMonthTotals(){
+                    // academic year months order: Sep(8)→Aug(7)
+                    const labels = ['9월','10월','11월','12월','1월','2월','3월','4월','5월','6월','7월','8월'];
+                    const order = [8,9,10,11,0,1,2,3,4,5,6,7];
+                    const rows = [];
+                    for(let i=0;i<12;i++){
+                        const m = order[i];
+                        let baseMinutes = 0;
+                        let assistMinutes = 0;
+                        (this.tdate||[]).forEach(it=>{
+                            if(!it || !it.Date) return;
+                            if(typeof it.Date === 'string') it.Date = new Date(it.Date);
+                            if(it.Date.getMonth() === m){
+                                if(it.hours) baseMinutes += parseInt(it.hours)||0; // minutes
+                                if(it.assist){ assistMinutes += parseInt(it.assist)||0; }
+                            }
+                        });
+                        // cap ONLY the assist portion so base hours are never reduced
+                        const roomForAssist = Math.max(0, 55*60 - baseMinutes);
+                        const capped = baseMinutes + Math.min(assistMinutes, roomForAssist);
+                        const hh = Math.floor(capped/60), mm = capped%60;
+                        rows.push({ key: 'm'+m, m, label: labels[i], time: hh+':'+this.pad2(mm) });
+                    }
+                    return rows;
+                },
+                yearRows(){
+                    // Two rows of 6 months each: Row1 = Sep..Feb, Row2 = Mar..Aug
+                    const findIdx = (m)=> this.yearMonthTotals.findIndex(x=>x.key==='m'+m);
+                    const row1Months = [8,9,10,11,0,1];
+                    const row2Months = [2,3,4,5,6,7];
+                    const row1 = row1Months.map(m=> this.yearMonthTotals[findIdx(m)]).filter(Boolean);
+                    const row2 = row2Months.map(m=> this.yearMonthTotals[findIdx(m)]).filter(Boolean);
+                    return [row1, row2];
+                },
+                monthCombinedTotalHhMm(){
+                    // Sum current month: base hours (minutes) + assist (assist*30 minutes)
+                    const curMonth = this.cdate.getMonth();
+                    let baseMinutes = 0;
+                    let assistMinutes = 0;
+                    (this.tdate||[]).forEach(it=>{
+                        if(!it || !it.Date) return;
+                        if(typeof it.Date === 'string') it.Date = new Date(it.Date);
+                        if(it.Date.getMonth() !== curMonth) return;
+                        if(it.hours) baseMinutes += parseInt(it.hours) || 0; // minutes
+                        if(it.assist) assistMinutes += parseInt(it.assist)||0;
+                    });
+                    // cap ONLY the assist portion so base hours are never reduced
+                    const roomForAssist = Math.max(0, 55*60 - baseMinutes);
+                    const capped = baseMinutes + Math.min(assistMinutes, roomForAssist);
+                    const hh = Math.floor(capped/60), mm = capped % 60;
+                    return hh + ':' + this.pad2(mm);
+                },
+                yearTotalCombinedCappedHhMm(){
+                    // Sum the academic year's 12 months using the same capped-per-month combined totals
+                    // Reuse yearMonthTotals which already computes combined+capped times per month
+                    let totalMinutes = 0;
+                    this.yearMonthTotals.forEach(cell=>{
+                        const [hh,mm] = String(cell.time).split(':');
+                        const m = (parseInt(hh)||0)*60 + (parseInt(mm)||0);
+                        totalMinutes += m;
+                    });
+                    const hh = Math.floor(totalMinutes/60), mm = totalMinutes%60;
+                    return hh + ':' + this.pad2(mm);
+                }
+            },
+            watch: {
+                sltdate(){
+                    if(this.sltdate != "") {
+                        setTimeout(()=>{
+                            app.loadDayData();
+                        },0);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
