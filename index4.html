@@ -218,7 +218,6 @@
                                         </li>
                                     </ul>
                                 </div>
-                                
                             </div>
                             <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
@@ -234,6 +233,49 @@
                                             class="dial_wheel_mark"
                                             :class="{active: isWheelActive('minutes', option.value)}"
                                             :style="wheelMarkStyle('minutes', option.value)">
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="time assist_time">
+                    <div class="time_label">고려</div>
+                    <div class="time_dial">
+                        <div class="dial_item dial_wheel" data-dial="assist_hours" @mousedown.prevent="startAssistDial('hours', $event)" @touchstart.prevent="startAssistDial('hours', $event)">
+                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                            <div class="dial_wheel_window">
+                                <div class="dial_wheel_stage" :style="wheelStyle('assist_hours')">
+                                    <ul class="dial_wheel_list">
+                                        <li 
+                                            v-for="option in wheelNumbers('assist_hours')"
+                                            :key="'ah_'+option.value"
+                                            class="dial_wheel_mark"
+                                            :class="{active: isWheelActive('assist_hours', option.value)}"
+                                            :style="wheelMarkStyle('assist_hours', option.value)">
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
+                        </div>
+                        <span class="time_separator">:</span>
+                        <div class="dial_item dial_wheel" data-dial="assist_minutes" @mousedown.prevent="startAssistDial('minutes', $event)" @touchstart.prevent="startAssistDial('minutes', $event)">
+                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                            <div class="dial_wheel_window">
+                                <div class="dial_wheel_stage" :style="wheelStyle('assist_minutes')">
+                                    <ul class="dial_wheel_list">
+                                        <li 
+                                            v-for="option in wheelNumbers('assist_minutes')"
+                                            :key="'am_'+option.value"
+                                            class="dial_wheel_mark"
+                                            :class="{active: isWheelActive('assist_minutes', option.value)}"
+                                            :style="wheelMarkStyle('assist_minutes', option.value)">
                                             {{ option.label }}
                                         </li>
                                     </ul>
@@ -755,7 +797,7 @@
                 dialInitialHour: 0,
                 dialInitialMinutePart: 0,
                 dialInitialIndex: 0,
-                dialTempIndex: { hours: 0, minutes: 0 },
+                dialTempIndex: { hours: 0, minutes: 0, assistHours: 0, assistMinutes: 0 },
                 dialDragOffset: 0,
                 form: {
                     Hours: 0,
@@ -1006,21 +1048,26 @@
                     return this.pad2(timeHelpers.splitMinutes(minutes));
                 },
                 wheelNumbers(type){
-                    return dialConfig[type] || [];
+                    const key = (type && type.includes('minutes')) ? 'minutes' : 'hours';
+                    return dialConfig[key] || [];
                 },
                 wheelStyle(type){
                     const total = parseInt(this.form.Hours || 0) || 0;
-                    const baseHour = Math.floor(total / 60);
-                    const baseMinute = total % 60;
-                    const maxIndex = (dialConfig[type] ? dialConfig[type].length : 1) - 1;
-                    const defaultIndex = type === 'hours' ? baseHour : baseMinute;
-                    const tempIndex = (this.dialActive && this.dialType === type && typeof this.dialTempIndex[type] === 'number')
-                        ? Math.max(0, Math.min(maxIndex, this.dialTempIndex[type]))
-                        : Math.max(0, Math.min(maxIndex, defaultIndex));
+                    const isAssist = type && type.startsWith('assist');
+                    const key = (type && type.includes('minutes')) ? 'minutes' : 'hours';
+                    const tempKey = isAssist ? (key === 'hours' ? 'assistHours' : 'assistMinutes') : key;
+                    const sourceTotal = isAssist ? (parseInt(this.form.Assist || 0) || 0) : total;
+                    const maxIndex = (dialConfig[key] ? dialConfig[key].length : 1) - 1;
+                    const defaultIndex = key === 'hours' ? Math.floor(sourceTotal / 60) : sourceTotal % 60;
                     const fractional = (this.dialActive && this.dialType === type) ? (this.dialDragOffset || 0) : 0;
+                    let baseIndex = defaultIndex;
+                    if(this.dialActive && this.dialType === type && typeof this.dialTempIndex[tempKey] === 'number'){
+                        baseIndex = Math.max(0, Math.min(maxIndex, this.dialTempIndex[tempKey]));
+                    }
+                    const effectiveIndex = (this.dialActive && this.dialType === type) ? baseIndex + fractional : baseIndex;
                     const itemHeight = wheelConstants.itemHeight;
                     const windowHeight = wheelConstants.windowHeight || itemHeight;
-                    const translateY = (windowHeight / 2) - ((tempIndex + fractional + 0.5) * itemHeight);
+                    const translateY = (windowHeight / 2) - ((effectiveIndex + 0.5) * itemHeight);
                     const transition = (this.dialActive && this.dialType === type) ? 'none' : 'transform 180ms ease-out';
                     return {
                         transform: `translateY(${translateY}px)`,
@@ -1028,22 +1075,27 @@
                     };
                 },
                 isWheelActive(type, value){
-                    const total = parseInt(this.form.Hours || 0) || 0;
-                    if(type === 'hours'){
+                    const isAssist = type && type.startsWith('assist');
+                    const key = (type && type.includes('minutes')) ? 'minutes' : 'hours';
+                    const total = isAssist ? (parseInt(this.form.Assist || 0) || 0) : (parseInt(this.form.Hours || 0) || 0);
+                    if(key === 'hours'){
                         return Math.floor(total / 60) === value;
                     }
-                    if(type === 'minutes'){
+                    if(key === 'minutes'){
                         return (total % 60) === value;
                     }
                     return false;
                 },
                 activeWheelIndex(type){
-                    if(this.dialActive && this.dialType === type){
-                        const temp = this.dialTempIndex && this.dialTempIndex[type];
-                        if(typeof temp === 'number') return temp;
+                    const isAssist = type && type.startsWith('assist');
+                    const key = (type && type.includes('minutes')) ? 'minutes' : 'hours';
+                    const tempKey = isAssist ? (key === 'hours' ? 'assistHours' : 'assistMinutes') : key;
+                    const total = isAssist ? (parseInt(this.form.Assist || 0) || 0) : (parseInt(this.form.Hours || 0) || 0);
+                    let base = key === 'hours' ? Math.floor(total / 60) : (total % 60);
+                    if(this.dialActive && this.dialType === type && this.dialTempIndex && typeof this.dialTempIndex[tempKey] === 'number'){
+                        base = this.dialTempIndex[tempKey];
                     }
-                    const total = parseInt(this.form.Hours || 0) || 0;
-                    return (type === 'hours') ? Math.floor(total / 60) : (total % 60);
+                    return base;
                 },
                 wheelMarkStyle(type, value){
                     const active = this.activeWheelIndex(type);
@@ -1057,11 +1109,15 @@
                 },
                 syncDialTempIndices(){
                     const total = parseInt(this.form.Hours || 0) || 0;
+                    const assist = parseInt(this.form.Assist || 0) || 0;
                     const hour = Math.max(0, Math.min(dialConfig.hours.length - 1, Math.floor(total / 60)));
                     const minute = Math.max(0, Math.min(dialConfig.minutes.length - 1, total % 60));
-                    this.dialTempIndex = { hours: hour, minutes: minute };
+                    const assistHour = Math.max(0, Math.min(dialConfig.hours.length - 1, Math.floor(assist / 60)));
+                    const assistMinute = Math.max(0, Math.min(dialConfig.minutes.length - 1, assist % 60));
+                    this.dialTempIndex = { hours: hour, minutes: minute, assistHours: assistHour, assistMinutes: assistMinute };
                     this.dialDragOffset = 0;
                 },
+
                 loadDayData(){ return uiBHandler.loadDayData.call(this); },
                 setDayData(){ return uiBHandler.setDayData.call(this); },
                 adjustTime(field, delta){ return uiBHandler.adjustTime.call(this, field, delta); },
@@ -1077,12 +1133,8 @@
                     this.dialInitialValue = this.dialInitialMinutes;
                     this.dialInitialHour = Math.floor(this.dialInitialMinutes / 60);
                     this.dialInitialMinutePart = this.dialInitialMinutes % 60;
-                    this.dialInitialIndex = (this.dialType === 'hours') ? this.dialInitialHour : this.dialInitialMinutePart;
-                    this.dialTempIndex = {
-                        hours: this.dialInitialHour,
-                        minutes: this.dialInitialMinutePart
-                    };
-                    this.dialDragOffset = 0;
+                    this.dialTempIndex.hours = this.dialInitialHour;
+                    this.dialTempIndex.minutes = this.dialInitialMinutePart;
                     this.toggleDialHighlight(this.dialType, true);
 
                     this.dialMoveHandler = (e)=>this.handleDialMove(e);
@@ -1094,6 +1146,9 @@
                     window.addEventListener('touchend', this.dialEndHandler, { passive: false });
                     window.addEventListener('touchcancel', this.dialEndHandler, { passive: false });
                 },
+                startAssistDial(part, evt){
+                    return this.startDial(`assist_${part}`, evt);
+                },
                 handleDialMove(evt){
                     if(!this.dialActive || this.appUi !== 'B') return;
                     const clientY = (evt.touches && evt.touches[0]) ? evt.touches[0].clientY : evt.clientY;
@@ -1104,6 +1159,7 @@
                     let fractional = raw - step;
                     let minutes = this.dialInitialMinutes;
                     let tempIndex = this.dialInitialIndex + step;
+                    let targetField = 'Hours';
                     if(this.dialType === 'hours'){
                         const minIndex = 0;
                         const maxIndex = dialConfig.hours.length - 1;
@@ -1118,9 +1174,25 @@
                         if(tempIndex > maxIndex){ tempIndex = maxIndex; fractional = 0; }
                         minutes = this.dialInitialHour * 60 + tempIndex;
                         this.dialTempIndex.minutes = tempIndex;
+                    } else if(this.dialType === 'assist_hours'){
+                        targetField = 'Assist';
+                        const minIndex = 0;
+                        const maxIndex = dialConfig.hours.length - 1;
+                        if(tempIndex < minIndex){ tempIndex = minIndex; fractional = 0; }
+                        if(tempIndex > maxIndex){ tempIndex = maxIndex; fractional = 0; }
+                        minutes = tempIndex * 60 + this.dialInitialMinutePart;
+                        this.dialTempIndex.assistHours = tempIndex;
+                    } else if(this.dialType === 'assist_minutes'){
+                        targetField = 'Assist';
+                        const minIndex = 0;
+                        const maxIndex = dialConfig.minutes.length - 1;
+                        if(tempIndex < minIndex){ tempIndex = minIndex; fractional = 0; }
+                        if(tempIndex > maxIndex){ tempIndex = maxIndex; fractional = 0; }
+                        minutes = this.dialInitialHour * 60 + tempIndex;
+                        this.dialTempIndex.assistMinutes = tempIndex;
                     }
                     this.dialDragOffset = fractional;
-                    this.$set(this.form, 'Hours', minutes);
+                    this.$set(this.form, targetField, minutes);
                     this.setDayData();
                 },
                 finishDial(){
@@ -1128,10 +1200,12 @@
                     this.dialActive = false;
                     this.toggleDialHighlight(this.dialType, false);
                     this.dialType = null;
-                    this.dialTempIndex = {
-                        hours: Math.floor((parseInt(this.form.Hours||0)||0)/60),
-                        minutes: (parseInt(this.form.Hours||0)||0) % 60
-                    };
+                    const totalHours = parseInt(this.form.Hours || 0) || 0;
+                    const totalAssist = parseInt(this.form.Assist || 0) || 0;
+                    this.dialTempIndex.hours = Math.floor(totalHours / 60);
+                    this.dialTempIndex.minutes = totalHours % 60;
+                    this.dialTempIndex.assistHours = Math.floor(totalAssist / 60);
+                    this.dialTempIndex.assistMinutes = totalAssist % 60;
                     this.dialDragOffset = 0;
                     window.removeEventListener('mousemove', this.dialMoveHandler);
                     window.removeEventListener('mouseup', this.dialEndHandler);
