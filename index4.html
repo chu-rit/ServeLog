@@ -201,13 +201,49 @@
 
             <div v-if="sltdate != ''" class="dayDetail">
                 <div class="time">
-                    <div><label for="f_Hours">시간</label><input readonly type="text" id="f_Hours" value="0:00"></div>
-                    <div><a class="increase" @click="setTimeData(1)">+1m</a><a class="decrease" @click="setTimeData(-1)">-1m</a></div>
-                    <div><a class="increase" @click="setTimeData(5)">+5m</a><a class="decrease" @click="setTimeData(-5)">-5m</a></div>
-                    <div><a class="increase" @click="setTimeData(10)">+10m</a><a class="decrease" @click="setTimeData(-10)">-10m</a></div>
-                    <div><a class="increase" @click="setTimeData(30)">+30m</a><a class="decrease" @click="setTimeData(-30)">-30m</a></div>
-                    <div><a class="increase" @click="setTimeData(60)">+1h</a><a class="decrease"  @click="setTimeData(-60)">-1h</a></div>
+                    <div class="time_label">시간</div>
+                    <div class="time_dial">
+                        <div class="dial_item dial_wheel" data-dial="hours" @mousedown.prevent="startDial('hours', $event)" @touchstart.prevent="startDial('hours', $event)">
+                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                            <div class="dial_wheel_window">
+                                <div class="dial_wheel_stage" :style="wheelStyle('hours')">
+                                    <ul class="dial_wheel_list">
+                                        <li 
+                                            v-for="option in wheelNumbers('hours')"
+                                            :key="'h_'+option.value"
+                                            class="dial_wheel_mark"
+                                            :class="{active: isWheelActive('hours', option.value)}"
+                                            :style="wheelMarkStyle('hours', option.value)">
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                            </div>
+                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
+                        </div>
+                        <span class="time_separator">:</span>
+                        <div class="dial_item dial_wheel" data-dial="minutes" @mousedown.prevent="startDial('minutes', $event)" @touchstart.prevent="startDial('minutes', $event)">
+                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                            <div class="dial_wheel_window">
+                                <div class="dial_wheel_stage" :style="wheelStyle('minutes')">
+                                    <ul class="dial_wheel_list">
+                                        <li 
+                                            v-for="option in wheelNumbers('minutes')"
+                                            :key="'m_'+option.value"
+                                            class="dial_wheel_mark"
+                                            :class="{active: isWheelActive('minutes', option.value)}"
+                                            :style="wheelMarkStyle('minutes', option.value)">
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="column4">
                     <div><label for="f_Placements">출판물</label><input readonly type="number" id="f_Placements" value="0" min="0"></div>
                     <div>
@@ -597,6 +633,7 @@
                 let sltDay = this.sltdate;
                 if(sltDay == "") return;
                 let d_Hours = (this.form && this.form.Hours !== undefined) ? parseInt(this.form.Hours) : 0;
+
                 let d_Ctime = (this.form && this.form.Ctime !== undefined) ? this.form.Ctime : '';
                 let d_Assist = (this.form && this.form.Assist !== undefined) ? parseInt(this.form.Assist) : 0;
                 let d_Revisit = (this.form && this.form.Revisit !== undefined) ? parseInt(this.form.Revisit) : 0;
@@ -637,10 +674,14 @@
                 this.setDayData();
             },
             setTimeData(minute){
-                const cur = parseInt(this.form.Hours || 0) || 0;
-                const total = Math.max(0, cur + (parseInt(minute) || 0));
-                this.$set(this.form, 'Hours', total);
-                this.setDayData();
+                if(this.appUi === 'B'){
+                    const cur = parseInt(this.form.Hours || 0) || 0;
+                    const total = Math.max(0, cur + (parseInt(minute) || 0));
+                    this.$set(this.form, 'Hours', total);
+                    this.setDayData();
+                    return;
+                }
+                return uiAHandler.setTimeData ? uiAHandler.setTimeData.call(this, minute) : null;
             },
             setTypeData(type, bool=true){
                 const key = String(type);
@@ -650,6 +691,29 @@
                 this.$set(this.form, key, v);
                 this.setDayData();
             }
+        };
+
+        const timeHelpers = {
+            splitHours(minutes){
+                const total = parseInt(minutes)||0;
+                return Math.floor(total/60);
+            },
+            splitMinutes(minutes){
+                const total = parseInt(minutes)||0;
+                return total % 60;
+            }
+        };
+
+        const dialConfig = {
+            hours: Array.from({length: 24}, (_,i)=>({ value: i, label: String(i).padStart(2,'0') })),
+            minutes: Array.from({length: 60}, (_,i)=>({ value: i, label: String(i).padStart(2,'0') }))
+        };
+
+        const wheelConstants = {
+            itemHeight: 28,
+            windowHeight: 38,
+            visibleCount: 1,
+            maxMinutes: (24 * 60) - 1
         };
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -681,6 +745,18 @@
                 holdTarget: null,
                 uiBScrolled: false,
                 saveTimer: null,
+                dialActive: false,
+                dialType: null,
+                dialStartY: 0,
+                dialInitialMinutes: 0,
+                dialMoveHandler: null,
+                dialEndHandler: null,
+                dialInitialValue: 0,
+                dialInitialHour: 0,
+                dialInitialMinutePart: 0,
+                dialInitialIndex: 0,
+                dialTempIndex: { hours: 0, minutes: 0 },
+                dialDragOffset: 0,
                 form: {
                     Hours: 0,
                     Ctime: '',
@@ -714,6 +790,7 @@
             mounted() {
                 this.c_month();
                 this.setOpt();
+                this.syncDialTempIndices();
 
                 window.oncontextmenu = function(event) {
                     if(event.target.tagName != 'TEXTAREA'){
@@ -917,8 +994,163 @@
                 getYoil(int){    
                     let week = ['일', '월', '화', '수', '목', '금', '토'];
                     let weektxt = week[int];
-                    
                     return weektxt;
+                },
+                timeHours(minutes){
+                    return timeHelpers.splitHours(minutes);
+                },
+                timeMinutes(minutes){
+                    return timeHelpers.splitMinutes(minutes);
+                },
+                timeMinutesDisplay(minutes){
+                    return this.pad2(timeHelpers.splitMinutes(minutes));
+                },
+                wheelNumbers(type){
+                    return dialConfig[type] || [];
+                },
+                wheelStyle(type){
+                    const total = parseInt(this.form.Hours || 0) || 0;
+                    const baseHour = Math.floor(total / 60);
+                    const baseMinute = total % 60;
+                    const maxIndex = (dialConfig[type] ? dialConfig[type].length : 1) - 1;
+                    const defaultIndex = type === 'hours' ? baseHour : baseMinute;
+                    const tempIndex = (this.dialActive && this.dialType === type && typeof this.dialTempIndex[type] === 'number')
+                        ? Math.max(0, Math.min(maxIndex, this.dialTempIndex[type]))
+                        : Math.max(0, Math.min(maxIndex, defaultIndex));
+                    const fractional = (this.dialActive && this.dialType === type) ? (this.dialDragOffset || 0) : 0;
+                    const itemHeight = wheelConstants.itemHeight;
+                    const windowHeight = wheelConstants.windowHeight || itemHeight;
+                    const translateY = (windowHeight / 2) - ((tempIndex + fractional + 0.5) * itemHeight);
+                    const transition = (this.dialActive && this.dialType === type) ? 'none' : 'transform 180ms ease-out';
+                    return {
+                        transform: `translateY(${translateY}px)`,
+                        transition
+                    };
+                },
+                isWheelActive(type, value){
+                    const total = parseInt(this.form.Hours || 0) || 0;
+                    if(type === 'hours'){
+                        return Math.floor(total / 60) === value;
+                    }
+                    if(type === 'minutes'){
+                        return (total % 60) === value;
+                    }
+                    return false;
+                },
+                activeWheelIndex(type){
+                    if(this.dialActive && this.dialType === type){
+                        const temp = this.dialTempIndex && this.dialTempIndex[type];
+                        if(typeof temp === 'number') return temp;
+                    }
+                    const total = parseInt(this.form.Hours || 0) || 0;
+                    return (type === 'hours') ? Math.floor(total / 60) : (total % 60);
+                },
+                wheelMarkStyle(type, value){
+                    const active = this.activeWheelIndex(type);
+                    const fractional = (this.dialActive && this.dialType === type) ? (this.dialDragOffset || 0) : 0;
+                    let diff = value - active - fractional;
+                    const opacity = Math.abs(diff) < 0.001 ? 1 : 0.45;
+                    return {
+                        transform: `scale(1)`,
+                        opacity: opacity
+                    };
+                },
+                syncDialTempIndices(){
+                    const total = parseInt(this.form.Hours || 0) || 0;
+                    const hour = Math.max(0, Math.min(dialConfig.hours.length - 1, Math.floor(total / 60)));
+                    const minute = Math.max(0, Math.min(dialConfig.minutes.length - 1, total % 60));
+                    this.dialTempIndex = { hours: hour, minutes: minute };
+                    this.dialDragOffset = 0;
+                },
+                loadDayData(){ return uiBHandler.loadDayData.call(this); },
+                setDayData(){ return uiBHandler.setDayData.call(this); },
+                adjustTime(field, delta){ return uiBHandler.adjustTime.call(this, field, delta); },
+                setTimeData(minute){ return uiBHandler.setTimeData.call(this, minute); },
+                setTypeData(type, bool=true){ return uiBHandler.setTypeData.call(this, type, bool); },
+                startDial(type, evt){
+                    if(this.appUi !== 'B') return;
+                    const clientY = (evt.touches && evt.touches[0]) ? evt.touches[0].clientY : evt.clientY;
+                    this.dialActive = true;
+                    this.dialType = type;
+                    this.dialStartY = clientY;
+                    this.dialInitialMinutes = parseInt(this.form.Hours || 0) || 0;
+                    this.dialInitialValue = this.dialInitialMinutes;
+                    this.dialInitialHour = Math.floor(this.dialInitialMinutes / 60);
+                    this.dialInitialMinutePart = this.dialInitialMinutes % 60;
+                    this.dialInitialIndex = (this.dialType === 'hours') ? this.dialInitialHour : this.dialInitialMinutePart;
+                    this.dialTempIndex = {
+                        hours: this.dialInitialHour,
+                        minutes: this.dialInitialMinutePart
+                    };
+                    this.dialDragOffset = 0;
+                    this.toggleDialHighlight(this.dialType, true);
+
+                    this.dialMoveHandler = (e)=>this.handleDialMove(e);
+                    this.dialEndHandler = ()=>this.finishDial();
+
+                    window.addEventListener('mousemove', this.dialMoveHandler, { passive: false });
+                    window.addEventListener('mouseup', this.dialEndHandler, { passive: false });
+                    window.addEventListener('touchmove', this.dialMoveHandler, { passive: false });
+                    window.addEventListener('touchend', this.dialEndHandler, { passive: false });
+                    window.addEventListener('touchcancel', this.dialEndHandler, { passive: false });
+                },
+                handleDialMove(evt){
+                    if(!this.dialActive || this.appUi !== 'B') return;
+                    const clientY = (evt.touches && evt.touches[0]) ? evt.touches[0].clientY : evt.clientY;
+                    if(evt.cancelable) evt.preventDefault();
+                    const delta = this.dialStartY - clientY;
+                    const raw = delta / wheelConstants.itemHeight;
+                    const step = raw > 0 ? Math.floor(raw) : Math.ceil(raw);
+                    let fractional = raw - step;
+                    let minutes = this.dialInitialMinutes;
+                    let tempIndex = this.dialInitialIndex + step;
+                    if(this.dialType === 'hours'){
+                        const minIndex = 0;
+                        const maxIndex = dialConfig.hours.length - 1;
+                        if(tempIndex < minIndex){ tempIndex = minIndex; fractional = 0; }
+                        if(tempIndex > maxIndex){ tempIndex = maxIndex; fractional = 0; }
+                        minutes = tempIndex * 60 + this.dialInitialMinutePart;
+                        this.dialTempIndex.hours = tempIndex;
+                    } else if(this.dialType === 'minutes'){
+                        const minIndex = 0;
+                        const maxIndex = dialConfig.minutes.length - 1;
+                        if(tempIndex < minIndex){ tempIndex = minIndex; fractional = 0; }
+                        if(tempIndex > maxIndex){ tempIndex = maxIndex; fractional = 0; }
+                        minutes = this.dialInitialHour * 60 + tempIndex;
+                        this.dialTempIndex.minutes = tempIndex;
+                    }
+                    this.dialDragOffset = fractional;
+                    this.$set(this.form, 'Hours', minutes);
+                    this.setDayData();
+                },
+                finishDial(){
+                    if(!this.dialActive) return;
+                    this.dialActive = false;
+                    this.toggleDialHighlight(this.dialType, false);
+                    this.dialType = null;
+                    this.dialTempIndex = {
+                        hours: Math.floor((parseInt(this.form.Hours||0)||0)/60),
+                        minutes: (parseInt(this.form.Hours||0)||0) % 60
+                    };
+                    this.dialDragOffset = 0;
+                    window.removeEventListener('mousemove', this.dialMoveHandler);
+                    window.removeEventListener('mouseup', this.dialEndHandler);
+                    window.removeEventListener('touchmove', this.dialMoveHandler);
+                    window.removeEventListener('touchend', this.dialEndHandler);
+                    window.removeEventListener('touchcancel', this.dialEndHandler);
+                    this.dialMoveHandler = null;
+                    this.dialEndHandler = null;
+                },
+                toggleDialHighlight(type, add){
+                    try{
+                        const node = document.querySelector(`.dial_item[data-dial="${type}"]`);
+                        if(!node) return;
+                        if(add){
+                            node.classList.add('dial_active');
+                        } else {
+                            node.classList.remove('dial_active');
+                        }
+                    }catch(e){}
                 },
                 getTdate(){
                     const txt=this.tkey();
@@ -938,20 +1170,13 @@
                 },
 
                 // UI B 날짜 선택 전용
-                sltCLK(event) { if(this.appUi === 'B') return uiBHandler.sltCLK.call(this, event); },
-                loadDayData(){ if(this.appUi === 'B') return uiBHandler.loadDayData.call(this); },
-                setDayData(){ if(this.appUi === 'B') return uiBHandler.setDayData.call(this); },
-                
-                // adjust helper: delta는 시간 단위(예: 0.5 = 30분)
-                adjustTime(field, delta){ if(this.appUi === 'B') return uiBHandler.adjustTime.call(this, field, delta); },
-                setTimeData(minute){ if(this.appUi === 'B') return uiBHandler.setTimeData.call(this, minute); },
-                setTypeData(type, bool=true){ if(this.appUi === 'B') return uiBHandler.setTypeData.call(this, type, bool); },
+                sltCLK(event) { return uiBHandler.sltCLK.call(this, event); },
                 
                 setMode(mode){
                     this.mode = mode;
                 },
                 // UI A memo 전용
-                setMemo(event){ if(this.appUi === 'A') return uiAHandler.setMemo.call(this, event); },
+                setMemo(event){ return uiAHandler.setMemo.call(this, event); },
 
                 setOpt(){
                     let setting = window.localStorage.getItem('appSetting');
@@ -1106,7 +1331,7 @@
                 sltdate(){
                     if(this.sltdate != "") {
                         setTimeout(()=>{
-                            app.loadDayData();
+                            this.loadDayData();
                         },0);
                     }
                 }
