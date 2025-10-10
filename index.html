@@ -241,6 +241,7 @@
                             <div class="dial_arrow dial_arrow--down" @click.stop="stepDial('minutes', -1)"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
                     </div>
+                    <button type="button" class="time_reset" title="시간 초기화" @click="resetDialValue('Hours')"><i class="fa-solid fa-rotate-right"></i></button>
                 </div>
 
                 <div class="time assist_time">
@@ -284,6 +285,7 @@
                             <div class="dial_arrow dial_arrow--down" @click.stop="stepDial('assist_minutes', -1)"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
                     </div>
+                    <button type="button" class="time_reset" title="고려시간 초기화" @click="resetDialValue('Assist')"><i class="fa-solid fa-rotate-right"></i></button>
                 </div>
 
                 <div class="column2">
@@ -1267,6 +1269,14 @@
                 },
                 startAssistDial(part, evt){
                     return this.startDial(`assist_${part}`, evt);
+                },
+                resetDialValue(field){
+                    if(this.appUi !== 'B' || !this.sltdate) return;
+                    if(field === 'Hours' || field === 'Assist'){
+                        this.$set(this.form, field, 0);
+                        this.syncDialTempIndices();
+                        this.setDayData();
+                    }
                 },
                 updateMemo(val=''){
                     if(this.appUi !== 'B' || !this.sltdate){

@@ -585,6 +585,17 @@ td.select > div {
   line-height: 36px;
 }
 
+.dayDetail .time_reset {
+  border: none;
+  background: none;
+  color: #231306;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .dayDetail .time_controls {
   display: flex;
   align-items: center;
