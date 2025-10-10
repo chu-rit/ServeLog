@@ -682,7 +682,10 @@ td.select > div {
   color: #b0a297;
   font-size: 12px;
   padding: 2px 0;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 .dial_arrow i {

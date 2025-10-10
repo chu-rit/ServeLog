@@ -203,8 +203,8 @@
                 <div class="time">
                     <div class="time_label">시간</div>
                     <div class="time_dial">
-                        <div class="dial_item dial_wheel" data-dial="hours" @mousedown.prevent="startDial('hours', $event)" @touchstart.prevent="startDial('hours', $event)">
-                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                        <div class="dial_item dial_wheel" data-dial="hours" @mousedown.prevent="startDial('hours', $event)" @touchstart="startDial('hours', $event)">
+                            <div class="dial_arrow dial_arrow--up" @click.stop="stepDial('hours', 1)"><i class="fa-solid fa-chevron-up"></i></div>
                             <div class="dial_wheel_window">
                                 <div class="dial_wheel_stage" :style="wheelStyle('hours')">
                                     <ul class="dial_wheel_list">
@@ -219,11 +219,11 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
+                            <div class="dial_arrow dial_arrow--down" @click.stop="stepDial('hours', -1)"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
                         <span class="time_separator">:</span>
-                        <div class="dial_item dial_wheel" data-dial="minutes" @mousedown.prevent="startDial('minutes', $event)" @touchstart.prevent="startDial('minutes', $event)">
-                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                        <div class="dial_item dial_wheel" data-dial="minutes" @mousedown.prevent="startDial('minutes', $event)" @touchstart="startDial('minutes', $event)">
+                            <div class="dial_arrow dial_arrow--up" @click.stop="stepDial('minutes', 1)"><i class="fa-solid fa-chevron-up"></i></div>
                             <div class="dial_wheel_window">
                                 <div class="dial_wheel_stage" :style="wheelStyle('minutes')">
                                     <ul class="dial_wheel_list">
@@ -238,7 +238,7 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
+                            <div class="dial_arrow dial_arrow--down" @click.stop="stepDial('minutes', -1)"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
                     </div>
                 </div>
@@ -246,8 +246,8 @@
                 <div class="time assist_time">
                     <div class="time_label">고려시간</div>
                     <div class="time_dial">
-                        <div class="dial_item dial_wheel" data-dial="assist_hours" @mousedown.prevent="startAssistDial('hours', $event)" @touchstart.prevent="startAssistDial('hours', $event)">
-                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                        <div class="dial_item dial_wheel" data-dial="assist_hours" @mousedown.prevent="startAssistDial('hours', $event)" @touchstart="startAssistDial('hours', $event)">
+                            <div class="dial_arrow dial_arrow--up" @click.stop="stepDial('assist_hours', 1)"><i class="fa-solid fa-chevron-up"></i></div>
                             <div class="dial_wheel_window">
                                 <div class="dial_wheel_stage" :style="wheelStyle('assist_hours')">
                                     <ul class="dial_wheel_list">
@@ -262,11 +262,11 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
+                            <div class="dial_arrow dial_arrow--down" @click.stop="stepDial('assist_hours', -1)"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
                         <span class="time_separator">:</span>
-                        <div class="dial_item dial_wheel" data-dial="assist_minutes" @mousedown.prevent="startAssistDial('minutes', $event)" @touchstart.prevent="startAssistDial('minutes', $event)">
-                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                        <div class="dial_item dial_wheel" data-dial="assist_minutes" @mousedown.prevent="startAssistDial('minutes', $event)" @touchstart="startAssistDial('minutes', $event)">
+                            <div class="dial_arrow dial_arrow--up" @click.stop="stepDial('assist_minutes', 1)"><i class="fa-solid fa-chevron-up"></i></div>
                             <div class="dial_wheel_window">
                                 <div class="dial_wheel_stage" :style="wheelStyle('assist_minutes')">
                                     <ul class="dial_wheel_list">
@@ -281,7 +281,7 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
+                            <div class="dial_arrow dial_arrow--down" @click.stop="stepDial('assist_minutes', -1)"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
                     </div>
                 </div>
@@ -289,8 +289,8 @@
                 <div class="column2">
                     <div><label for="f_Revisit">재방문</label></div>
                     <div>
-                        <div class="dial_item dial_wheel" data-dial="revisit" @mousedown.prevent="startDial('revisit', $event)" @touchstart.prevent="startDial('revisit', $event)">
-                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                        <div class="dial_item dial_wheel" data-dial="revisit" @mousedown.prevent="startDial('revisit', $event)" @touchstart="startDial('revisit', $event)">
+                            <div class="dial_arrow dial_arrow--up" @click.stop="stepDial('revisit', 1)"><i class="fa-solid fa-chevron-up"></i></div>
                             <div class="dial_wheel_window">
                                 <div class="dial_wheel_stage" :style="wheelStyle('revisit')">
                                     <ul class="dial_wheel_list">
@@ -305,14 +305,14 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
+                            <div class="dial_arrow dial_arrow--down" @click.stop="stepDial('revisit', -1)"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
                     </div>
                                         
                     <div><label for="f_Studies">연구</label></div>
                     <div>
-                        <div class="dial_item dial_wheel" data-dial="studies" @mousedown.prevent="startDial('studies', $event)" @touchstart.prevent="startDial('studies', $event)">
-                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                        <div class="dial_item dial_wheel" data-dial="studies" @mousedown.prevent="startDial('studies', $event)" @touchstart="startDial('studies', $event)">
+                            <div class="dial_arrow dial_arrow--up" @click.stop="stepDial('studies', 1)"><i class="fa-solid fa-chevron-up"></i></div>
                             <div class="dial_wheel_window">
                                 <div class="dial_wheel_stage" :style="wheelStyle('studies')">
                                     <ul class="dial_wheel_list">
@@ -327,13 +327,13 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
+                            <div class="dial_arrow dial_arrow--down" @click.stop="stepDial('studies', -1)"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
                     </div>
                 </div>
                 <div class="memo_wrapper">
                     <label for="">메모</label>
-                    <textarea id="f_Memo" ></textarea>
+                    <textarea id="f_Memo" v-model="form.Memo" @input="updateMemo($event.target.value)"></textarea>
                     <!-- <a @click="setDayData" class="btn1">저장</a> -->
                 </div>
             </div>
@@ -1267,6 +1267,69 @@
                 },
                 startAssistDial(part, evt){
                     return this.startDial(`assist_${part}`, evt);
+                },
+                updateMemo(val=''){
+                    if(this.appUi !== 'B' || !this.sltdate){
+                        this.form.Memo = val;
+                        return;
+                    }
+                    this.$set(this.form, 'Memo', val || '');
+                    this.setDayData();
+                },
+                stepDial(type, delta){
+                    if(this.appUi !== 'B' || !this.sltdate) return;
+                    const configMap = {
+                        hours: { field: 'Hours', base: 60, max: dialConfig.hours.length - 1, isMinutes: false },
+                        minutes: { field: 'Hours', base: 1, max: dialConfig.minutes.length - 1, isMinutes: true },
+                        assist_hours: { field: 'Assist', base: 60, max: dialConfig.hours.length - 1, isMinutes: false },
+                        assist_minutes: { field: 'Assist', base: 1, max: dialConfig.minutes.length - 1, isMinutes: true },
+                        revisit: { field: 'Revisit', base: 1, max: dialConfig.revisit.length - 1, isMinutes: false },
+                        studies: { field: 'Studies', base: 1, max: dialConfig.studies.length - 1, isMinutes: false }
+                    };
+                    const conf = configMap[type];
+                    if(!conf) return;
+
+                    if(type === 'hours' || type === 'minutes'){
+                        const total = parseInt(this.form.Hours || 0) || 0;
+                        const hourPart = Math.floor(total / 60);
+                        const minutePart = total % 60;
+                        let newHour = hourPart;
+                        let newMinute = minutePart;
+                        if(conf.isMinutes){
+                            newMinute = Math.min(conf.max, Math.max(0, newMinute + delta));
+                        } else {
+                            newHour = Math.min(conf.max, Math.max(0, newHour + delta));
+                        }
+                        const newTotal = (newHour * 60) + newMinute;
+                        this.$set(this.form, 'Hours', newTotal);
+                        this.syncDialTempIndices();
+                        this.setDayData();
+                        return;
+                    }
+
+                    if(type === 'assist_hours' || type === 'assist_minutes'){
+                        const total = parseInt(this.form.Assist || 0) || 0;
+                        const hourPart = Math.floor(total / 60);
+                        const minutePart = total % 60;
+                        let newHour = hourPart;
+                        let newMinute = minutePart;
+                        if(conf.isMinutes){
+                            newMinute = Math.min(conf.max, Math.max(0, newMinute + delta));
+                        } else {
+                            newHour = Math.min(conf.max, Math.max(0, newHour + delta));
+                        }
+                        const newTotal = (newHour * 60) + newMinute;
+                        this.$set(this.form, 'Assist', newTotal);
+                        this.syncDialTempIndices();
+                        this.setDayData();
+                        return;
+                    }
+
+                    const current = parseInt(this.form[conf.field] || 0) || 0;
+                    const next = Math.min(conf.max, Math.max(0, current + delta));
+                    this.$set(this.form, conf.field, next);
+                    this.syncDialTempIndices();
+                    this.setDayData();
                 },
                 handleDialMove(evt){
                     if(!this.dialActive || this.appUi !== 'B') return;
