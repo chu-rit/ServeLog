@@ -14,213 +14,13 @@
     <meta property="og:image" content="homeicon.jpg" />
 
     <script src="vendor/vue.min.js"></script>
-    <script src="pwaCheck.js"></script>
+    <!-- <script src="pwaCheck.js"></script> -->
 
     <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <style>
-        /* http://meyerweb.com/eric/tools/css/reset/   v2.0 | 20110126 */
-        html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { margin: 0; padding: 0; border: 0; font-size: 100%; font: inherit; vertical-align: middle; }
-
-        /* HTML5 display-role reset for older browsers */
-        article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section { display: block; }
-        body { line-height: 1; 
-            -ms-user-select: none; 
-            -moz-user-select: -moz-none;
-            -khtml-user-select: none;
-            -webkit-user-select: none;
-            user-select: none;}
-        ol, ul { list-style: none; }
-        blockquote, q { quotes: none; }
-        blockquote:before, blockquote:after, q:before, q:after { content: ''; content: none; }
-        table { border-collapse: collapse; border-spacing: 0; }
-        strong { font-weight: bold;}
-        *, *:before, *:after { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
-        a { text-decoration: none; }
-        html{ -webkit-text-size-adjust: none; text-size-adjust: none; touch-action: pan-y;}
-        .textarea {user-select: text;}
-
-        /* app custom by 128bit | 20230210 */
-        .app {width: 100vw; height: 100vh; padding: 0px; background-color: #f6f3f1;}
-        .headerbar {padding-top: 50px; position: relative; color: #333; background: #fff;}
-        .headerbar .title {font-size: 20px; font-weight: bold; text-align: center; padding:0 25vw; display: flex; justify-content: space-between; align-items: center;}
-        .headerbar .set_btn {position: absolute; right: 25px; top: 52px;}
-        .headerbar .set_btn i {font-size: 25px; color: #333;}
-        .cal,.cal2 {width: 100%; background: #fff; box-shadow: 2px 2px 16px rgba(0,0,0,0.2); padding:10px;}
-        body {color: #666; font: 14px/24px "Open Sans", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", Sans-Serif;}
-        table {width: 100%; table-layout: fixed;}
-        th {padding: 0 3px; font-size: 13px; color: #666; font-weight: bold; }
-        th.weekend {color: #D1635D;}
-        td {font-size: 15px; text-align: center;}
-        td>div {border-radius: 16px; height: 74px; padding: 3px; overflow: visible; border:3px solid #fff; position: relative;}
-        .cal2 td>div {height: 60px;} 
-        td .date {color: #000; font-weight: bold;}
-        td .date2 {color: #000; opacity: 0.2;}
-        td .half {display: block;  margin-bottom: -6px; height: 22px;}
-        td .hours_sum {
-            color: #2f200b; 
-            font-size: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            margin-top: -4px;
-        }
-        td .assist_time {
-            color: #65C891;
-            font-size: 12px;
-        }
-        td .extra_report {display: flex; flex-wrap: wrap; justify-content: center; min-height: 15px; align-items: center; margin-top: 1px; width: 35px; margin-left: auto; margin-right: auto;}
-        td .extra_report p {border-radius: 24px; width: 5px; height: 5px; margin: 1px;}
-        td .extra_report .studies_sum {background-color: #0bc0ed;}
-        td .sub_sum {display: inline-block;}
-        /* tr:nth-child(even) td>div {background: #e3e3e3;} */
-
-        .today>div  {border:3px solid #c7b3a6;  background: #eae4e0;}
-        .today2>div {border:3px solid #c7b3a6;  background: #eae4e0;}
-        .sltday>div {border:3px solid #D1635D;}
-
-        /* Long-press visual feedback (UI A) */
-        td.select > div { box-shadow: inset 0 0 0 2px #D1635D; }
-
-        
-
-        .itmbar {padding: 10px 10px 30px 10px; width: 100vw; position: fixed; bottom: 0; color: #fff; background-color: #231306; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); border-radius: 30px 30px 0 0;}
-        .itmbar a {display: block; color: #fff; height: 30px; padding: 6px 0; border-radius: 8px; position: relative; overflow: hidden; background-color: white;}
-        .itmbar a i {color: #000; position: absolute; z-index: 9; left: 50%; transform: translate(-50%,0);}
-        .itmbar a::after {content: ""; display: block; width: 15px; height: 100%; position: absolute; left: 0; top: 0; transition: width 200ms ease-out;}
-        .itmbar h3 {font-size: 14px; margin-bottom: 6px; display: block; text-align: center; font-weight: 700;}
-        .itmbar ul {display: flex; justify-content: space-around;}
-        .itmbar i {font-size: 18px;}
-        .itmbar td {font-weight: bold; font-size: 14px; color: #fff;}
-        .itmbar span {font-weight: bold; font-size: 14px; color: #fff; margin-left: 4px;}
-        .itmbar table .active i {color: #fff;}
-        .itmbar .active::after {width: 100%;}
-
-        /* yearly summary (inside bottom bar) */
-        .year_summary {margin-top: 6px;}
-        .year_summary .ym_table {width: 100%; table-layout: fixed; border-collapse: collapse;}
-        .year_summary .ym_table td {padding: 4px 2px; text-align: center; vertical-align: middle;}
-        .year_summary .ym_table td {cursor: pointer;}
-        .year_summary .ym_label {display:block; color:#b7b2ae; font-size: 11px;}
-        .year_summary .ym_time {display:block; color:#fff; font-weight: 700; font-size: 12px;}
-        /* toggle buttons (classic style) */
-        .time .toggle {display:inline-block; padding:4px 8px; border:1px solid #b7b2ae; border-radius:6px; margin-right:4px; color:#333; background:#fff; font-size:12px;}
-        .time .toggle.active {background:#231306; color:#fff; border-color:#231306;}
-        /* drag handle icon */
-        .itmbar .drag_handle {width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 6px; touch-action: none; cursor: ns-resize;}
-        .itmbar .drag_handle i {color: #b7b2ae; font-size: 20px;}
-        /* yearly summary reveal wrapper */
-        .year_summary_wrap {height: 0; overflow: hidden; transition: height 120ms ease-out;}
-        .year_title {text-align: center; color: #fff; font-size: 12px; margin: 0; padding: 4px 0 2px; font-weight: 700;}
-        /* assist icon (FA layered: clock + plus badge) */
-        .icon_assist .assist_icon { position: relative; display: inline-block; width: 22px; height: 22px; vertical-align: middle; }
-        .icon_assist .assist_icon i { position: absolute !important; left: 0; top: 0; }
-        .icon_assist .assist_icon .base_clock { font-size: 18px; line-height: 20px; left: 0px; top: -3px; }
-        .icon_assist .assist_icon .assist_badge_plus { right: 0px; bottom: 0px; left: auto; top: auto; font-size: 10px; z-index: 2; background: transparent !important; text-shadow: none !important; }
-
-        .itmbar .icon_hours::after {background: #6A665C;}
-        .itmbar .icon_hours i       {color: #6A665C;}
-        
-        .itmbar .icon_revisit::after {background: #B15ED2;}
-        .itmbar .icon_revisit i      {color: #B15ED2;}
-        .extra_report .revisit_sum {background: #B15ED2;}
-        .itmbar .icon_assist::after {background: #65C891;}
-        .itmbar .icon_assist i      {color: #65C891;}
-        .itmbar .icon_studies::after {background: #97D0DE;}
-        
-        /* B style assist icon */
-        .itmbar .assist-badge { display: inline-block; width: 22px; height: 22px; position: relative; vertical-align: middle; margin-right: 4px; }
-        .itmbar .assist-badge .fa-plus { position: absolute; right: 0; bottom: 0; font-size: 8px; color: #FFF; border-radius: 50%; width: 10px; height: 10px; display: flex; align-items: center; justify-content: center; line-height: 1; transform: none; margin-right: -2px; margin-bottom: -2px; }
-        .itmbar .icon_studies i      {color: #97D0DE;}
-        
-
-        .memo .input_text {width: 70%; background: #FFFFFF; box-sizing: border-box; border: solid 2px #1E90FF; border-radius: 5px; font-size: 18px; margin: 10px;}
-        .memo textarea {width: 82%; height: 80%; display: inline-block; box-sizing: border-box; border-radius: 5px; font-size: 18px; margin: 5px; border:1px solid #ddd;}
-        
-        /* .memo :nth-child(even) textarea { background: #e3e3e3;} */
-        .memo span {font-size: 20px; font-weight: bold; vertical-align: top;}
-        .memo li { height: 50px; display: block; line-height: 50px; text-align: center;}
-
-        .c_red {color: #D1635D;}
-        .date_icons { display: flex; justify-content: center; margin-top: 5px; min-height: 12px; }
-        .date_icons .assist-badge-small { display: inline-block; width: 12px; height: 12px; position: relative; vertical-align: middle; margin: 0 1px; }
-        .date_icons .assist-badge-small .fa-clock { position: absolute; left: 0; top: 0; font-size: 10px; color: #000; }
-        .date_icons .assist-badge-small .fa-plus { position: absolute; right: 0; bottom: 0; font-size: 6px; color: #000; border-radius: 50%; width: 6px; height: 6px; display: flex; align-items: center; justify-content: center; line-height: 1; margin-right: -1px; margin-bottom: -1px; }
-        .icon_small { color: #000; font-size: 10px; margin: 0 1px; }
-        .dayDetail {padding: 10px 20px 10px;}
-        .dayDetail>div {padding:10px 0; display: flex; justify-content: space-between;}
-        .dayDetail label {width: 40px; display: block; color: #000; line-height: 28px; text-align: center;}
-        /* 기존 스타일 유지 */
-        .dayDetail input {width: 100%; background: none; border: none; font-size: 15px; font-weight: bold; color: #000; text-align: center;}
-        .dayDetail .time label {width: 60px;}
-        .dayDetail .time input {width: 60px;}
-        
-        /* 재방문, 연구 폼 전용 스타일 */
-        .dayDetail .vertical-controls {
-            margin-bottom: 15px;
-            border-bottom: 1px solid #ccc;
-            padding-bottom: 15px;
-        }
-        .dayDetail .control-group { margin-bottom: 10px; align-items: center; justify-content: space-between; border-left: 1px solid #ccc;}
-        .dayDetail .control-group .title {margin-bottom: 10px;}
-        .dayDetail .control-group label {
-            width: auto;
-            font-weight: bold;
-        }
-        .dayDetail .button-group {
-            align-items: center;
-            gap: 12px;
-        }
-        .dayDetail .control-group ul {display: flex; justify-content: center;}
-        .dayDetail .control-group ul li {padding: 0 2px;}
-        .dayDetail .button-group .value-input {
-            width: 45px;
-            text-align: center;
-            background: #f5f5f5;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            padding: 2px 0;
-        }
-        .dayDetail .vertical-controls a {
-            width: 30px;
-            margin: 0;
-        }
-        .dayDetail a, .dayDetail button {padding:12px 0; background-color: #7B716A; line-height: 100%; font-size: 12px; text-align: center; width: 40px; border-radius: 5px; margin:2px auto; color: #fff; display: block;}
-        .dayDetail a:hover, .dayDetail button:hover {background-color: #231306;}
-        .dayDetail .time a, .dayDetail .time button {padding:6px 4px;}
-        .dayDetail .memo_wrapper {align-items: center;}
-        .dayDetail .memo_wrapper textarea {width: 100%; border-radius: 5px; height: 80px; border: 2px solid #B7B2AE; padding: 8px;}
-        .dayDetail .memo_wrapper .btn1 {background: #7B716A; color: #fff; display: inline-block; width: 60px; vertical-align: top;}
-
-        #app_pop .dim {display: block; position: fixed; z-index: 8; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); top: 0; left: 0; opacity: 0; transition: opacity 300ms; visibility: hidden;}
-        #app_pop .wrapper {position: fixed; height: 100vh; width: 75vw; top: 0; background: #fff; box-shadow: 0px 0px 10px rgba(0,0,0,0.2); z-index: 9;
-        padding: 70px 30px 30px; transition: right 300ms ease-out; right: -78vw; overflow-y: auto;}
-        #app_pop .close_btn {position: absolute; top: 50px; right: 20px; font-size: 24px; color: #333; cursor: pointer; z-index: 10;}
-        #app_pop.on .dim {opacity: 1; visibility: visible;}
-        #app_pop.on .wrapper {right: 0;}
-        #app_pop input[type=radio] {vertical-align: middle;}
-        #app_pop label {color: #000; font-weight: bold; vertical-align: middle;}
-        #app_pop label+p {padding-left: 25px;}
-        #app_pop .desc {font-size: 12px;  margin-left: 25px; line-height: 150%; color: #888;}
-        #app_pop h3 {font-size: 18px; font-weight: bold; margin-top: 10px; margin-bottom: 10px; color: #000;}
-        #app_pop .btn_red {display: block; padding: 5px 0; text-align: center; border: 1px solid #bd0808; cursor: pointer; color: #bd0808;}
-        #app_pop ul {list-style: disc;}
-        #app_pop ul li {margin-bottom: 20px; vertical-align: middle; margin-left: 15px;}
-        #app_pop ul li strong{margin-bottom: 20px; vertical-align: top; color: #000;}
-
-        @media (orientation: portrait) { /* 세로 */
-            .cal, .itmbar {display: block;}
-            .memo {display: none;} 
-        }
-
-        @media (orientation: landscape) { /* 가로 */
-            .cal, .itmbar, .headerbar {display: none;}
-            .memo {display: block;}
-        }
-    </style>    
-
     <div id="app" class="app">
 
         <div class="headerbar">
@@ -400,59 +200,141 @@
             </div>
 
             <div v-if="sltdate != ''" class="dayDetail">
-                <div class="flex-wrapper" style="display: flex;">
-                    <div class="control-group" style="border-left: 0;">
-                        <div class="title">
-                            <label for="f_Hours">시간</label>
-                            <input readonly type="text" id="f_Hours" :value="formatMinutes(form.Hours)">
+                <div class="time">
+                    <div class="time_label">시간</div>
+                    <div class="time_dial">
+                        <div class="dial_item dial_wheel" data-dial="hours" @mousedown.prevent="startDial('hours', $event)" @touchstart.prevent="startDial('hours', $event)">
+                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                            <div class="dial_wheel_window">
+                                <div class="dial_wheel_stage" :style="wheelStyle('hours')">
+                                    <ul class="dial_wheel_list">
+                                        <li 
+                                            v-for="option in wheelNumbers('hours')"
+                                            :key="'h_'+option.value"
+                                            class="dial_wheel_mark"
+                                            :class="{active: isWheelActive('hours', option.value)}"
+                                            :style="wheelMarkStyle('hours', option.value)">
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
-                        <ul style="display: flex;">
-                            <li><a class="increase" @click.prevent="setTimeData(5)">+5m</a><a class="decrease" @click.prevent="setTimeData(-5)">-5m</a></li>
-                            <li><a class="increase" @click.prevent="setTimeData(30)">+30m</a><a class="decrease" @click.prevent="setTimeData(-30)">-30m</a></li>
-                            <li><a class="increase" @click.prevent="setTimeData(60)">+1h</a><a class="decrease" @click.prevent="setTimeData(-60)">-1h</a></li>
-                        </ul>
-                    </div>
-                    <div class="control-group">
-                        <div class="title">
-                            <label for="f_Assist">고려시간</label>
-                            <input readonly type="text" id="f_Assist" :value="formatMinutes(form.Assist)">
+                        <span class="time_separator">:</span>
+                        <div class="dial_item dial_wheel" data-dial="minutes" @mousedown.prevent="startDial('minutes', $event)" @touchstart.prevent="startDial('minutes', $event)">
+                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                            <div class="dial_wheel_window">
+                                <div class="dial_wheel_stage" :style="wheelStyle('minutes')">
+                                    <ul class="dial_wheel_list">
+                                        <li 
+                                            v-for="option in wheelNumbers('minutes')"
+                                            :key="'m_'+option.value"
+                                            class="dial_wheel_mark"
+                                            :class="{active: isWheelActive('minutes', option.value)}"
+                                            :style="wheelMarkStyle('minutes', option.value)">
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
-                        <ul style="display: flex;">
-                            <li><a class="increase" @click.prevent="adjustTime('Assist', 5/60)">+5m</a><a class="decrease" @click.prevent="adjustTime('Assist', -5/60)">-5m</a></li>
-                            <li><a class="increase" @click.prevent="adjustTime('Assist', 30/60)">+30m</a><a class="decrease" @click.prevent="adjustTime('Assist', -30/60)">-30m</a></li>
-                            <li><a class="increase" @click.prevent="adjustTime('Assist', 1)">+1h</a><a class="decrease" @click.prevent="adjustTime('Assist', -1)">-1h</a></li>
-                        </ul>
                     </div>
+                </div>
 
-                    <div class="control-group" style="width: 17%;">
-                        <div class="title">
-                            <label for="f_Revisit">재방문</label>
-                            <input readonly type="number" id="f_Revisit" v-model.number="form.Revisit" min="0" class="value-input">
+                <div class="time assist_time">
+                    <div class="time_label">고려시간</div>
+                    <div class="time_dial">
+                        <div class="dial_item dial_wheel" data-dial="assist_hours" @mousedown.prevent="startAssistDial('hours', $event)" @touchstart.prevent="startAssistDial('hours', $event)">
+                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                            <div class="dial_wheel_window">
+                                <div class="dial_wheel_stage" :style="wheelStyle('assist_hours')">
+                                    <ul class="dial_wheel_list">
+                                        <li 
+                                            v-for="option in wheelNumbers('assist_hours')"
+                                            :key="'ah_'+option.value"
+                                            class="dial_wheel_mark"
+                                            :class="{active: isWheelActive('assist_hours', option.value)}"
+                                            :style="wheelMarkStyle('assist_hours', option.value)">
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
-                        <div class="button-group">
-                            <a class="increase" @click.prevent="setTypeData('Revisit')">+1</a>
-                            <a class="decrease" @click.prevent="setTypeData('Revisit', false)">-1</a>
+                        <span class="time_separator">:</span>
+                        <div class="dial_item dial_wheel" data-dial="assist_minutes" @mousedown.prevent="startAssistDial('minutes', $event)" @touchstart.prevent="startAssistDial('minutes', $event)">
+                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                            <div class="dial_wheel_window">
+                                <div class="dial_wheel_stage" :style="wheelStyle('assist_minutes')">
+                                    <ul class="dial_wheel_list">
+                                        <li 
+                                            v-for="option in wheelNumbers('assist_minutes')"
+                                            :key="'am_'+option.value"
+                                            class="dial_wheel_mark"
+                                            :class="{active: isWheelActive('assist_minutes', option.value)}"
+                                            :style="wheelMarkStyle('assist_minutes', option.value)">
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
                     </div>
-                    
-                    <div class="control-group" style="width: 17%;">
-                        <div class="title">
-                            <label for="f_Studies">연구</label>
-                            <input readonly type="number" id="f_Studies" v-model.number="form.Studies" min="0" class="value-input">
+                </div>
+
+                <div class="column2">
+                    <div><label for="f_Revisit">재방문</label></div>
+                    <div>
+                        <div class="dial_item dial_wheel" data-dial="revisit" @mousedown.prevent="startDial('revisit', $event)" @touchstart.prevent="startDial('revisit', $event)">
+                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                            <div class="dial_wheel_window">
+                                <div class="dial_wheel_stage" :style="wheelStyle('revisit')">
+                                    <ul class="dial_wheel_list">
+                                        <li 
+                                            v-for="option in wheelNumbers('revisit')"
+                                            :key="'r_'+option.value"
+                                            class="dial_wheel_mark"
+                                            :class="{active: isWheelActive('revisit', option.value)}"
+                                            :style="wheelMarkStyle('revisit', option.value)">
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
-                        <div class="button-group">
-                            <a class="increase" @click.prevent="setTypeData('Studies')">+1</a>
-                            <a class="decrease" @click.prevent="setTypeData('Studies', false)">-1</a>
+                    </div>
+                                        
+                    <div><label for="f_Studies">연구</label></div>
+                    <div>
+                        <div class="dial_item dial_wheel" data-dial="studies" @mousedown.prevent="startDial('studies', $event)" @touchstart.prevent="startDial('studies', $event)">
+                            <div class="dial_arrow dial_arrow--up"><i class="fa-solid fa-chevron-up"></i></div>
+                            <div class="dial_wheel_window">
+                                <div class="dial_wheel_stage" :style="wheelStyle('studies')">
+                                    <ul class="dial_wheel_list">
+                                        <li 
+                                            v-for="option in wheelNumbers('studies')"
+                                            :key="'s_'+option.value"
+                                            class="dial_wheel_mark"
+                                            :class="{active: isWheelActive('studies', option.value)}"
+                                            :style="wheelMarkStyle('studies', option.value)">
+                                            {{ option.label }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="dial_arrow dial_arrow--down"><i class="fa-solid fa-chevron-down"></i></div>
                         </div>
                     </div>
                 </div>
                 <div class="memo_wrapper">
-                    <textarea 
-                        id="f_Memo" 
-                        v-model="form.Memo"
-                        @blur="setDayData"
-                        placeholder="메모를 입력하세요">
-                    </textarea>
+                    <label for="">메모</label>
+                    <textarea id="f_Memo" ></textarea>
+                    <!-- <a @click="setDayData" class="btn1">저장</a> -->
                 </div>
             </div>
 
@@ -813,6 +695,7 @@
                 let sltDay = this.sltdate;
                 if(sltDay == "") return;
                 let d_Hours = (this.form && this.form.Hours !== undefined) ? parseInt(this.form.Hours) : 0;
+
                 let d_Ctime = (this.form && this.form.Ctime !== undefined) ? this.form.Ctime : '';
                 let d_Assist = (this.form && this.form.Assist !== undefined) ? parseInt(this.form.Assist) : 0;
                 let d_Revisit = (this.form && this.form.Revisit !== undefined) ? parseInt(this.form.Revisit) : 0;
@@ -853,10 +736,14 @@
                 this.setDayData();
             },
             setTimeData(minute){
-                const cur = parseInt(this.form.Hours || 0) || 0;
-                const total = Math.max(0, cur + (parseInt(minute) || 0));
-                this.$set(this.form, 'Hours', total);
-                this.setDayData();
+                if(this.appUi === 'B'){
+                    const cur = parseInt(this.form.Hours || 0) || 0;
+                    const total = Math.max(0, cur + (parseInt(minute) || 0));
+                    this.$set(this.form, 'Hours', total);
+                    this.setDayData();
+                    return;
+                }
+                return uiAHandler.setTimeData ? uiAHandler.setTimeData.call(this, minute) : null;
             },
             setTypeData(type, bool=true){
                 const key = String(type);
@@ -866,6 +753,31 @@
                 this.$set(this.form, key, v);
                 this.setDayData();
             }
+        };
+
+        const timeHelpers = {
+            splitHours(minutes){
+                const total = parseInt(minutes)||0;
+                return Math.floor(total/60);
+            },
+            splitMinutes(minutes){
+                const total = parseInt(minutes)||0;
+                return total % 60;
+            }
+        };
+
+        const dialConfig = {
+            hours: Array.from({length: 24}, (_,i)=>({ value: i, label: String(i).padStart(2,'0') })),
+            minutes: Array.from({length: 60}, (_,i)=>({ value: i, label: String(i).padStart(2,'0') })),
+            revisit: Array.from({length: 51}, (_,i)=>({ value: i, label: String(i) })),
+            studies: Array.from({length: 51}, (_,i)=>({ value: i, label: String(i) }))
+        };
+
+        const wheelConstants = {
+            itemHeight: 28,
+            windowHeight: 38,
+            visibleCount: 1,
+            maxMinutes: (24 * 60) - 1
         };
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -897,6 +809,18 @@
                 holdTarget: null,
                 uiBScrolled: false,
                 saveTimer: null,
+                dialActive: false,
+                dialType: null,
+                dialStartY: 0,
+                dialInitialMinutes: 0,
+                dialMoveHandler: null,
+                dialEndHandler: null,
+                dialInitialValue: 0,
+                dialInitialHour: 0,
+                dialInitialMinutePart: 0,
+                dialInitialIndex: 0,
+                dialTempIndex: { hours: 0, minutes: 0, assistHours: 0, assistMinutes: 0, revisit: 0, studies: 0 },
+                dialDragOffset: 0,
                 form: {
                     Hours: 0,
                     Ctime: '',
@@ -930,6 +854,7 @@
             mounted() {
                 this.c_month();
                 this.setOpt();
+                this.syncDialTempIndices();
 
                 window.oncontextmenu = function(event) {
                     if(event.target.tagName != 'TEXTAREA'){
@@ -1133,8 +1058,312 @@
                 getYoil(int){    
                     let week = ['일', '월', '화', '수', '목', '금', '토'];
                     let weektxt = week[int];
-                    
                     return weektxt;
+                },
+                timeHours(minutes){
+                    return timeHelpers.splitHours(minutes);
+                },
+                timeMinutes(minutes){
+                    return timeHelpers.splitMinutes(minutes);
+                },
+                timeMinutesDisplay(minutes){
+                    return this.pad2(timeHelpers.splitMinutes(minutes));
+                },
+                wheelNumbers(type){
+                    if(type === 'revisit') return dialConfig.revisit || [];
+                    if(type === 'studies') return dialConfig.studies || [];
+                    const key = (type && type.includes('minutes')) ? 'minutes' : 'hours';
+                    return dialConfig[key] || [];
+                },
+                wheelStyle(type){
+                    if(type === 'revisit'){
+                        const total = parseInt(this.form.Revisit || 0) || 0;
+                        const key = 'revisit';
+                        const tempKey = key;
+                        const sourceTotal = total;
+                        const maxIndex = (dialConfig[key] ? dialConfig[key].length : 1) - 1;
+                        const defaultIndex = sourceTotal;
+                        const fractional = (this.dialActive && this.dialType === type) ? (this.dialDragOffset || 0) : 0;
+                        let baseIndex = defaultIndex;
+                        if(this.dialActive && this.dialType === type && typeof this.dialTempIndex[tempKey] === 'number'){
+                            baseIndex = Math.max(0, Math.min(maxIndex, this.dialTempIndex[tempKey]));
+                        }
+                        const effectiveIndex = (this.dialActive && this.dialType === type) ? baseIndex + fractional : baseIndex;
+                        const itemHeight = wheelConstants.itemHeight;
+                        const windowHeight = wheelConstants.windowHeight || itemHeight;
+                        const translateY = (windowHeight / 2) - ((effectiveIndex + 0.5) * itemHeight);
+                        const transition = (this.dialActive && this.dialType === type) ? 'none' : 'transform 180ms ease-out';
+                        return {
+                            transform: `translateY(${translateY}px)`,
+                            transition
+                        };
+                    }
+                    if(type === 'studies'){
+                        const total = parseInt(this.form.Studies || 0) || 0;
+                        const key = 'studies';
+                        const tempKey = key;
+                        const sourceTotal = total;
+                        const maxIndex = (dialConfig[key] ? dialConfig[key].length : 1) - 1;
+                        const defaultIndex = sourceTotal;
+                        const fractional = (this.dialActive && this.dialType === type) ? (this.dialDragOffset || 0) : 0;
+                        let baseIndex = defaultIndex;
+                        if(this.dialActive && this.dialType === type && typeof this.dialTempIndex[tempKey] === 'number'){
+                            baseIndex = Math.max(0, Math.min(maxIndex, this.dialTempIndex[tempKey]));
+                        }
+                        const effectiveIndex = (this.dialActive && this.dialType === type) ? baseIndex + fractional : baseIndex;
+                        const itemHeight = wheelConstants.itemHeight;
+                        const windowHeight = wheelConstants.windowHeight || itemHeight;
+                        const translateY = (windowHeight / 2) - ((effectiveIndex + 0.5) * itemHeight);
+                        const transition = (this.dialActive && this.dialType === type) ? 'none' : 'transform 180ms ease-out';
+                        return {
+                            transform: `translateY(${translateY}px)`,
+                            transition
+                        };
+                    }
+                    const total = parseInt(this.form.Hours || 0) || 0;
+                    const isAssist = type && type.startsWith('assist');
+                    const key = (type && type.includes('minutes')) ? 'minutes' : 'hours';
+                    const tempKey = isAssist ? (key === 'hours' ? 'assistHours' : 'assistMinutes') : key;
+                    const sourceTotal = isAssist ? (parseInt(this.form.Assist || 0) || 0) : total;
+                    const maxIndex = (dialConfig[key] ? dialConfig[key].length : 1) - 1;
+                    const defaultIndex = key === 'hours' ? Math.floor(sourceTotal / 60) : sourceTotal % 60;
+                    const fractional = (this.dialActive && this.dialType === type) ? (this.dialDragOffset || 0) : 0;
+                    let baseIndex = defaultIndex;
+                    if(this.dialActive && this.dialType === type && typeof this.dialTempIndex[tempKey] === 'number'){
+                        baseIndex = Math.max(0, Math.min(maxIndex, this.dialTempIndex[tempKey]));
+                    }
+                    const effectiveIndex = (this.dialActive && this.dialType === type) ? baseIndex + fractional : baseIndex;
+                    const itemHeight = wheelConstants.itemHeight;
+                    const windowHeight = wheelConstants.windowHeight || itemHeight;
+                    const translateY = (windowHeight / 2) - ((effectiveIndex + 0.5) * itemHeight);
+                    const transition = (this.dialActive && this.dialType === type) ? 'none' : 'transform 180ms ease-out';
+                    return {
+                        transform: `translateY(${translateY}px)`,
+                        transition
+                    };
+                },
+                isWheelActive(type, value){
+                    if(type === 'revisit'){
+                        const total = parseInt(this.form.Revisit || 0) || 0;
+                        return total === value;
+                    }
+                    if(type === 'studies'){
+                        const total = parseInt(this.form.Studies || 0) || 0;
+                        return total === value;
+                    }
+                    const isAssist = type && type.startsWith('assist');
+                    const key = (type && type.includes('minutes')) ? 'minutes' : 'hours';
+                    const total = isAssist ? (parseInt(this.form.Assist || 0) || 0) : (parseInt(this.form.Hours || 0) || 0);
+                    if(key === 'hours'){
+                        return Math.floor(total / 60) === value;
+                    }
+                    if(key === 'minutes'){
+                        return (total % 60) === value;
+                    }
+                    return false;
+                },
+                activeWheelIndex(type){
+                    if(type === 'revisit'){
+                        const tempKey = 'revisit';
+                        const total = parseInt(this.form.Revisit || 0) || 0;
+                        let base = total;
+                        if(this.dialActive && this.dialType === type && this.dialTempIndex && typeof this.dialTempIndex[tempKey] === 'number'){
+                            base = this.dialTempIndex[tempKey];
+                        }
+                        return base;
+                    }
+                    if(type === 'studies'){
+                        const tempKey = 'studies';
+                        const total = parseInt(this.form.Studies || 0) || 0;
+                        let base = total;
+                        if(this.dialActive && this.dialType === type && this.dialTempIndex && typeof this.dialTempIndex[tempKey] === 'number'){
+                            base = this.dialTempIndex[tempKey];
+                        }
+                        return base;
+                    }
+                    const isAssist = type && type.startsWith('assist');
+                    const key = (type && type.includes('minutes')) ? 'minutes' : 'hours';
+                    const tempKey = isAssist ? (key === 'hours' ? 'assistHours' : 'assistMinutes') : key;
+                    const total = isAssist ? (parseInt(this.form.Assist || 0) || 0) : (parseInt(this.form.Hours || 0) || 0);
+                    let base = key === 'hours' ? Math.floor(total / 60) : (total % 60);
+                    if(this.dialActive && this.dialType === type && this.dialTempIndex && typeof this.dialTempIndex[tempKey] === 'number'){
+                        base = this.dialTempIndex[tempKey];
+                    }
+                    return base;
+                },
+                wheelMarkStyle(type, value){
+                    const active = this.activeWheelIndex(type);
+                    const fractional = (this.dialActive && this.dialType === type) ? (this.dialDragOffset || 0) : 0;
+                    let diff = value - active - fractional;
+                    const opacity = Math.abs(diff) < 0.001 ? 1 : 0.45;
+                    return {
+                        transform: `scale(1)`,
+                        opacity: opacity
+                    };
+                },
+                syncDialTempIndices(){
+                    const total = parseInt(this.form.Hours || 0) || 0;
+                    const assist = parseInt(this.form.Assist || 0) || 0;
+                    const revisit = parseInt(this.form.Revisit || 0) || 0;
+                    const studies = parseInt(this.form.Studies || 0) || 0;
+                    const hour = Math.max(0, Math.min(dialConfig.hours.length - 1, Math.floor(total / 60)));
+                    const minute = Math.max(0, Math.min(dialConfig.minutes.length - 1, total % 60));
+                    const assistHour = Math.max(0, Math.min(dialConfig.hours.length - 1, Math.floor(assist / 60)));
+                    const assistMinute = Math.max(0, Math.min(dialConfig.minutes.length - 1, assist % 60));
+                    const revisitIndex = Math.max(0, Math.min(dialConfig.revisit.length - 1, revisit));
+                    const studiesIndex = Math.max(0, Math.min(dialConfig.studies.length - 1, studies));
+                    this.dialTempIndex = { hours: hour, minutes: minute, assistHours: assistHour, assistMinutes: assistMinute, revisit: revisitIndex, studies: studiesIndex };
+                    this.dialDragOffset = 0;
+                },
+
+                loadDayData(){ return uiBHandler.loadDayData.call(this); },
+                setDayData(){ return uiBHandler.setDayData.call(this); },
+                adjustTime(field, delta){ return uiBHandler.adjustTime.call(this, field, delta); },
+                setTimeData(minute){ return uiBHandler.setTimeData.call(this, minute); },
+                setTypeData(type, bool=true){ return uiBHandler.setTypeData.call(this, type, bool); },
+                startDial(type, evt){
+                    if(this.appUi !== 'B') return;
+                    const clientY = (evt.touches && evt.touches[0]) ? evt.touches[0].clientY : evt.clientY;
+                    this.dialActive = true;
+                    this.dialType = type;
+                    this.dialStartY = clientY;
+                    if(type === 'revisit'){
+                        this.dialInitialValue = parseInt(this.form.Revisit || 0) || 0;
+                        this.dialInitialIndex = this.dialInitialValue;
+                        this.dialTempIndex.revisit = this.dialInitialIndex;
+                    } else if(type === 'studies'){
+                        this.dialInitialValue = parseInt(this.form.Studies || 0) || 0;
+                        this.dialInitialIndex = this.dialInitialValue;
+                        this.dialTempIndex.studies = this.dialInitialIndex;
+                    } else if(type === 'assist_hours' || type === 'assist_minutes'){
+                        const totalAssist = parseInt(this.form.Assist || 0) || 0;
+                        this.dialInitialMinutes = totalAssist;
+                        this.dialInitialValue = totalAssist;
+                        this.dialInitialHour = Math.floor(totalAssist / 60);
+                        this.dialInitialMinutePart = totalAssist % 60;
+                        this.dialTempIndex.assistHours = this.dialInitialHour;
+                        this.dialTempIndex.assistMinutes = this.dialInitialMinutePart;
+                        this.dialInitialIndex = type === 'assist_hours' ? this.dialInitialHour : this.dialInitialMinutePart;
+                    } else {
+                        const totalHours = parseInt(this.form.Hours || 0) || 0;
+                        this.dialInitialMinutes = totalHours;
+                        this.dialInitialValue = totalHours;
+                        this.dialInitialHour = Math.floor(totalHours / 60);
+                        this.dialInitialMinutePart = totalHours % 60;
+                        this.dialTempIndex.hours = this.dialInitialHour;
+                        this.dialTempIndex.minutes = this.dialInitialMinutePart;
+                        this.dialInitialIndex = type === 'hours' ? this.dialInitialHour : this.dialInitialMinutePart;
+                    }
+                    this.toggleDialHighlight(this.dialType, true);
+
+                    this.dialMoveHandler = (e)=>this.handleDialMove(e);
+                    this.dialEndHandler = ()=>this.finishDial();
+
+                    window.addEventListener('mousemove', this.dialMoveHandler, { passive: false });
+                    window.addEventListener('mouseup', this.dialEndHandler, { passive: false });
+                    window.addEventListener('touchmove', this.dialMoveHandler, { passive: false });
+                    window.addEventListener('touchend', this.dialEndHandler, { passive: false });
+                    window.addEventListener('touchcancel', this.dialEndHandler, { passive: false });
+                },
+                startAssistDial(part, evt){
+                    return this.startDial(`assist_${part}`, evt);
+                },
+                handleDialMove(evt){
+                    if(!this.dialActive || this.appUi !== 'B') return;
+                    const clientY = (evt.touches && evt.touches[0]) ? evt.touches[0].clientY : evt.clientY;
+                    if(evt.cancelable) evt.preventDefault();
+                    const delta = this.dialStartY - clientY;
+                    const raw = delta / wheelConstants.itemHeight;
+                    const step = raw > 0 ? Math.floor(raw) : Math.ceil(raw);
+                    let fractional = raw - step;
+                    let minutes = this.dialInitialMinutes;
+                    let tempIndex = this.dialInitialIndex + step;
+                    let targetField = 'Hours';
+                    if(this.dialType === 'hours'){
+                        const minIndex = 0;
+                        const maxIndex = dialConfig.hours.length - 1;
+                        if(tempIndex < minIndex){ tempIndex = minIndex; fractional = 0; }
+                        if(tempIndex > maxIndex){ tempIndex = maxIndex; fractional = 0; }
+                        minutes = tempIndex * 60 + this.dialInitialMinutePart;
+                        this.dialTempIndex.hours = tempIndex;
+                    } else if(this.dialType === 'minutes'){
+                        const minIndex = 0;
+                        const maxIndex = dialConfig.minutes.length - 1;
+                        if(tempIndex < minIndex){ tempIndex = minIndex; fractional = 0; }
+                        if(tempIndex > maxIndex){ tempIndex = maxIndex; fractional = 0; }
+                        minutes = this.dialInitialHour * 60 + tempIndex;
+                        this.dialTempIndex.minutes = tempIndex;
+                    } else if(this.dialType === 'assist_hours'){
+                        targetField = 'Assist';
+                        const minIndex = 0;
+                        const maxIndex = dialConfig.hours.length - 1;
+                        if(tempIndex < minIndex){ tempIndex = minIndex; fractional = 0; }
+                        if(tempIndex > maxIndex){ tempIndex = maxIndex; fractional = 0; }
+                        minutes = tempIndex * 60 + this.dialInitialMinutePart;
+                        this.dialTempIndex.assistHours = tempIndex;
+                    } else if(this.dialType === 'assist_minutes'){
+                        targetField = 'Assist';
+                        const minIndex = 0;
+                        const maxIndex = dialConfig.minutes.length - 1;
+                        if(tempIndex < minIndex){ tempIndex = minIndex; fractional = 0; }
+                        if(tempIndex > maxIndex){ tempIndex = maxIndex; fractional = 0; }
+                        minutes = this.dialInitialHour * 60 + tempIndex;
+                        this.dialTempIndex.assistMinutes = tempIndex;
+                    } else if(this.dialType === 'revisit'){
+                        targetField = 'Revisit';
+                        const minIndex = 0;
+                        const maxIndex = dialConfig.revisit.length - 1;
+                        if(tempIndex < minIndex){ tempIndex = minIndex; fractional = 0; }
+                        if(tempIndex > maxIndex){ tempIndex = maxIndex; fractional = 0; }
+                        minutes = tempIndex;
+                        this.dialTempIndex.revisit = tempIndex;
+                    } else if(this.dialType === 'studies'){
+                        targetField = 'Studies';
+                        const minIndex = 0;
+                        const maxIndex = dialConfig.studies.length - 1;
+                        if(tempIndex < minIndex){ tempIndex = minIndex; fractional = 0; }
+                        if(tempIndex > maxIndex){ tempIndex = maxIndex; fractional = 0; }
+                        minutes = tempIndex;
+                        this.dialTempIndex.studies = tempIndex;
+                    }
+                    this.dialDragOffset = fractional;
+                    this.$set(this.form, targetField, minutes);
+                    this.setDayData();
+                },
+                finishDial(){
+                    if(!this.dialActive) return;
+                    this.dialActive = false;
+                    this.toggleDialHighlight(this.dialType, false);
+                    this.dialType = null;
+                    const totalHours = parseInt(this.form.Hours || 0) || 0;
+                    const totalAssist = parseInt(this.form.Assist || 0) || 0;
+                    const totalRevisit = parseInt(this.form.Revisit || 0) || 0;
+                    const totalStudies = parseInt(this.form.Studies || 0) || 0;
+                    this.dialTempIndex.hours = Math.floor(totalHours / 60);
+                    this.dialTempIndex.minutes = totalHours % 60;
+                    this.dialTempIndex.assistHours = Math.floor(totalAssist / 60);
+                    this.dialTempIndex.assistMinutes = totalAssist % 60;
+                    this.dialTempIndex.revisit = Math.max(0, Math.min(dialConfig.revisit.length - 1, totalRevisit));
+                    this.dialTempIndex.studies = Math.max(0, Math.min(dialConfig.studies.length - 1, totalStudies));
+                    this.dialDragOffset = 0;
+                    window.removeEventListener('mousemove', this.dialMoveHandler);
+                    window.removeEventListener('mouseup', this.dialEndHandler);
+                    window.removeEventListener('touchmove', this.dialMoveHandler);
+                    window.removeEventListener('touchend', this.dialEndHandler);
+                    window.removeEventListener('touchcancel', this.dialEndHandler);
+                    this.dialMoveHandler = null;
+                    this.dialEndHandler = null;
+                },
+                toggleDialHighlight(type, add){
+                    try{
+                        const node = document.querySelector(`.dial_item[data-dial="${type}"]`);
+                        if(!node) return;
+                        if(add){
+                            node.classList.add('dial_active');
+                        } else {
+                            node.classList.remove('dial_active');
+                        }
+                    }catch(e){}
                 },
                 getTdate(){
                     const txt=this.tkey();
@@ -1154,20 +1383,13 @@
                 },
 
                 // UI B 날짜 선택 전용
-                sltCLK(event) { if(this.appUi === 'B') return uiBHandler.sltCLK.call(this, event); },
-                loadDayData(){ if(this.appUi === 'B') return uiBHandler.loadDayData.call(this); },
-                setDayData(){ if(this.appUi === 'B') return uiBHandler.setDayData.call(this); },
-                
-                // adjust helper: delta는 시간 단위(예: 0.5 = 30분)
-                adjustTime(field, delta){ if(this.appUi === 'B') return uiBHandler.adjustTime.call(this, field, delta); },
-                setTimeData(minute){ if(this.appUi === 'B') return uiBHandler.setTimeData.call(this, minute); },
-                setTypeData(type, bool=true){ if(this.appUi === 'B') return uiBHandler.setTypeData.call(this, type, bool); },
+                sltCLK(event) { return uiBHandler.sltCLK.call(this, event); },
                 
                 setMode(mode){
                     this.mode = mode;
                 },
                 // UI A memo 전용
-                setMemo(event){ if(this.appUi === 'A') return uiAHandler.setMemo.call(this, event); },
+                setMemo(event){ return uiAHandler.setMemo.call(this, event); },
 
                 setOpt(){
                     let setting = window.localStorage.getItem('appSetting');
@@ -1322,7 +1544,7 @@
                 sltdate(){
                     if(this.sltdate != "") {
                         setTimeout(()=>{
-                            app.loadDayData();
+                            this.loadDayData();
                         },0);
                     }
                 }

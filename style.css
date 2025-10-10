@@ -70,8 +70,8 @@ html {
 /* app custom by 128bit | 20230210 */
 .app {
   width: 100vw;
-  height: 100vh;
-  padding: 0;
+  min-height: 100vh;
+  padding: 0 0 calc(130px + env(safe-area-inset-bottom));
   background-color: #f6f3f1;
 }
 
@@ -114,6 +114,7 @@ html {
 body {
   color: #666;
   font: 14px/24px "Open Sans", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", Sans-Serif;
+  background-color: #f6f3f1;
 }
 
 table {
@@ -144,6 +145,22 @@ td > div {
   overflow: visible;
   border: 3px solid #fff;
   position: relative;
+}
+
+.column2 {
+  align-items: center;
+}
+
+.column2 > div:first-child {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+}
+
+.column2 > div label {
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
 }
 
 .cal2 td > div {
@@ -529,7 +546,7 @@ td.select > div {
 }
 
 .dayDetail {
-  padding: 10px 20px 100px;
+  padding: 10px 20px 50px;
 }
 
 .dayDetail > div {
@@ -540,7 +557,6 @@ td.select > div {
 }
 
 .dayDetail label {
-  width: 40px;
   display: block;
   color: #000;
   line-height: 28px;
@@ -593,7 +609,6 @@ td.select > div {
   align-items: center;
   justify-content: center;
   min-width: 58px;
-  padding: 8px 10px;
   border-radius: 12px;
   background: transparent;
   border: none;
@@ -610,11 +625,6 @@ td.select > div {
   transform: translateY(-2px);
   cursor: grabbing;
 }
-
-.dial_wheel {
-  padding-top: 12px;
-}
-
 
 .dial_wheel_window {
   position: relative;
@@ -678,16 +688,6 @@ td.select > div {
 .dial_arrow i {
   pointer-events: none;
 }
-
-.dial_arrow--up {
-  margin-bottom: 4px;
-}
-
-.dial_arrow--down {
-  margin-top: 4px;
-}
-
-
 
 .dayDetail .dial_value {
   font-size: 26px;
